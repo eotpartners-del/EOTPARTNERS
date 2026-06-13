@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المحفظة | EOT PARTNERS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="chat-data.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { overflow-x: hidden; width: 100%; max-width: 100vw; }
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      background: #0a0e14;
+      color: #E8EDF2;
+      padding-bottom: 100px;
+      min-height: 100vh;
+    }
+
+    .ticker-wrap { background: #1a2740; border-bottom: 1px solid rgba(0,0,0,0.2); overflow: hidden; padding: 8px 0; }
+    .ticker { display: flex; align-items: center; white-space: nowrap; animation: tickerScroll 35s linear infinite; }
+    @keyframes tickerScroll { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
+    .ticker-item { display: flex; align-items: center; gap: 6px; padding: 0 20px; color: #ffffff; font-size: 10px; flex-shrink: 0; }
+    .ticker-dot { width: 5px; height: 5px; border-radius: 50%; background: #ffffff; }
+
+    .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; background: #0a0e14; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .logo { font-size: 24px; font-weight: 800; letter-spacing: 2px; color: #FFFFFF; text-decoration: none; }
+    .logo span { color: #D4AF37; }
+
+    .support-float { position: fixed; bottom: 105px; left: 20px; width: 48px; height: 48px; background: #1a1f2b; border: 1px solid rgba(212,175,55,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 250; cursor: pointer; box-shadow: 0 4px 15px rgba(212,175,55,0.15); transition: 0.3s; text-decoration: none; color: #D4AF37; font-size: 20px; }
+    .support-float:hover { background: rgba(212,175,55,0.05); transform: scale(1.05); }
+    .support-float .support-pulse { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: rgba(212,175,55,0.2); animation: supportPulse 2s infinite; }
+    @keyframes supportPulse { 0%{transform:scale(1);opacity:1;} 100%{transform:scale(1.6);opacity:0;} }
+
+    .chat-window { display: none; position: fixed; bottom: 100px; left: 20px; width: 320px; height: 420px; background: #1a1f2b; border-radius: 16px; z-index: 600; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
+    .chat-window.show { display: flex; }
+    .chat-header { background: #1a2740; color: #FFF; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; }
+    .chat-header .chat-status { font-size: 9px; color: #4ADE80; margin-right: 8px; }
+    .chat-close { background: none; border: none; color: #FFF; font-size: 16px; cursor: pointer; padding: 0 4px; }
+    .chat-body { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; min-height: 60px; }
+    .chat-msg { max-width: 85%; }
+    .chat-msg.received { align-self: flex-end; }
+    .chat-msg.sent { align-self: flex-start; }
+    .chat-msg-text { padding: 10px 14px; border-radius: 14px; font-size: 12px; line-height: 1.5; }
+    .chat-msg.received .chat-msg-text { background: #1a2740; color: #FFF; border-bottom-right-radius: 4px; }
+    .chat-msg.sent .chat-msg-text { background: rgba(212,175,55,0.1); color: #E8EDF2; border: 1px solid rgba(212,175,55,0.2); border-bottom-left-radius: 4px; }
+    .chat-msg-time { font-size: 8px; color: #999; margin-top: 4px; }
+    .chat-questions { padding: 10px 16px; border-top: 1px solid rgba(255,255,255,0.05); max-height: 160px; overflow-y: auto; }
+    .chat-questions-title { font-size: 10px; color: #999; margin-bottom: 8px; font-weight: 600; }
+    .chat-question-btn { display: block; width: 100%; text-align: right; padding: 8px 12px; margin-bottom: 4px; background: rgba(212,175,55,0.05); border: 1px solid rgba(212,175,55,0.15); border-radius: 10px; font-size: 11px; cursor: pointer; color: #D4AF37; font-family: inherit; transition: 0.2s; }
+    .chat-question-btn:hover { background: rgba(212,175,55,0.12); border-color: #D4AF37; }
+    .chat-footer { display: flex; padding: 10px; border-top: 1px solid rgba(255,255,255,0.05); gap: 8px; }
+    .chat-input { flex: 1; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 10px 14px; font-size: 11px; outline: none; font-family: inherit; background: #0a0e14; color: #FFF; }
+    .chat-send { background: #D4AF37; border: none; color: #FFF; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 14px; }
+
+    .page-container { max-width: 750px; margin: 0 auto; padding: 16px 14px; }
+
+    .status-bar {
+      background: #111620; border: 1px solid rgba(255,255,255,0.05); border-radius: 14px;
+      padding: 12px 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+    }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #4ADE80; animation: statusPulse 2s infinite; }
+    @keyframes statusPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .status-text { flex: 1; font-size: 11px; color: #A09070; }
+    .status-text strong { color: #FFF; }
+    .status-security { font-size: 10px; color: #D4AF37; background: rgba(212,175,55,0.08); padding: 6px 12px; border-radius: 20px; }
+
+    .profile-progress { background: #111620; border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
+    .progress-header { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; }
+    .progress-header span:first-child { color: #D4AF37; font-weight: 600; }
+    .progress-header span:last-child { color: #A09070; }
+    .progress-bar { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #D4AF37, #b8941f); border-radius: 3px; transition: width 0.5s; }
+
+    .main-balance-card {
+      background: linear-gradient(135deg, #1a2740 0%, #1e3050 50%, #1a2740 100%);
+      border-radius: 24px; padding: 28px 24px; margin-bottom: 16px;
+      color: #FFF; position: relative; overflow: hidden;
+      box-shadow: 0 10px 35px rgba(26,39,64,0.3);
+    }
+    .main-balance-card::before {
+      content: ''; position: absolute; top: -50px; left: -50px;
+      width: 150px; height: 150px; background: rgba(212,175,55,0.06);
+      border-radius: 50%;
+    }
+    .main-balance-card::after {
+      content: ''; position: absolute; bottom: -40px; right: -30px;
+      width: 120px; height: 120px; background: rgba(212,175,55,0.04);
+      border-radius: 50%;
+    }
+    .balance-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; position: relative; z-index: 1; }
+    .balance-label { font-size: 10px; color: rgba(255,255,255,0.5); letter-spacing: 2px; font-weight: 600; text-transform: uppercase; }
+    .balance-eye-btn { background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 16px; padding: 4px; }
+    .balance-main-amount { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin: 6px 0; position: relative; z-index: 1; }
+    .balance-sub-row { display: flex; gap: 20px; margin-bottom: 14px; position: relative; z-index: 1; }
+    .balance-sub-item { display: flex; align-items: center; gap: 5px; }
+    .balance-sub-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .balance-sub-dot.green { background: #4ADE80; }
+    .balance-sub-dot.gold { background: #D4AF37; }
+    .balance-sub-label { font-size: 9px; color: rgba(255,255,255,0.4); }
+    .balance-sub-value { font-size: 14px; font-weight: 700; }
+    .balance-actions-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; position: relative; z-index: 1; }
+    .balance-action-btn {
+      padding: 12px; border-radius: 12px; text-align: center;
+      font-weight: 700; font-size: 11px; cursor: pointer; transition: 0.3s;
+      font-family: inherit; text-decoration: none; display: flex;
+      align-items: center; justify-content: center; gap: 6px; border: 1px solid;
+    }
+    .btn-deposit-card { background: rgba(74,222,128,0.15); border-color: rgba(74,222,128,0.2); color: #4ADE80; }
+    .btn-deposit-card:hover { background: rgba(74,222,128,0.25); }
+    .btn-withdraw-card { background: rgba(248,113,113,0.15); border-color: rgba(248,113,113,0.2); color: #F87171; }
+    .btn-withdraw-card:hover { background: rgba(248,113,113,0.25); }
+    .btn-transfer-card { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.2); color: #60A5FA; }
+    .btn-transfer-card:hover { background: rgba(59,130,246,0.25); }
+
+    .vip-badge {
+      position: absolute; top: 16px; left: 16px; z-index: 2;
+      background: linear-gradient(135deg, #D4AF37, #FFD700);
+      color: #000; padding: 6px 14px; border-radius: 20px;
+      font-size: 10px; font-weight: 800; letter-spacing: 1px;
+      animation: vipGlow 2s infinite;
+    }
+    @keyframes vipGlow { 0%,100%{box-shadow:0 0 10px rgba(212,175,55,0.4)} 50%{box-shadow:0 0 25px rgba(212,175,55,0.8)} }
+
+    .badges-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .badge-item {
+      background: #1a1f2b; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;
+      padding: 6px 12px; font-size: 10px; font-weight: 600; color: #D4AF37;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .badge-item.locked { opacity: 0.4; color: #999; border-color: rgba(255,255,255,0.04); }
+
+    .market-indicator { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 11px; padding: 8px 12px; background: #111620; border-radius: 12px; border: 1px solid rgba(255,255,255,0.04); }
+    .market-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .market-dot.up { background: #4ADE80; }
+    .market-dot.down { background: #F87171; }
+    .market-text { color: #A09070; }
+    .market-text strong { color: #FFF; }
+
+    .chart-section { background: #111620; border: 1px solid rgba(212,175,55,0.15); border-radius: 18px; padding: 20px; margin-bottom: 14px; }
+    .chart-title { font-size: 14px; font-weight: 700; color: #D4AF37; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .chart-title i { color: #D4AF37; }
+    .donut-container { display: flex; justify-content: center; align-items: center; gap: 30px; flex-wrap: wrap; }
+    .donut-chart { position: relative; width: 140px; height: 140px; }
+    .donut-chart svg { transform: rotate(-90deg); }
+    .donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; }
+    .donut-center .total { font-size: 20px; color: #FFF; }
+    .donut-center .label { font-size: 9px; color: #A09070; }
+    .donut-legend { display: flex; flex-direction: column; gap: 8px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #A09070; }
+    .legend-item strong { color: #FFF; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+    .legend-dot.available { background: #4ADE80; }
+    .legend-dot.invested { background: #D4AF37; }
+    .legend-dot.profit { background: #60A5FA; }
+
+    .profit-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+    .profit-card {
+      background: #111620; border: 1px solid rgba(255,255,255,0.05); border-radius: 14px;
+      padding: 14px; text-align: center;
+    }
+    .profit-card-value { font-size: 16px; font-weight: 800; color: #4ADE80; }
+    .profit-card-label { font-size: 9px; color: #A09070; margin-top: 2px; }
+
+    .calc-section { background: #111620; border: 1px solid rgba(212,175,55,0.15); border-radius: 18px; padding: 20px; margin-bottom: 14px; }
+    .calc-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .calc-input { flex: 1; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; font-size: 12px; font-family: inherit; background: #0a0e14; color: #FFF; }
+    .calc-select { padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; font-size: 12px; font-family: inherit; background: #0a0e14; color: #FFF; }
+    .calc-result { background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.15); border-radius: 12px; padding: 14px; text-align: center; font-weight: 700; color: #4ADE80; font-size: 18px; }
+
+    .coins-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .coins-table th { text-align: right; padding: 10px 8px; color: #D4AF37; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 10px; }
+    .coins-table td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.02); color: #E8EDF2; }
+    .coin-info { display: flex; align-items: center; gap: 8px; }
+    .coin-icon-small { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .coin-up { color: #4ADE80; }
+    .coin-down { color: #F87171; }
+    .coin-fav { cursor: pointer; color: #555; font-size: 14px; }
+    .coin-fav.favorited { color: #D4AF37; }
+
+    .achievements-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+    .achievement-item {
+      background: #111620; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px;
+      padding: 12px; text-align: center; font-size: 10px; min-width: 70px; flex: 1;
+    }
+    .achievement-item.unlocked { border-color: #D4AF37; background: rgba(212,175,55,0.03); }
+    .achievement-item.locked { opacity: 0.4; }
+    .achievement-icon { font-size: 24px; display: block; margin-bottom: 4px; }
+
+    .reminder-banner {
+      background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.15); border-radius: 14px;
+      padding: 14px 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+      font-size: 11px; color: #A09070;
+    }
+
+    .section-card { background: #111620; border: 1px solid rgba(212,175,55,0.15); border-radius: 18px; padding: 20px; margin-bottom: 14px; }
+    .section-title { font-size: 14px; font-weight: 700; color: #D4AF37; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .section-title i { color: #D4AF37; }
+    .filter-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .filter-tab { padding: 6px 14px; border-radius: 20px; font-size: 10px; cursor: pointer; font-weight: 600; border: 1px solid rgba(255,255,255,0.08); background: #1a1f2b; color: #A09070; font-family: inherit; transition: 0.2s; }
+    .filter-tab.active { background: rgba(212,175,55,0.1); border-color: rgba(212,175,55,0.3); color: #D4AF37; }
+    .tx-list { display: flex; flex-direction: column; gap: 4px; }
+    .tx-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.02); }
+    .tx-icon { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+    .tx-icon.deposit { background: rgba(74,222,128,0.1); color: #4ADE80; }
+    .tx-icon.withdraw { background: rgba(248,113,113,0.1); color: #F87171; }
+    .tx-icon.invest { background: rgba(212,175,55,0.1); color: #D4AF37; }
+    .tx-icon.transfer { background: rgba(59,130,246,0.1); color: #60A5FA; }
+    .tx-info { flex: 1; }
+    .tx-name { font-weight: 600; font-size: 11px; color: #FFF; }
+    .tx-date { font-size: 8px; color: #999; }
+    .tx-amount { font-weight: 700; font-size: 12px; }
+    .tx-amount.positive { color: #4ADE80; }
+    .tx-amount.negative { color: #F87171; }
+
+    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #FFF; padding: 12px 24px; border-radius: 30px; font-size: 12px; font-weight: 600; z-index: 999; animation: toastIn 0.3s ease; }
+    @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(-10px);} to{opacity:1;transform:translateX(-50%) translateY(0);} }
+
+    .empty-state { text-align: center; padding: 30px; color: #999; font-size: 11px; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,14,20,0.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(212,175,55,0.1); display: flex; justify-content: space-around; padding: 8px 12px 18px; z-index: 200; transition: transform 0.4s ease; }
+    .bottom-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #FFF; text-decoration: none; font-size: 10px; font-weight: 600; padding: 8px 12px; border-radius: 14px; transition: 0.3s; }
+    .bottom-item i { font-size: 20px; }
+    .bottom-item.active { color: #D4AF37; background: rgba(212,175,55,0.1); }
+    .bottom-item:hover { color: #D4AF37; }
+
+    .dots-menu { position: fixed; bottom: 80px; left: 16px; background: #1a1f2b; border: 1px solid rgba(212,175,55,0.15); border-radius: 16px; padding: 8px 0; min-width: 250px; z-index: 300; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .dots-menu.show { display: block; }
+    .dots-menu-item { display: flex; align-items: center; gap: 12px; padding: 13px 18px; cursor: pointer; color: #E8EDF2; font-size: 13px; font-weight: 500; transition: 0.25s; text-decoration: none; }
+    .dots-menu-item:hover { background: rgba(255,255,255,0.05); color: #FFF; }
+    .dots-menu-item i { width: 20px; text-align: center; font-size: 14px; color: #D4AF37; }
+    .dots-menu-divider { height: 1px; background: rgba(255,255,255,0.05); margin: 4px 0; }
+    .menu-logout { color: #F87171 !important; }
+    .menu-logout i { color: #F87171 !important; }
+    .notif-submenu { display: none; position: fixed; bottom: 440px; left: 16px; background: #1a1f2b; border: 1px solid rgba(212,175,55,0.15); border-radius: 12px; width: 260px; max-height: 300px; overflow-y: auto; z-index: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+    .notif-submenu.show { display: block; }
+    .notif-submenu-item { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 8px; color: #E8EDF2; }
+    .notif-submenu-item .notif-content { flex: 1; }
+    .notif-submenu-item .notif-title { font-weight: 600; color: #FFF; margin-bottom: 2px; font-size: 12px; }
+    .notif-submenu-item .notif-date { font-size: 9px; color: #999; }
+    .notif-submenu-item .notif-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #D4AF37; flex-shrink: 0; }
+    .notif-submenu-empty { padding: 30px; text-align: center; color: #999; font-size: 12px; }
+    .lang-submenu { display: none; position: fixed; bottom: 440px; left: 16px; background: #1a1f2b; border: 1px solid rgba(212,175,55,0.15); border-radius: 14px; width: 180px; z-index: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.12); overflow: hidden; }
+    .lang-submenu.show { display: block; }
+    .lang-submenu-item { padding: 10px 14px; cursor: pointer; font-size: 11px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 8px; color: #E8EDF2; transition: 0.2s; }
+    .lang-submenu-item:last-child { border-bottom: none; }
+    .lang-submenu-item:hover { background: rgba(212,175,55,0.1); color: #D4AF37; }
+    .lang-submenu-item .lang-flag { font-size: 16px; }
+    .lang-submenu-item .lang-name { flex: 1; }
+    .lang-submenu-item .lang-check { color: #D4AF37; font-size: 10px; display: none; }
+    .lang-submenu-item.active .lang-check { display: inline-block; }
+    .lang-submenu-item.active { background: rgba(212,175,55,0.1); font-weight: 600; }
+    .notif-count-badge { background: #E53E3E; color: #FFF; font-size: 9px; padding: 2px 7px; border-radius: 10px; margin-right: auto; font-weight: 700; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 300; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
+    .modal-box { background: #111620; border: 1px solid rgba(212,175,55,0.2); border-radius: 20px; padding: 28px 22px; width: 90%; max-width: 420px; text-align: center; }
+    .modal-box h3 { color: #D4AF37; margin-bottom: 8px; font-size: 18px; }
+    .modal-box .modal-subtitle { color: #A09070; font-size: 11px; margin-bottom: 14px; }
+    .modal-input { width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; font-size: 13px; font-family: inherit; margin-bottom: 8px; text-align: center; background: #0a0e14; color: #FFF; }
+    .modal-select { width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; font-size: 13px; font-family: inherit; margin-bottom: 8px; background: #0a0e14; color: #FFF; }
+    .modal-btn { width: 100%; padding: 13px; background: #D4AF37; color: #000; border: none; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; font-family: inherit; transition: 0.3s; }
+    .modal-btn:hover { background: #b8941f; }
+    .modal-close-btn { width: 100%; padding: 11px; background: transparent; border: 1px solid rgba(255,255,255,0.08); color: #A09070; border-radius: 12px; margin-top: 6px; cursor: pointer; font-family: inherit; }
+
+    @media (max-width: 768px) {
+      .balance-main-amount { font-size: 34px; }
+      .profit-cards { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .chat-window { left: 8px; right: 8px; width: auto; bottom: 85px; height: 380px; }
+      .notif-submenu { left: 10px; right: 10px; width: auto; bottom: 420px; }
+      .lang-submenu { left: 10px; right: 10px; width: auto; bottom: 420px; }
+    }
+  </style>
+</head>
+<body>
+  
+<div class="ticker-wrap"><div class="ticker" id="tickerContent"></div></div>
+
+<div class="top-bar">
+  <div style="width:34px;"></div>
+  <a href="dashboard-ar.html" class="logo">EOT<span> PARTNERS</span></a>
+  <div style="width:34px;"></div>
+</div>
+
+<div class="support-float" title="الدعم الفني" onclick="toggleChat()">
+  <span class="support-pulse"></span>
+  <i class="fas fa-headset"></i>
+</div>
+
+<div class="chat-window" id="chatWindow">
+  <div class="chat-header"><span><i class="fas fa-headset"></i> الدعم الفني</span><div><span class="chat-status">متصل</span><button class="chat-close" onclick="toggleChat()">✕</button></div></div>
+  <div class="chat-body" id="chatBody"><div class="chat-msg received"><div class="chat-msg-text">مرحباً بك! كيف يمكنني مساعدتك اليوم؟</div><div class="chat-msg-time">الآن</div></div></div>
+  <div class="chat-questions" id="chatQuestions"></div>
+  <div class="chat-footer"><input type="text" class="chat-input" id="chatInput" placeholder="اكتب رسالتك هنا..." onkeypress="if(event.key==='Enter')sendMessage()"><button class="chat-send" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button></div>
+</div>
+
+<div class="page-container">
+  <!-- شريط الحالة -->
+  <div class="status-bar">
+    <div class="status-dot"></div>
+    <div class="status-text"><strong>الحساب نشط</strong> | آخر دخول: <span id="lastLogin">اليوم</span></div>
+    <div class="status-security"><i class="fas fa-shield-alt"></i> آمن</div>
+  </div>
+
+  <!-- شريط تقدم الملف -->
+  <div class="profile-progress">
+    <div class="progress-header"><span>اكتمال الملف الشخصي</span><span id="profilePercent">60%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="profileFill" style="width:60%;"></div></div>
+  </div>
+
+  <!-- الإنجازات -->
+  <div class="badges-row" id="badgesRow"></div>
+
+  <!-- بطاقة الرصيد -->
+  <div class="main-balance-card" id="mainBalanceCard">
+    <div id="vipBadge" style="display:none;" class="vip-badge"><i class="fas fa-crown"></i> VIP</div>
+    <div class="balance-header-row">
+      <span class="balance-label">✦ القيمة الإجمالية</span>
+      <button class="balance-eye-btn" onclick="toggleBalanceEye()"><i class="fas fa-eye" id="eyeIcon"></i></button>
+    </div>
+    <div class="balance-main-amount" id="totalBalance">$0.00</div>
+    <div class="balance-sub-row">
+      <div class="balance-sub-item"><span class="balance-sub-dot green"></span><span class="balance-sub-label">متاح</span><span class="balance-sub-value" id="availBalance">$0.00</span></div>
+      <div class="balance-sub-item"><span class="balance-sub-dot gold"></span><span class="balance-sub-label">مستثمر</span><span class="balance-sub-value" id="investedBalance">$0.00</span></div>
+    </div>
+    <div class="balance-actions-row">
+      <a href="deposit.html" class="balance-action-btn btn-deposit-card"><i class="fas fa-plus"></i> إيداع</a>
+      <a href="withdraw.html" class="balance-action-btn btn-withdraw-card"><i class="fas fa-arrow-up"></i> سحب</a>
+      <button class="balance-action-btn btn-transfer-card" onclick="openTransferModal()"><i class="fas fa-exchange-alt"></i> تحويل</button>
+    </div>
+  </div>
+
+  <!-- مؤشر السوق -->
+  <div class="market-indicator">
+    <span>📊</span>
+    <span class="market-text">السوق اليوم: <strong>صاعد</strong></span>
+    <span class="market-dot up"></span>
+    <span style="color:#4ADE80;font-weight:700;">+2.4%</span>
+  </div>
+
+  <!-- أرباح سريعة -->
+  <div class="profit-cards">
+    <div class="profit-card"><div class="profit-card-value" id="profitToday">$0.00</div><div class="profit-card-label">أرباح اليوم</div></div>
+    <div class="profit-card"><div class="profit-card-value" id="profitWeek">$0.00</div><div class="profit-card-label">أرباح الأسبوع</div></div>
+    <div class="profit-card"><div class="profit-card-value" id="profitMonth">$0.00</div><div class="profit-card-label">أرباح الشهر</div></div>
+  </div>
+
+  <!-- تذكير -->
+  <div class="reminder-banner" id="reminderBanner" style="display:none;">
+    <span>💡</span>
+    <span id="reminderText"></span>
+  </div>
+
+  <!-- رسم بياني -->
+  <div class="chart-section">
+    <div class="chart-title"><i class="fas fa-chart-pie"></i> توزيع الأصول</div>
+    <div class="donut-container">
+      <div class="donut-chart">
+        <svg viewBox="0 0 100 100" width="140" height="140">
+          <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#4ADE80" stroke-width="12" stroke-dasharray="251.2" stroke-dashoffset="100" stroke-linecap="round"/>
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#D4AF37" stroke-width="12" stroke-dasharray="251.2" stroke-dashoffset="180" stroke-linecap="round"/>
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#60A5FA" stroke-width="12" stroke-dasharray="251.2" stroke-dashoffset="220" stroke-linecap="round"/>
+        </svg>
+        <div class="donut-center"><span class="total" id="donutTotal">$0</span><span class="label">الإجمالي</span></div>
+      </div>
+      <div class="donut-legend">
+        <div class="legend-item"><span class="legend-dot available"></span> متاح: <strong id="legendAvail">$0</strong></div>
+        <div class="legend-item"><span class="legend-dot invested"></span> مستثمر: <strong id="legendInvest">$0</strong></div>
+        <div class="legend-item"><span class="legend-dot profit"></span> أرباح: <strong id="legendProfit">$0</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- حاسبة الأرباح -->
+  <div class="calc-section">
+    <div class="chart-title"><i class="fas fa-calculator"></i> حاسبة الأرباح</div>
+    <div class="calc-row">
+      <input type="number" class="calc-input" id="calcAmount" placeholder="المبلغ ($)" oninput="calcProfit()">
+      <select class="calc-select" id="calcPlan" onchange="calcProfit()">
+        <option value="weekly">أسبوعي (8-75%)</option>
+        <option value="monthly">شهري (10-42%)</option>
+        <option value="yearly">سنوي (25-75%)</option>
+      </select>
+    </div>
+    <div class="calc-result" id="calcResult">الأرباح المتوقعة: $0.00</div>
+  </div>
+
+  <!-- العملات -->
+  <div class="section-card">
+    <div class="section-title"><i class="fas fa-coins"></i> العملات الرقمية <span style="font-size:10px;color:#999;font-weight:400;">(أسعار توضيحية)</span></div>
+    <table class="coins-table">
+      <thead><tr><th></th><th>العملة</th><th>السعر</th><th>التغير 24س</th></tr></thead>
+      <tbody id="coinsBody"></tbody>
+    </table>
+  </div>
+
+  <!-- المعاملات -->
+  <div class="section-card">
+    <div class="section-title"><i class="fas fa-history"></i> سجل المعاملات</div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterTx('all', this)">الكل</button>
+      <button class="filter-tab" onclick="filterTx('deposit', this)">إيداع</button>
+      <button class="filter-tab" onclick="filterTx('withdraw', this)">سحب</button>
+      <button class="filter-tab" onclick="filterTx('invest', this)">استثمار</button>
+      <button class="filter-tab" onclick="filterTx('transfer', this)">تحويل</button>
+    </div>
+    <div class="tx-list" id="txList"><div class="empty-state">لا توجد معاملات</div></div>
+  </div>
+
+  <!-- تذييل -->
+  <div style="background:rgba(212,175,55,0.03);border-top:1px solid rgba(212,175,55,0.15);padding:30px 16px 20px;margin-top:10px;text-align:center;border-radius:16px;">
+    <div class="footer-logo" style="font-size:22px;font-weight:800;letter-spacing:2px;margin-bottom:4px;color:#FFFFFF;">EOT<span style="color:#D4AF37;"> PARTNERS</span></div>
+    <div style="font-size:10px;color:#aaa;">© 2026 جميع الحقوق محفوظة</div>
+  </div>
+</div>
+
+<!-- القوائم المنسدلة -->
+<div class="notif-submenu" id="notifSubmenu"><div class="notif-submenu-empty" id="notifEmpty">لا توجد إشعارات جديدة</div><div id="notifList"></div></div>
+<div class="lang-submenu" id="langSubmenu">
+  <div class="lang-submenu-item" onclick="setLanguage('ar')"><span class="lang-flag">🇸🇦</span><span class="lang-name">العربية</span><span class="lang-check"><i class="fas fa-check"></i></span></div>
+  <div class="lang-submenu-item" onclick="setLanguage('en')"><span class="lang-flag">🇬🇧</span><span class="lang-name">English</span><span class="lang-check"><i class="fas fa-check"></i></span></div>
+  <div class="lang-submenu-item" onclick="setLanguage('fr')"><span class="lang-flag">🇫🇷</span><span class="lang-name">Français</span><span class="lang-check"><i class="fas fa-check"></i></span></div>
+  <div class="lang-submenu-item" onclick="setLanguage('he')"><span class="lang-flag">🇮🇱</span><span class="lang-name">עברית</span><span class="lang-check"><i class="fas fa-check"></i></span></div>
+  <div class="lang-submenu-item" onclick="setLanguage('es')"><span class="lang-flag">🇪🇸</span><span class="lang-name">Español</span><span class="lang-check"><i class="fas fa-check"></i></span></div>
+  <div class="lang-submenu-item" onclick="setLanguage('de')"><span class="lang-flag">🇩🇪</span><span class="lang-name">Deutsch</span><span class="lang-check"><i class="fas fa-check"></i></span></div>
+  <div class="lang-submenu-item" onclick="setLanguage('tr')"><span class="lang-flag">🇹🇷</span><span class="lang-name">Türkçe</span><span class="lang-check"><i class="fas fa-check"></i></span></div>
+</div>
+
+<div class="dots-menu" id="dotsMenu">
+  <a href="profile-ar.html" class="dots-menu-item"><i class="fas fa-user"></i> الملف الشخصي</a>
+  <div class="dots-menu-item" id="notifMenuItem"><i class="fas fa-bell"></i> الإشعارات<span class="notif-count-badge" id="notifCountBadge" style="display:none;">0</span><i class="fas fa-chevron-left" style="margin-right:auto;font-size:10px;"></i></div>
+  <a href="profile-ar.html" class="dots-menu-item"><i class="fas fa-check-circle"></i> توثيق الحساب</a>
+  <a href="wallet-ar.html" class="dots-menu-item"><i class="fas fa-wallet"></i> محفظتي</a>
+  <a href="leaderboard-ar.html" class="dots-menu-item"><i class="fas fa-trophy"></i> لوحة الصدارة</a>
+  <a href="rewards-ar.html" class="dots-menu-item"><i class="fas fa-gift"></i> المكافآت</a>
+  <a href="invite-ar.html" class="dots-menu-item"><i class="fas fa-share-alt"></i> دعوة صديق</a>
+  <a href="support-ar.html" class="dots-menu-item"><i class="fas fa-headset"></i> الدعم</a>
+  <div class="dots-menu-divider"></div>
+  <div class="dots-menu-item" id="langMenuItem"><i class="fas fa-globe"></i> اللغة<span style="margin-right:auto;font-size:10px;color:#D4AF37;" id="currentLangLabel">العربية</span><i class="fas fa-chevron-left" style="font-size:10px;"></i></div>
+  <div class="dots-menu-divider"></div>
+  <a href="#" class="dots-menu-item menu-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</a>
+</div>
+
+<div class="bottom-nav" id="bottomNav">
+  <a href="dashboard-ar.html" class="bottom-item"><i class="fas fa-home"></i><span>الرئيسية</span></a>
+  <a href="invest-ar.html" class="bottom-item"><i class="fas fa-chart-line"></i><span>استثمار</span></a>
+  <a href="partnership-ar.html" class="bottom-item"><i class="fas fa-handshake"></i><span>شراكة</span></a>
+  <a href="wallet-ar.html" class="bottom-item active"><i class="fas fa-wallet"></i><span>محفظتي</span></a>
+  <a href="#" class="bottom-item" onclick="toggleDotsMenu(event)"><i class="fas fa-ellipsis-h"></i><span>المزيد</span></a>
+</div>
+
+<!-- مودال التحويل -->
+<div class="modal-overlay" id="transferModal">
+  <div class="modal-box">
+    <h3>تحويل الأموال</h3>
+    <p class="modal-subtitle">تحويل بين المحفظة والاستثمار والشراكة</p>
+    <select class="modal-select" id="transferFrom">
+      <option value="wallet">من: المحفظة</option>
+      <option value="invest">من: حساب الاستثمار</option>
+      <option value="partner">من: حساب الشراكة</option>
+    </select>
+    <select class="modal-select" id="transferTo">
+      <option value="invest">الى: حساب الاستثمار</option>
+      <option value="wallet">الى: المحفظة</option>
+      <option value="partner">الى: حساب الشراكة</option>
+    </select>
+    <input type="number" class="modal-input" id="transferAmount" placeholder="المبلغ ($)">
+    <button class="modal-btn" onclick="processTransfer()">تأكيد التحويل</button>
+    <button class="modal-close-btn" onclick="document.getElementById('transferModal').style.display='none';">الغاء</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" style="display:none;"></div>
+<script>
+  // ========== Firebase Functions ==========
+  function getUserId() {
+    const session = JSON.parse(localStorage.getItem('eot_session'));
+    return session ? session.id : null;
+  }
+
+  async function getUserData() {
+    const uid = getUserId();
+    if (!uid) return null;
+    const doc = await firebase.firestore().collection('users').doc(uid).get();
+    return doc.exists ? doc.data() : null;
+  }
+
+  async function getBalance() {
+    const data = await getUserData();
+    return data ? (data.balance || { totalUSDT: 0, totalInvested: 0, totalProfit: 0 }) : { totalUSDT: 0, totalInvested: 0, totalProfit: 0 };
+  }
+
+  async function saveBalance(balance) {
+    const uid = getUserId();
+    if (!uid) return;
+    await firebase.firestore().collection('users').doc(uid).update({ balance: balance });
+    localStorage.setItem('eot_balance', JSON.stringify(balance));
+  }
+
+  async function getInvestments() {
+    const uid = getUserId();
+    if (!uid) return [];
+    const snapshot = await firebase.firestore().collection('investments')
+      .where('userId', '==', uid).get();
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  async function saveInvestment(investment) {
+    const uid = getUserId();
+    if (!uid) return;
+    await firebase.firestore().collection('investments').add({
+      ...investment,
+      userId: uid,
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  async function getNotifications() {
+    const uid = getUserId();
+    if (!uid) return [];
+    const snapshot = await firebase.firestore().collection('notifications')
+      .where('userId', '==', uid).orderBy('createdAt', 'desc').limit(20).get();
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  const SESSION_KEY = 'eot_session';
+  const NOTIFICATIONS_KEY = 'eot_notifications';
+  const TX_KEY = 'eot_transactions';
+  const FAV_COINS_KEY = 'eot_fav_coins';
+
+  let balanceVisible = true;
+  let currentFilter = 'all';
+
+  function fmt(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function getSession() { return JSON.parse(localStorage.getItem(SESSION_KEY)); }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 2500);
+  }
+
+  // ========== المحادثة ==========
+  function getChatQuestions() { return window.CHAT_QUESTIONS || []; }
+  function loadQuestions() {
+    const container = document.getElementById('chatQuestions');
+    if (!container) return;
+    const questions = getChatQuestions();
+    if (questions.length === 0) { container.innerHTML = ''; return; }
+    container.style.display = 'block';
+    container.innerHTML = `<div class="chat-questions-title">الأسئلة الشائعة:</div>${questions.map((q, i) => `<button class="chat-question-btn" onclick="askQuestion(${i})">${q.icon || '❓'} ${q.question}</button>`).join('')}`;
+  }
+  function askQuestion(index) {
+    const questions = getChatQuestions(); const q = questions[index]; if (!q) return;
+    const chatBody = document.getElementById('chatBody'); const now = new Date();
+    const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    chatBody.innerHTML += `<div class="chat-msg sent"><div class="chat-msg-text">${q.question}</div><div class="chat-msg-time">${time}</div></div>`;
+    document.getElementById('chatQuestions').style.display = 'none';
+    setTimeout(() => { chatBody.innerHTML += `<div class="chat-msg received"><div class="chat-msg-text">${q.answer}</div><div class="chat-msg-time">${time}</div></div>`; chatBody.scrollTop = chatBody.scrollHeight; }, 800);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+  function toggleChat() { const chat = document.getElementById('chatWindow'); chat.classList.toggle('show'); if (chat.classList.contains('show')) loadQuestions(); }
+  function sendMessage() {
+    const input = document.getElementById('chatInput'); const msg = input.value.trim(); if (!msg) return;
+    const chatBody = document.getElementById('chatBody'); const now = new Date();
+    const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    chatBody.innerHTML += `<div class="chat-msg sent"><div class="chat-msg-text">${msg}</div><div class="chat-msg-time">${time}</div></div>`;
+    document.getElementById('chatQuestions').style.display = 'none';
+    setTimeout(() => { chatBody.innerHTML += `<div class="chat-msg received"><div class="chat-msg-text">شكراً لتواصلك! سيقوم أحد ممثلينا بالرد عليك قريباً.</div><div class="chat-msg-time">${time}</div></div>`; chatBody.scrollTop = chatBody.scrollHeight; }, 1000);
+    input.value = ''; chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  // ========== شريط الأخبار ==========
+  function loadTicker() {
+    const news = JSON.parse(localStorage.getItem('eot_news')) || [];
+    const def = ['ترقبوا عروضنا الحصرية قريباً','استثمر اليوم واربح غداً','عوائد استثنائية تصل إلى 604%','انضم إلى 12,000 مستثمر','منصتنا آمنة وموثوقة','اكتشف خطط الاستثمار'];
+    const items = news.length > 0 ? news : def;
+    document.getElementById('tickerContent').innerHTML = [...items,...items].map(n => `<div class="ticker-item"><span class="ticker-dot"></span> ${n}</div>`).join('');
+  }
+
+  // ========== المحفظة ==========
+  function toggleBalanceEye() {
+    balanceVisible = !balanceVisible;
+    document.getElementById('eyeIcon').className = balanceVisible ? 'fas fa-eye' : 'fas fa-eye-slash';
+    updateAllDisplays();
+  }
+
+  async function updateAllDisplays() {
+    const b = await getBalance();
+    const avail = b.totalUSDT || 0;
+    const invested = b.totalInvested || 0;
+    const profit = b.totalProfit || 0;
+    const total = avail + invested + profit;
+
+    if (balanceVisible) {
+      document.getElementById('totalBalance').textContent = '$' + fmt(total.toFixed(2));
+      document.getElementById('availBalance').textContent = '$' + fmt(avail.toFixed(2));
+      document.getElementById('investedBalance').textContent = '$' + fmt(invested.toFixed(2));
+      document.getElementById('donutTotal').textContent = '$' + fmt(total.toFixed(0));
+      document.getElementById('legendAvail').textContent = '$' + fmt(avail.toFixed(2));
+      document.getElementById('legendInvest').textContent = '$' + fmt(invested.toFixed(2));
+      document.getElementById('legendProfit').textContent = '$' + fmt(profit.toFixed(2));
+    } else {
+      document.getElementById('totalBalance').textContent = '••••••';
+      document.getElementById('availBalance').textContent = '••••••';
+      document.getElementById('investedBalance').textContent = '••••••';
+      document.getElementById('donutTotal').textContent = '••••••';
+      document.getElementById('legendAvail').textContent = '••••••';
+      document.getElementById('legendInvest').textContent = '••••••';
+      document.getElementById('legendProfit').textContent = '••••••';
+    }
+
+    document.getElementById('profitToday').textContent = '$' + fmt((profit * 0.03).toFixed(2));
+    document.getElementById('profitWeek').textContent = '$' + fmt((profit * 0.21).toFixed(2));
+    document.getElementById('profitMonth').textContent = '$' + fmt((profit * 0.9).toFixed(2));
+
+    const vipBadge = document.getElementById('vipBadge');
+    if (total >= 10000) { vipBadge.style.display = 'block'; }
+    else { vipBadge.style.display = 'none'; }
+
+    const reminder = document.getElementById('reminderBanner');
+    const reminderText = document.getElementById('reminderText');
+    const tx = JSON.parse(localStorage.getItem(TX_KEY)) || [];
+    const lastDeposit = tx.filter(t => t.type === 'deposit').pop();
+    if (!lastDeposit || (new Date() - new Date(lastDeposit.date)) > 7 * 86400000) {
+      reminder.style.display = 'flex';
+      reminderText.textContent = 'لم تقم بإيداع منذ فترة! قم بالإيداع الآن لتنمية أرباحك. 💰';
+    } else {
+      reminder.style.display = 'none';
+    }
+  }
+
+  // ========== إنجازات ==========
+  async function loadBadges() {
+    const b = await getBalance(); const total = (b.totalUSDT||0) + (b.totalInvested||0) + (b.totalProfit||0);
+    const tx = JSON.parse(localStorage.getItem(TX_KEY)) || [];
+    const hasDeposit = tx.some(t => t.type === 'deposit');
+    const investments = await getInvestments();
+
+    const badges = [
+      { icon: '👋', name: 'البداية', unlocked: true },
+      { icon: '💰', name: 'أول إيداع', unlocked: hasDeposit },
+      { icon: '📈', name: 'مستثمر', unlocked: investments.length > 0 },
+      { icon: '💎', name: '1000$', unlocked: total >= 1000 },
+      { icon: '👑', name: 'VIP', unlocked: total >= 10000 },
+      { icon: '🔥', name: 'نشط', unlocked: tx.length >= 5 }
+    ];
+
+    document.getElementById('badgesRow').innerHTML = badges.map(b => `
+      <div class="badge-item ${b.unlocked ? '' : 'locked'}">
+        <span>${b.icon}</span> ${b.name} ${!b.unlocked ? '🔒' : ''}
+      </div>
+    `).join('');
+  }
+
+  // ========== عملات ==========
+  const coins = [
+    { symbol: 'BTC', name: 'Bitcoin', price: 0, change: 0, icon: 'btc', id: 'bitcoin' },
+    { symbol: 'ETH', name: 'Ethereum', price: 0, change: 0, icon: 'eth', id: 'ethereum' },
+    { symbol: 'USDT', name: 'Tether', price: 1.00, change: 0, icon: 'usdt', id: 'tether' },
+    { symbol: 'BNB', name: 'BNB', price: 0, change: 0, icon: 'bnb', id: 'binancecoin' },
+    { symbol: 'SOL', name: 'Solana', price: 0, change: 0, icon: 'eth', id: 'solana' },
+    { symbol: 'XRP', name: 'XRP', price: 0, change: 0, icon: 'btc', id: 'ripple' },
+    { symbol: 'ADA', name: 'Cardano', price: 0, change: 0, icon: 'eth', id: 'cardano' },
+    { symbol: 'AVAX', name: 'Avalanche', price: 0, change: 0, icon: 'eth', id: 'avalanche-2' },
+    { symbol: 'DOT', name: 'Polkadot', price: 0, change: 0, icon: 'eth', id: 'polkadot' },
+    { symbol: 'MATIC', name: 'Polygon', price: 0, change: 0, icon: 'eth', id: 'matic-network' },
+    { symbol: 'DOGE', name: 'Dogecoin', price: 0, change: 0, icon: 'btc', id: 'dogecoin' },
+    { symbol: 'SHIB', name: 'Shiba Inu', price: 0, change: 0, icon: 'btc', id: 'shiba-inu' },
+    { symbol: 'LTC', name: 'Litecoin', price: 0, change: 0, icon: 'btc', id: 'litecoin' },
+    { symbol: 'LINK', name: 'Chainlink', price: 0, change: 0, icon: 'eth', id: 'chainlink' },
+    { symbol: 'UNI', name: 'Uniswap', price: 0, change: 0, icon: 'eth', id: 'uniswap' },
+    { symbol: 'ATOM', name: 'Cosmos', price: 0, change: 0, icon: 'eth', id: 'cosmos' },
+    { symbol: 'TRX', name: 'TRON', price: 0, change: 0, icon: 'btc', id: 'tron' },
+    { symbol: 'NEAR', name: 'NEAR Protocol', price: 0, change: 0, icon: 'eth', id: 'near' },
+    { symbol: 'APT', name: 'Aptos', price: 0, change: 0, icon: 'eth', id: 'aptos' },
+    { symbol: 'ARB', name: 'Arbitrum', price: 0, change: 0, icon: 'eth', id: 'arbitrum' }
+  ];
+
+  function getCoinIcon(symbol) {
+    const icons = {
+      BTC: '₿', ETH: 'Ξ', USDT: '₮', BNB: '🟡', SOL: '◎', XRP: 'X', ADA: '⬡',
+      AVAX: '🔺', DOT: '●', MATIC: '⬠', DOGE: 'Ð', SHIB: '🐕', LTC: 'Ł',
+      LINK: '⬡', UNI: '🦄', ATOM: '⚛', TRX: '◆', NEAR: 'Ⓝ', APT: '🅐', ARB: '🔵'
+    };
+    return icons[symbol] || symbol.charAt(0);
+  }
+
+  function getCoinColor(symbol) {
+    const colors = {
+      BTC: '#F7931A', ETH: '#627EEA', USDT: '#4ADE80', BNB: '#F3BA2F',
+      SOL: '#9945FF', XRP: '#23292E', ADA: '#0033AD', AVAX: '#E84142',
+      DOT: '#E6007A', MATIC: '#8247E5', DOGE: '#C2A633', SHIB: '#FFA409',
+      LTC: '#345D9D', LINK: '#2A5ADA', UNI: '#FF007A', ATOM: '#2E3148',
+      TRX: '#FF0013', NEAR: '#000000', APT: '#000000', ARB: '#28A0F0'
+    };
+    return colors[symbol] || '#888888';
+  }
+
+  async function loadLivePrices() {
+    try {
+      const ids = coins.map(c => c.id).join(',');
+      const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+      const data = await response.json();
+      coins.forEach(c => {
+        if (data[c.id]) {
+          c.price = data[c.id].usd;
+          c.change = data[c.id].usd_24h_change ? parseFloat(data[c.id].usd_24h_change.toFixed(2)) : 0;
+        }
+      });
+    } catch(e) {
+      const fallback = {
+        bitcoin: 68450, ethereum: 3520, tether: 1.00, binancecoin: 585,
+        solana: 145, ripple: 0.52, cardano: 0.45, 'avalanche-2': 35,
+        polkadot: 7.2, 'matic-network': 0.85, dogecoin: 0.12, 'shiba-inu': 0.000025,
+        litecoin: 72, chainlink: 14, uniswap: 7.5, cosmos: 8.9,
+        tron: 0.11, near: 5.4, aptos: 8.8, arbitrum: 1.2
+      };
+      coins.forEach(c => { if (fallback[c.id] && !c.price) c.price = fallback[c.id]; });
+    }
+    loadCoinsTable();
+  }
+
+  function loadCoinsTable() {
+    const favs = JSON.parse(localStorage.getItem(FAV_COINS_KEY)) || [];
+    const tbody = document.getElementById('coinsBody');
+    if (!tbody) return;
+    tbody.innerHTML = coins.map(c => `
+      <tr>
+        <td><span class="coin-fav ${favs.includes(c.symbol) ? 'favorited' : ''}" onclick="toggleFav('${c.symbol}')"><i class="fas fa-star"></i></span></td>
+        <td><div class="coin-info"><span class="coin-icon-small" style="background:${getCoinColor(c.symbol)}15;color:${getCoinColor(c.symbol)};">${getCoinIcon(c.symbol)}</span><strong>${c.name}</strong><span style="color:#999;font-size:10px;">${c.symbol}</span></div></td>
+        <td>${c.price > 100 ? '$'+fmt(c.price) : c.price > 1 ? '$'+c.price.toFixed(2) : '$'+c.price.toFixed(6)}</td>
+        <td class="${c.change >= 0 ? 'coin-up' : 'coin-down'}">${c.change >= 0 ? '+' : ''}${c.change}%</td>
+      </tr>
+    `).join('');
+  }
+
+  function toggleFav(symbol) {
+    let favs = JSON.parse(localStorage.getItem(FAV_COINS_KEY)) || [];
+    if (favs.includes(symbol)) { favs = favs.filter(f => f !== symbol); }
+    else { favs.push(symbol); }
+    localStorage.setItem(FAV_COINS_KEY, JSON.stringify(favs));
+    loadCoinsTable();
+  }
+
+  // ========== معاملات ==========
+  function loadTransactions(filter) {
+    const allTx = JSON.parse(localStorage.getItem(TX_KEY)) || [];
+    const filtered = filter === 'all' ? allTx : allTx.filter(t => t.type === filter);
+    const recent = filtered.slice(-10).reverse();
+    const list = document.getElementById('txList');
+    if (recent.length === 0) {
+      list.innerHTML = '<div class="empty-state"><i class="fas fa-receipt" style="font-size:20px;display:block;margin-bottom:6px;"></i>لا توجد معاملات</div>';
+      return;
+    }
+    list.innerHTML = recent.map(t => {
+      let iconClass = 'transfer', amountClass = 'positive', sign = '+', name = 'تحويل';
+      if (t.type === 'deposit') { iconClass = 'deposit'; sign = '+'; name = 'إيداع'; }
+      else if (t.type === 'withdraw') { iconClass = 'withdraw'; sign = '-'; amountClass = 'negative'; name = 'سحب'; }
+      else if (t.type === 'invest') { iconClass = 'invest'; sign = '-'; amountClass = 'negative'; name = 'استثمار'; }
+      return `
+        <div class="tx-item">
+          <div class="tx-icon ${iconClass}"><i class="fas fa-${t.type==='deposit'?'arrow-down':t.type==='withdraw'?'arrow-up':'chart-line'}"></i></div>
+          <div class="tx-info"><div class="tx-name">${name}</div><div class="tx-date">${t.date || ''}</div></div>
+          <div class="tx-amount ${amountClass}">${sign}$${fmt(Math.abs(t.amount||0).toFixed(2))}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function filterTx(type, el) {
+    currentFilter = type;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    loadTransactions(type);
+  }
+
+  // ========== حاسبة ==========
+  function calcProfit() {
+    const amount = parseFloat(document.getElementById('calcAmount').value) || 0;
+    const plan = document.getElementById('calcPlan').value;
+    let rates = { weekly: [0.08, 0.75], monthly: [0.10, 0.42], yearly: [0.25, 0.75] };
+    const [low, high] = rates[plan];
+    const lowP = amount * low; const highP = amount * high;
+    document.getElementById('calcResult').textContent = `الأرباح المتوقعة: $${fmt(lowP.toFixed(2))} - $${fmt(highP.toFixed(2))}`;
+  }
+
+  // ========== عمليات ==========
+  function openTransferModal() { document.getElementById('transferModal').style.display = 'flex'; }
+
+  async function processTransfer() {
+    const from = document.getElementById('transferFrom').value;
+    const to = document.getElementById('transferTo').value;
+    const amt = parseFloat(document.getElementById('transferAmount').value);
+    if (from === to) { alert('لا يمكن التحويل الى نفس الحساب'); return; }
+    if (!amt || amt <= 0) { alert('يرجى ادخال مبلغ صحيح'); return; }
+    const balance = await getBalance(); const available = balance.totalUSDT || 0;
+    if (from === 'wallet' && amt > available) { alert('رصيدك غير كاف'); return; }
+    if (from === 'wallet') balance.totalUSDT = available - amt;
+    if (to === 'wallet') balance.totalUSDT = (balance.totalUSDT || 0) + amt;
+    await saveBalance(balance);
+    const transactions = JSON.parse(localStorage.getItem(TX_KEY)) || [];
+    transactions.push({ type: 'transfer', amount: amt, from, to, date: new Date().toLocaleDateString('en-US') });
+    localStorage.setItem(TX_KEY, JSON.stringify(transactions));
+    document.getElementById('transferModal').style.display = 'none';
+    updateAllDisplays(); loadBadges(); loadTransactions(currentFilter);
+    showToast('✅ تم التحويل بنجاح: $' + amt);
+  }
+
+  // ========== الاختفاء الذكي للشريط السفلي ==========
+  let lastScroll = 0;
+  window.addEventListener('scroll', function() {
+    const nav = document.getElementById('bottomNav');
+    const s = window.pageYOffset;
+    if (s > lastScroll && s > 80) { nav.style.transform = 'translateY(100%)'; }
+    else { nav.style.transform = 'translateY(0)'; }
+    lastScroll = s;
+  });
+
+  // ========== قائمة المزيد ==========
+  function toggleDotsMenu(e) { if(e) e.preventDefault(); document.getElementById('dotsMenu').classList.toggle('show'); }
+  function getNotifications() { const s = getSession(); if (s) { const all = JSON.parse(localStorage.getItem(NOTIFICATIONS_KEY)) || []; return all.filter(n => n.user === s.email || n.user === 'all'); } return []; }
+  function getUnreadCount() { return getNotifications().filter(n => !n.read).length; }
+  function loadNotifBadge() { const badge = document.getElementById('notifCountBadge'); if (!badge) return; const count = getUnreadCount(); badge.style.display = count > 0 ? 'inline-block' : 'none'; if (count > 0) badge.textContent = count; }
+  function loadNotifSubmenu() {
+    const list = document.getElementById('notifList'), empty = document.getElementById('notifEmpty');
+    if (!list || !empty) return; const notifs = getNotifications().slice(-5).reverse();
+    if (!notifs.length) { empty.style.display = 'block'; list.innerHTML = ''; }
+    else { empty.style.display = 'none'; list.innerHTML = notifs.map((n,i) => '<div class="notif-submenu-item" onclick="markNotifRead('+i+');event.stopPropagation();">'+(!n.read?'<span class="notif-dot"></span>':'')+'<div class="notif-content"><div class="notif-title">'+(n.title||'إشعار')+'</div><div class="notif-date">'+(n.date||'')+'</div></div></div>').join(''); }
+  }
+  function markNotifRead(index) { const s = getSession(); if (!s) return; const all = JSON.parse(localStorage.getItem(NOTIFICATIONS_KEY)) || []; const userNotifs = all.filter(n => n.user === s.email || n.user === 'all'); const target = userNotifs[userNotifs.length-1-index]; if (target) { const ri = all.findIndex(n => n===target); if (ri!==-1) { all[ri].read=true; localStorage.setItem(NOTIFICATIONS_KEY,JSON.stringify(all)); loadNotifSubmenu(); loadNotifBadge(); } } }
+  function toggleNotifSubmenu(e) { if(e) e.stopPropagation(); const sub=document.getElementById('notifSubmenu'),lang=document.getElementById('langSubmenu'); if(!sub)return; if(lang)lang.classList.remove('show'); loadNotifSubmenu();loadNotifBadge(); sub.classList.toggle('show'); }
+  function toggleLangSubmenu(e) { if(e) e.stopPropagation(); const sub=document.getElementById('langSubmenu'),notif=document.getElementById('notifSubmenu'); if(!sub)return; if(notif)notif.classList.remove('show'); loadNotifSubmenu();loadNotifBadge(); sub.classList.toggle('show'); }
+  function toggleLangSubmenu(e) { if(e) e.stopPropagation(); const sub=document.getElementById('langSubmenu'),notif=document.getElementById('notifSubmenu'); if(!sub)return; if(notif)notif.classList.remove('show'); updateLangActive(); sub.classList.toggle('show'); }
+  function updateLangActive() { const cl=localStorage.getItem('eot_lang')||'ar'; document.querySelectorAll('.lang-submenu-item').forEach(el=>el.classList.remove('active')); const items=document.querySelectorAll('.lang-submenu-item'); const langs=['ar','en','fr','he','es','de','tr']; const idx=langs.indexOf(cl); if(idx!==-1&&items[idx])items[idx].classList.add('active'); }
+  function setLanguage(lang) { const labels={ar:'العربية',en:'English',fr:'Français',he:'עברית',es:'Español',de:'Deutsch',tr:'Türkçe'}; localStorage.setItem('eot_lang',lang); const label=document.getElementById('currentLangLabel'); if(label)label.textContent=labels[lang]||'العربية'; updateLangActive(); document.getElementById('langSubmenu').classList.remove('show'); if(lang==='en'){setTimeout(()=>{window.location.href='wallet-en.html';},500);} }
+  function applyLangLabel() { const lang=localStorage.getItem('eot_lang')||'ar'; const labels={ar:'العربية',en:'English',fr:'Français',he:'עברית',es:'Español',de:'Deutsch',tr:'Türkçe'}; const label=document.getElementById('currentLangLabel'); if(label)label.textContent=labels[lang]||'العربية'; }
+  function logout() { localStorage.removeItem(SESSION_KEY); window.location.href = 'login.html'; }
+
+  document.addEventListener('click', function(e) {
+    const dotsMenu = document.getElementById('dotsMenu'), notifSub = document.getElementById('notifSubmenu'), langSub = document.getElementById('langSubmenu');
+    const notifMenuItem = document.getElementById('notifMenuItem'), langMenuItem = document.getElementById('langMenuItem');
+    const bottomBtn = document.querySelector('.bottom-item .fa-ellipsis-h')?.parentElement;
+    if (dotsMenu && !dotsMenu.contains(e.target) && bottomBtn && !bottomBtn.contains(e.target)) dotsMenu.classList.remove('show');
+    if (notifSub && notifMenuItem && !notifMenuItem.contains(e.target) && !notifSub.contains(e.target)) notifSub.classList.remove('show');
+    if (langSub && langMenuItem && !langMenuItem.contains(e.target) && !langSub.contains(e.target)) langSub.classList.remove('show');
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const notifMenuItem = document.getElementById('notifMenuItem'), langMenuItem = document.getElementById('langMenuItem');
+    if (notifMenuItem) notifMenuItem.addEventListener('click', toggleNotifSubmenu);
+    if (langMenuItem) langMenuItem.addEventListener('click', toggleLangSubmenu);
+  });
+
+  window.onclick = function(e) {
+    if (e.target.classList.contains('modal-overlay')) e.target.style.display = 'none';
+  };
+</script>
+<script>
+  // ========== تطبيق الثيم (ليلي فقط) ==========
+  function applyTheme() {
+    const topLogo = document.querySelector('.top-bar .logo');
+    if (topLogo) { topLogo.style.color = '#FFFFFF'; const span = topLogo.querySelector('span'); if (span) span.style.color = '#D4AF37'; }
+    const footerLogo = document.querySelector('.footer-logo');
+    if (footerLogo) { footerLogo.style.color = '#FFFFFF'; const span = footerLogo.querySelector('span'); if (span) span.style.color = '#D4AF37'; }
+    const supportFloat = document.querySelector('.support-float');
+    if (supportFloat) { supportFloat.style.background = '#1a1f2b'; supportFloat.style.borderColor = 'rgba(212,175,55,0.2)'; supportFloat.style.color = '#D4AF37'; }
+    document.body.style.background = '#0a0e14'; document.body.style.color = '#E8EDF2';
+    document.querySelector('.top-bar').style.background = '#0a0e14';
+    document.querySelectorAll('.section-card, .chart-section, .calc-section').forEach(el => { el.style.background = '#111620'; el.style.borderColor = 'rgba(212,175,55,0.15)'; });
+    document.querySelectorAll('.section-title, .chart-title').forEach(el => { el.style.color = '#D4AF37'; });
+    document.querySelectorAll('.status-bar, .profile-progress, .market-indicator, .profit-card, .achievement-item').forEach(el => { el.style.background = '#111620'; el.style.borderColor = 'rgba(255,255,255,0.05)'; });
+    document.querySelectorAll('.profit-card-value').forEach(el => { el.style.color = '#4ADE80'; });
+    document.querySelectorAll('.coins-table th').forEach(el => { el.style.color = '#D4AF37'; });
+    document.querySelectorAll('.coins-table td').forEach(el => { el.style.color = '#E8EDF2'; });
+    document.querySelectorAll('.tx-name').forEach(el => { el.style.color = '#FFF'; });
+    document.querySelectorAll('.filter-tab').forEach(el => { el.style.background = '#1a1f2b'; el.style.borderColor = 'rgba(255,255,255,0.08)'; el.style.color = '#A09070'; });
+    document.querySelectorAll('.filter-tab.active').forEach(el => { el.style.background = 'rgba(212,175,55,0.1)'; el.style.borderColor = 'rgba(212,175,55,0.3)'; el.style.color = '#D4AF37'; });
+    document.querySelectorAll('.modal-box').forEach(el => { el.style.background = '#111620'; el.style.borderColor = 'rgba(212,175,55,0.2)'; });
+    document.querySelectorAll('.modal-box h3').forEach(el => { el.style.color = '#D4AF37'; });
+    document.querySelectorAll('.modal-subtitle').forEach(el => { el.style.color = '#A09070'; });
+    document.querySelectorAll('.modal-input, .modal-select').forEach(el => { el.style.background = '#0a0e14'; el.style.color = '#FFF'; el.style.borderColor = 'rgba(255,255,255,0.1)'; });
+    document.querySelectorAll('.modal-close-btn').forEach(el => { el.style.color = '#A09070'; el.style.borderColor = 'rgba(255,255,255,0.08)'; });
+    document.querySelectorAll('.bottom-nav').forEach(el => { el.style.background = 'rgba(10,14,20,0.95)'; el.style.borderTopColor = 'rgba(212,175,55,0.1)'; });
+    document.querySelectorAll('.bottom-item').forEach(el => { el.style.color = '#FFF'; });
+    document.querySelectorAll('.bottom-item.active').forEach(el => { el.style.color = '#D4AF37'; el.style.background = 'rgba(212,175,55,0.1)'; });
+    document.querySelectorAll('.chat-window').forEach(el => { el.style.background = '#1a1f2b'; });
+    document.querySelectorAll('.chat-input').forEach(el => { el.style.background = '#0a0e14'; el.style.color = '#FFF'; el.style.borderColor = 'rgba(255,255,255,0.1)'; });
+    document.querySelectorAll('.dots-menu').forEach(el => { el.style.background = '#1a1f2b'; el.style.borderColor = 'rgba(212,175,55,0.15)'; });
+    document.querySelectorAll('.dots-menu-item').forEach(el => { el.style.color = '#E8EDF2'; });
+    document.querySelectorAll('.notif-submenu, .lang-submenu').forEach(el => { el.style.background = '#1a1f2b'; el.style.borderColor = 'rgba(212,175,55,0.15)'; });
+    document.querySelectorAll('.notif-submenu-item, .lang-submenu-item').forEach(el => { el.style.color = '#E8EDF2'; el.style.borderBottomColor = 'rgba(255,255,255,0.05)'; });
+    document.querySelectorAll('.notif-submenu-item .notif-title').forEach(el => { el.style.color = '#FFF'; });
+    document.querySelectorAll('.badge-item').forEach(el => { el.style.background = '#1a1f2b'; el.style.borderColor = 'rgba(255,255,255,0.08)'; });
+    document.querySelectorAll('.reminder-banner').forEach(el => { el.style.background = 'rgba(212,175,55,0.06)'; el.style.borderColor = 'rgba(212,175,55,0.15)'; });
+  }
+
+  window.onload = async function() {
+    const session = getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+    localStorage.setItem('theme', 'dark');
+    applyTheme();
+    applyLangLabel();
+    loadTicker();
+    updateAllDisplays();
+    loadBadges();
+    loadLivePrices();
+    loadTransactions('all');
+    loadNotifBadge();
+  };
+</script>
+
+</body>
+</html>

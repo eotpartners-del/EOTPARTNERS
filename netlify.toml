@@ -1,0 +1,9 @@
+[[redirects]]
+  from = "/"
+  to = "/dashboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/:code"
+  to = "/register.html?ref=:code"
+  status = 200

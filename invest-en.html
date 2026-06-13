@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investment Projects | EOT PARTNERS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="chat-data.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { overflow-x: hidden; width: 100%; max-width: 100vw; }
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      background: #0a0e14;
+      color: #E8EDF2;
+      padding-bottom: 100px;
+      min-height: 100vh;
+    }
+    img { max-width: 100%; height: auto; }
+
+    .ticker-wrap { background: #1a2740; border-bottom: 1px solid rgba(0,0,0,0.2); overflow: hidden; padding: 8px 0; }
+    .ticker { display: flex; align-items: center; white-space: nowrap; animation: tickerScroll 35s linear infinite; }
+    @keyframes tickerScroll { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
+    .ticker-item { display: flex; align-items: center; gap: 6px; padding: 0 20px; color: #ffffff; font-size: 10px; flex-shrink: 0; }
+    .ticker-dot { width: 5px; height: 5px; border-radius: 50%; background: #ffffff; }
+
+    .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; background: #0a0e14; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .logo { font-size: 24px; font-weight: 800; letter-spacing: 2px; color: #FFFFFF; text-decoration: none; }
+    .logo span { color: #D4AF37; }
+
+    .support-float { position: fixed; bottom: 105px; right: 20px; width: 48px; height: 48px; background: #1a1f2b; border: 1px solid rgba(212,175,55,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 250; cursor: pointer; box-shadow: 0 4px 15px rgba(212,175,55,0.15); transition: 0.3s; color: #D4AF37; font-size: 20px; }
+    .support-float:hover { transform: scale(1.05); background: rgba(212,175,55,0.05); }
+    .support-float .support-pulse { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: rgba(212,175,55,0.2); animation: supportPulse 2s infinite; }
+    @keyframes supportPulse { 0%{transform:scale(1);opacity:1;} 100%{transform:scale(1.6);opacity:0;} }
+
+    .chat-window { display: none; position: fixed; bottom: 100px; right: 20px; width: 320px; height: 400px; background: #1a1f2b; border-radius: 16px; z-index: 600; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
+    .chat-window.show { display: flex; }
+    .chat-header { background: #1a2740; color: #FFF; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; }
+    .chat-header .chat-status { font-size: 9px; color: #4ADE80; margin-left: 8px; }
+    .chat-close { background: none; border: none; color: #FFF; font-size: 16px; cursor: pointer; padding: 0 4px; }
+    .chat-body { flex: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .chat-msg { max-width: 85%; }
+    .chat-msg.received { align-self: flex-start; }
+    .chat-msg.sent { align-self: flex-end; }
+    .chat-msg-text { padding: 8px 12px; border-radius: 12px; font-size: 11px; }
+    .chat-msg.received .chat-msg-text { background: #1a2740; color: #FFF; }
+    .chat-msg.sent .chat-msg-text { background: rgba(212,175,55,0.15); color: #FFF; border: 1px solid rgba(212,175,55,0.2); }
+    .chat-msg-time { font-size: 7px; color: #999; margin-top: 3px; }
+    .chat-questions { padding: 8px 14px; border-top: 1px solid rgba(255,255,255,0.05); max-height: 120px; overflow-y: auto; }
+    .chat-question-btn { display: block; width: 100%; text-align: left; padding: 7px 10px; margin-bottom: 3px; background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.2); border-radius: 8px; font-size: 10px; cursor: pointer; color: #D4AF37; font-family: inherit; }
+    .chat-footer { display: flex; padding: 8px; border-top: 1px solid rgba(255,255,255,0.05); gap: 6px; }
+    .chat-input { flex: 1; border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 8px 12px; font-size: 11px; outline: none; font-family: inherit; background: #0a0e14; color: #FFF; }
+    .chat-send { background: #D4AF37; border: none; color: #FFF; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 13px; }
+
+    .page-header {
+      min-height: 20vh; background: linear-gradient(135deg, #0a0e14 0%, #111620 45%, #0a0e14 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 30px 20px 25px;
+      border-bottom: 1px solid rgba(212,175,55,0.1);
+    }
+    .page-header h1 { font-size: 34px; color: #D4AF37; margin-bottom: 6px; }
+    .page-header p { font-size: 15px; color: #A09070; }
+
+    .section { padding: 35px 25px; text-align: center; }
+    .section-title { font-size: 26px; color: #D4AF37; margin-bottom: 8px; font-weight: 700; }
+    .title-line { width: 70px; height: 3px; background: #D4AF37; margin: 0 auto 20px; border-radius: 2px; }
+
+    .wallet-bar { max-width:900px;margin:0 auto 25px;background:#111620;border:1px solid rgba(212,175,55,0.15);border-radius:16px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px; }
+    .wallet-bar .balance-info { display:flex;align-items:center;gap:10px; }
+    .wallet-bar .balance-label { font-size:11px;color:#A09070;display:block; }
+    .wallet-bar .balance-value { font-size:20px;font-weight:700;color:#FFF; }
+    .wallet-bar .wallet-actions { display:flex;gap:8px;flex-wrap:wrap; }
+    .wallet-bar .wallet-btn { padding:9px 15px;border-radius:10px;text-decoration:none;font-weight:600;font-size:12px;transition:0.3s;font-family:inherit;cursor:pointer;border:1px solid; }
+    .wallet-bar .btn-deposit { background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.2);color:#4ADE80; }
+    .wallet-bar .btn-withdraw { background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.2);color:#F87171; }
+    .wallet-bar .btn-transfer { background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.2);color:#60A5FA; }
+
+    .invest-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; max-width: 1200px; margin: 0 auto; }
+    .invest-card { background: #111620; border: 1px solid rgba(212,175,55,0.15); border-radius: 18px; overflow: hidden; transition: 0.35s ease; }
+    .invest-card:hover { transform: translateY(-5px); border-color: rgba(212,175,55,0.45); box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
+    .card-img { width: 100%; height: 140px; background-size: cover; background-position: center; position: relative; background-color: #0a0e14; }
+    .card-tag { position: absolute; top: 12px; left: 12px; padding: 5px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; z-index: 2; }
+    .tag-weekly { background: rgba(212,175,55,0.15); color: #D4AF37; border: 1px solid rgba(212,175,55,0.3); }
+    .tag-monthly { background: rgba(139,105,20,0.2); color: #D4AF37; border: 1px solid rgba(139,105,20,0.3); }
+    .tag-yearly { background: rgba(212,175,55,0.2); color: #D4AF37; border: 1px solid rgba(212,175,55,0.35); }
+    .card-body { padding: 14px; text-align: center; }
+    .card-sector { font-size: 15px; font-weight: 700; color: #FFF; margin-bottom: 5px; }
+    .card-return { font-size: 13px; color: #A09070; margin-bottom: 3px; }
+    .card-return span { color: #4ADE80; font-weight: 700; }
+    .card-duration { font-size: 11px; color: #D4AF37; margin-bottom: 10px; }
+    .card-btns { display: flex; gap: 8px; }
+    .card-btn { flex: 1; padding: 9px 8px; border-radius: 10px; text-align: center; font-weight: 700; font-size: 11px; cursor: pointer; transition: 0.3s; font-family: inherit; border: 1px solid rgba(212,175,55,0.3); background: rgba(212,175,55,0.08); color: #D4AF37; }
+    .card-btn:hover { background: rgba(212,175,55,0.18); border-color: #D4AF37; }
+    .card-info-btn { flex: 0.5; background: rgba(74,144,217,0.1); border-color: rgba(74,144,217,0.2); color: #60A5FA; }
+
+    .eligibility-card { max-width:900px;margin:0 auto;background:#111620;border:1px solid rgba(212,175,55,0.15);border-radius:16px;padding:25px;text-align:left; }
+    .eligibility-card h3 { color:#D4AF37;text-align:center;margin-bottom:18px;font-size:16px; }
+    .condition-item { display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,0.02);border-radius:10px;border-left:3px solid #D4AF37;margin-bottom:10px; }
+    .condition-item .cond-num { font-size:20px;font-weight:700;color:#D4AF37;min-width:35px;text-align:center; }
+    .condition-item strong { color:#FFF;font-size:13px;display:block; }
+    .condition-item p { color:#A09070;font-size:11px;margin:2px 0 0; }
+    .info-card { max-width:900px;margin:25px auto;background:#111620;border:1px solid rgba(212,175,55,0.15);border-radius:16px;padding:25px;text-align:left; }
+    .info-card h3 { color:#D4AF37;text-align:center;margin-bottom:16px;font-size:16px; }
+    .info-card p { color:#A09070;font-size:13px;line-height:2;margin-bottom:12px; }
+    .gold { color:#D4AF37;font-weight:700; }
+    .info-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:15px 0; }
+    .info-grid-item { background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;text-align:center; }
+    .info-grid-item .num { font-size:26px;color:#D4AF37;font-weight:700;display:block;margin-bottom:6px; }
+    .info-grid-item p { color:#A09070;font-size:12px;margin:0; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 300; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
+    .modal-box { background: #111620; border: 1px solid rgba(212,175,55,0.2); border-radius: 20px; padding: 28px 22px; width: 90%; max-width: 500px; text-align: center; max-height: 85vh; overflow-y: auto; }
+    .modal-box h3 { color: #D4AF37; font-size: 18px; margin-bottom: 4px; }
+    .modal-box .modal-subtitle { color: #A09070; font-size: 12px; margin-bottom: 16px; }
+    .condition-row { display: flex; align-items: center; gap: 10px; padding: 12px; margin-bottom: 8px; border-radius: 10px; text-align: left; font-size: 13px; }
+    .condition-row.met { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); color: #4ADE80; }
+    .condition-row.notmet { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #EF4444; }
+    .condition-icon-big { font-size: 20px; min-width: 28px; text-align: center; }
+    .modal-close { width: 100%; padding: 11px; background: transparent; border: 1px solid rgba(255,255,255,0.08); color: #A09070; border-radius: 10px; margin-top: 12px; cursor: pointer; font-family: inherit; }
+    .modal-action-btn { display: inline-block; width: 100%; padding: 12px; background: #D4AF37; color: #000; border: none; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; font-family: inherit; margin-top: 8px; transition: 0.3s; text-decoration: none; text-align: center; }
+    .sector-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; text-align: left; }
+    .sector-info-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 10px; font-size: 12px; }
+    .sector-info-item strong { color: #D4AF37; display: block; margin-bottom: 3px; font-size: 10px; }
+    .sector-info-item span { color: #A09070; }
+    .sector-companies { text-align: left; margin: 8px 0; font-size: 11px; color: #A09070; line-height: 2; }
+    .sector-companies strong { color: #D4AF37; }
+    .sector-returns-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11px; }
+    .sector-returns-table th { background: rgba(212,175,55,0.15); color: #D4AF37; padding: 8px 6px; border-bottom: 1px solid rgba(212,175,55,0.2); }
+    .sector-returns-table td { padding: 7px 6px; border-bottom: 1px solid rgba(255,255,255,0.03); text-align: center; color: #A09070; }
+    .confirm-detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03); text-align: left; }
+    .confirm-detail-row span:first-child { color: #A09070; }
+    .confirm-detail-row span:last-child { color: #FFF; font-weight: 600; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,14,20,0.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(212,175,55,0.1); display: flex; justify-content: space-around; padding: 8px 12px 18px; z-index: 200; transition: transform 0.4s ease; }
+    .bottom-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #FFF; text-decoration: none; font-size: 10px; font-weight: 600; padding: 8px 12px; border-radius: 14px; transition: 0.3s; }
+    .bottom-item i { font-size: 20px; }
+    .bottom-item.active { color: #D4AF37; background: rgba(212,175,55,0.1); }
+    .bottom-item:hover { color: #D4AF37; }
+
+    .dots-menu { position: fixed; bottom: 80px; right: 16px; background: #1a1f2b; border: 1px solid rgba(212,175,55,0.15); border-radius: 16px; padding: 8px 0; min-width: 250px; z-index: 300; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .dots-menu.show { display: block; }
+    .dots-menu-item { display: flex; align-items: center; gap: 12px; padding: 13px 18px; cursor: pointer; color: #E8EDF2; font-size: 13px; font-weight: 500; transition: 0.25s; text-decoration: none; }
+    .dots-menu-item:hover { background: rgba(255,255,255,0.05); color: #FFF; }
+    .dots-menu-item i { width: 20px; text-align: center; font-size: 14px; color: #D4AF37; }
+    .dots-menu-divider { height: 1px; background: rgba(255,255,255,0.05); margin: 4px 0; }
+    .menu-logout { color: #F87171 !important; }
+    .menu-logout i { color: #F87171 !important; }
+    .notif-submenu { display: none; position: fixed; bottom: 440px; right: 16px; background: #1a1f2b; border: 1px solid rgba(212,175,55,0.15); border-radius: 12px; width: 260px; max-height: 300px; overflow-y: auto; z-index: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+    .notif-submenu.show { display: block; }
+    .notif-submenu-item { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 8px; color: #E8EDF2; }
+    .notif-submenu-item .notif-content { flex: 1; }
+    .notif-submenu-item .notif-title { font-weight: 600; color: #FFF; margin-bottom: 2px; font-size: 12px; }
+    .notif-submenu-item .notif-date { font-size: 9px; color: #999; }
+    .notif-submenu-item .notif-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #D4AF37; flex-shrink: 0; }
+    .notif-submenu-empty { padding: 30px; text-align: center; color: #999; font-size: 12px; }
+    .lang-submenu { display: none; position: fixed; bottom: 440px; right: 16px; background: #1a1f2b; border: 1px solid rgba(212,175,55,0.15); border-radius: 14px; width: 180px; z-index: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.12); overflow: hidden; }
+    .lang-submenu.show { display: block; }
+    .lang-submenu-item { padding: 10px 14px; cursor: pointer; font-size: 11px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 8px; color: #E8EDF2; transition: 0.2s; }
+    .lang-submenu-item:last-child { border-bottom: none; }
+    .lang-submenu-item:hover { background: rgba(212,175,55,0.1); color: #D4AF37; }
+    .lang-submenu-item .lang-flag { font-size: 16px; }
+    .lang-submenu-item .lang-name { flex: 1; }
+    .lang-submenu-item .lang-check { color: #D4AF37; font-size: 10px; display: none; }
+    .lang-submenu-item.active .lang-check { display: inline-block; }
+    .lang-submenu-item.active { background: rgba(212,175,55,0.1); font-weight: 600; }
+    .notif-count-badge { background: #E53E3E; color: #FFF; font-size: 9px; padding: 2px 7px; border-radius: 10px; margin-left: auto; font-weight: 700; }
+
+    @media (max-width: 992px) { .invest-grid { grid-template-columns: repeat(2, 1fr); } .info-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) {
+      .page-header h1 { font-size: 26px; }
+      .section { padding: 25px 12px; }
+      .section-title { font-size: 22px; }
+      .invest-grid { grid-template-columns: 1fr; }
+      .wallet-bar { flex-direction: column; text-align: center; }
+      .chat-window { left: 8px; right: 8px; width: auto; bottom: 85px; height: 360px; }
+      .notif-submenu { left: 10px; right: 10px; width: auto; bottom: 420px; }
+      .lang-submenu { left: 10px; right: 10px; width: auto; bottom: 420px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="ticker-wrap"><div class="ticker" id="tickerContent"></div></div>
+
+<div class="top-bar">
+  <div style="width:34px;"></div>
+  <a href="dashboard-en.html" class="logo">EOT<span> PARTNERS</span></a>
+  <div style="width:34px;"></div>
+</div>
+
+<div class="support-float" title="Support" onclick="toggleChat()">
+  <span class="support-pulse"></span>
+  <i class="fas fa-headset"></i>
+</div>
+
+<div class="chat-window" id="chatWindow">
+  <div class="chat-header"><span><i class="fas fa-headset"></i> Customer Support</span><div><span class="chat-status">Online</span><button class="chat-close" onclick="toggleChat()">✕</button></div></div>
+  <div class="chat-body" id="chatBody"><div class="chat-msg received"><div class="chat-msg-text">Welcome! How can I help you today?</div><div class="chat-msg-time">Now</div></div></div>
+  <div class="chat-questions" id="chatQuestions"></div>
+  <div class="chat-footer"><input type="text" class="chat-input" id="chatInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter')sendMessage()"><button class="chat-send" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button></div>
+</div>
+
+<section class="page-header">
+  <h1>Investment Projects</h1>
+  <p>25 investment sectors with competitive returns - Exclusive for qualified members</p>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Available Sectors</h2>
+  <div class="title-line"></div>
+  <div class="wallet-bar">
+    <div class="balance-info"><span style="font-size:22px;">💰</span><div><span class="balance-label">Available Balance</span><span class="balance-value" id="topBalance">$0.00</span></div></div>
+    <div class="wallet-actions">
+      <a href="deposit.html" class="wallet-btn btn-deposit">+ Deposit</a>
+      <a href="withdraw.html" class="wallet-btn btn-withdraw">- Withdraw</a>
+      <button class="wallet-btn btn-transfer" onclick="openTransferModal()">Transfer</button>
+    </div>
+  </div>
+  <div class="invest-grid" id="investGrid"></div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Investment Eligibility</h2>
+  <div class="title-line"></div>
+  <div class="eligibility-card">
+    <h3>To access investment projects:</h3>
+    <div class="condition-item"><span class="cond-num">1</span><div><strong>Active Partnership Subscription</strong><p>You must have an active subscription in the partnership page to benefit from projects.</p></div></div>
+    <div class="condition-item"><span class="cond-num">2</span><div><strong>Active Member for 30 Days</strong><p>At least 30 days must have passed since your registration as an active member on the platform.</p></div></div>
+    <div class="condition-item"><span class="cond-num">3</span><div><strong>Sufficient Wallet Balance</strong><p>Your wallet must contain the minimum required amount for the sector you wish to invest in.</p></div></div>
+  </div>
+  <div class="info-card">
+    <h3>How EOT PARTNERS Manages Your Investments?</h3>
+    <p>At <span class="gold">EOT PARTNERS</span>, we understand that financial markets are constantly changing. Therefore, we rely on <span class="gold">a team of 200 analysts and experts</span> working around the clock in 12 countries worldwide.</p>
+    <p>We use <span class="gold">advanced AI-powered analytical models</span> to study each sector individually, determining minimum, average, and maximum returns based on:</p>
+    <div class="info-grid">
+      <div class="info-grid-item"><span class="num">1</span><p>Historical sector performance analysis</p></div>
+      <div class="info-grid-item"><span class="num">2</span><p>Study of global economic conditions</p></div>
+      <div class="info-grid-item"><span class="num">3</span><p>Future growth forecasts</p></div>
+    </div>
+    <p>We always aim to deliver the <span class="gold">best possible return</span> for each sector while managing risk professionally. Returns are updated <span class="gold">weekly</span> according to the latest global market developments.</p>
+  </div>
+</section>
+
+<div style="background:rgba(212,175,55,0.03);border-top:1px solid rgba(212,175,55,0.15);padding:40px 20px 30px;margin-top:10px;text-align:center;">
+  <div class="footer-logo" style="font-size:24px;font-weight:800;letter-spacing:3px;margin-bottom:6px;color:#FFFFFF;">EOT<span style="color:#D4AF37;"> PARTNERS</span></div>
+  <div style="font-size:11px;color:#A09070;margin-bottom:16px;font-weight:600;letter-spacing:1px;">Est. 2020 | Investment Portfolio Management</div>
+  <div style="width:60px;height:2px;background:#D4AF37;margin:0 auto 20px;border-radius:2px;"></div>
+  <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:20px;font-size:11px;">
+    <a href="about-en.html" style="color:#A09070;text-decoration:none;">About Us</a>
+    <a href="support-en.html" style="color:#A09070;text-decoration:none;">Support</a>
+    <a href="#" style="color:#A09070;text-decoration:none;">Privacy Policy</a>
+    <a href="#" style="color:#A09070;text-decoration:none;">Terms & Conditions</a>
+    <a href="#" style="color:#A09070;text-decoration:none;">FAQ</a>
+  </div>
+  <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:20px;font-size:24px;opacity:0.6;">
+    <i class="fab fa-bitcoin" style="color:#F7931A;" title="Bitcoin"></i>
+    <i class="fab fa-ethereum" style="color:#627EEA;" title="Ethereum"></i>
+    <i class="fab fa-google" style="color:#4285F4;" title="Google"></i>
+    <i class="fab fa-amazon" style="color:#FF9900;" title="Amazon"></i>
+    <i class="fab fa-apple" style="color:#555;" title="Apple"></i>
+    <i class="fab fa-microsoft" style="color:#00A4EF;" title="Microsoft"></i>
+    <i class="fab fa-paypal" style="color:#003087;" title="PayPal"></i>
+  </div>
+  <div style="width:60px;height:2px;background:#D4AF37;margin:0 auto 20px;border-radius:2px;"></div>
+  <div style="font-size:11px;color:#999;line-height:2.2;margin-bottom:16px;">
+    A leading investment company specializing in portfolio management and capital growth<br>
+    We work with elite financial experts to achieve exceptional returns for our clients<br>
+    We manage portfolios exceeding $500 million for over 12,000 clients worldwide
+  </div>
+  <div style="font-size:10px;color:#aaa;line-height:2;">&copy; 2026 EOT PARTNERS. All rights reserved<br></div>
+</div>
+
+<div class="notif-submenu" id="notifSubmenu"><div class="notif-submenu-empty" id="notifEmpty">No new notifications</div><div id="notifList"></div></div>
+<div class="lang-submenu" id="langSubmenu">
+  <div class="lang-submenu-item" onclick="setLanguage('ar')"><span class="lang-flag">🇸🇦</span><span class="lang-name">العربية</span><span class="lang-check"><i class="fas fa-check"></i></span></div>
+  <div class="lang-submenu-item" onclick="setLanguage('en')"><span class="lang-flag">🇬🇧</span><span class="lang-name">English</span><span class="lang-check"><i class="fas fa-check"></i></span></div>
+  <div class="lang-submenu-item" onclick="setLanguage('fr')"><span class="lang-flag">🇫🇷</span><span class="lang-name">Français</span><span class="lang-check"><i class="fas fa-check"></i></span></div>
+  <div class="lang-submenu-item" onclick="setLanguage('he')"><span class="lang-flag">🇮🇱</span><span class="lang-name">עברית</span><span class="lang-check"><i class="fas fa-check"></i></span></div>
+  <div class="lang-submenu-item" onclick="setLanguage('es')"><span class="lang-flag">🇪🇸</span><span class="lang-name">Español</span><span class="lang-check"><i class="fas fa-check"></i></span></div>
+  <div class="lang-submenu-item" onclick="setLanguage('de')"><span class="lang-flag">🇩🇪</span><span class="lang-name">Deutsch</span><span class="lang-check"><i class="fas fa-check"></i></span></div>
+  <div class="lang-submenu-item" onclick="setLanguage('tr')"><span class="lang-flag">🇹🇷</span><span class="lang-name">Türkçe</span><span class="lang-check"><i class="fas fa-check"></i></span></div>
+</div>
+
+<div class="dots-menu" id="dotsMenu">
+  <a href="profile-en.html" class="dots-menu-item"><i class="fas fa-user"></i> My Profile</a>
+  <div class="dots-menu-item" id="notifMenuItem"><i class="fas fa-bell"></i> Notifications<span class="notif-count-badge" id="notifCountBadge" style="display:none;">0</span><i class="fas fa-chevron-right" style="margin-left:auto;font-size:10px;"></i></div>
+  <a href="profile-en.html" class="dots-menu-item"><i class="fas fa-check-circle"></i> Verify Account</a>
+  <a href="wallet-en.html" class="dots-menu-item"><i class="fas fa-wallet"></i> My Wallet</a>
+  <a href="leaderboard-en.html" class="dots-menu-item"><i class="fas fa-trophy"></i> Leaderboard</a>
+  <a href="rewards-en.html" class="dots-menu-item"><i class="fas fa-gift"></i> Rewards</a>
+  <a href="invite-en.html" class="dots-menu-item"><i class="fas fa-share-alt"></i> Invite Friend</a>
+  <a href="support-en.html" class="dots-menu-item"><i class="fas fa-headset"></i> Support</a>
+  <div class="dots-menu-divider"></div>
+  <div class="dots-menu-item" id="langMenuItem"><i class="fas fa-globe"></i> Language<span style="margin-left:auto;font-size:10px;color:#D4AF37;" id="currentLangLabel">English</span><i class="fas fa-chevron-right" style="font-size:10px;"></i></div>
+  <div class="dots-menu-divider"></div>
+  <a href="#" class="dots-menu-item menu-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<div class="bottom-nav" id="bottomNav">
+  <a href="dashboard-en.html" class="bottom-item"><i class="fas fa-home"></i><span>Home</span></a>
+  <a href="invest-en.html" class="bottom-item active"><i class="fas fa-chart-line"></i><span>Invest</span></a>
+  <a href="partnership-en.html" class="bottom-item"><i class="fas fa-handshake"></i><span>Partner</span></a>
+  <a href="wallet-en.html" class="bottom-item"><i class="fas fa-wallet"></i><span>Wallet</span></a>
+  <a href="#" class="bottom-item" onclick="toggleDotsMenu(event)"><i class="fas fa-ellipsis-h"></i><span>More</span></a>
+</div>
+
+<div class="modal-overlay" id="confirmInvestModal">
+  <div class="modal-box">
+    <h3 style="color:#4ADE80;">Confirm Investment</h3>
+    <p class="modal-subtitle" id="confirmSectorName"></p>
+    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:12px;padding:15px;margin:15px 0;text-align:left;">
+      <div class="confirm-detail-row"><span>Sector:</span><span id="confirmName"></span></div>
+      <div class="confirm-detail-row"><span>Required Amount:</span><span style="color:#D4AF37;" id="confirmAmount"></span></div>
+      <div class="confirm-detail-row"><span>Expected Return:</span><span style="color:#4ADE80;" id="confirmReturn"></span></div>
+      <div class="confirm-detail-row"><span>Duration:</span><span id="confirmDuration"></span></div>
+      <div class="confirm-detail-row"><span>Your Balance:</span><span style="color:#FFF;" id="confirmBalance"></span></div>
+    </div>
+    <div style="display:flex;gap:10px;"><button class="modal-action-btn" style="flex:1;" onclick="confirmInvest()">Confirm Investment</button><button class="modal-close" style="flex:1;margin:0;" onclick="document.getElementById('confirmInvestModal').style.display='none';">Cancel</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="notEligibleModal">
+  <div class="modal-box">
+    <h3 style="color:#EF4444;">Not Eligible</h3>
+    <p class="modal-subtitle">You must meet all the following conditions to invest</p>
+    <div id="notEligibleContent"></div>
+    <a href="partnership-en.html" class="modal-action-btn" style="display:block;text-decoration:none;text-align:center;">Go to Partnership Page</a>
+    <button class="modal-close" onclick="document.getElementById('notEligibleModal').style.display='none';">Close</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="sectorInfoModal"><div class="modal-box" id="sectorInfoContent"></div></div>
+
+<div class="modal-overlay" id="transferModal">
+  <div class="modal-box">
+    <h3>Transfer Funds</h3>
+    <p class="modal-subtitle">Transfer between wallet, investment and partnership</p>
+    <div style="text-align:left;margin-bottom:10px;"><label style="color:#D4AF37;font-size:11px;">Transfer From</label><select id="transferFrom" style="width:100%;padding:10px;background:#0a0e14;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#FFF;font-family:inherit;"><option value="wallet">Wallet</option><option value="invest">Investment Account</option><option value="partner">Partnership Account</option></select></div>
+    <div style="text-align:left;margin-bottom:10px;"><label style="color:#D4AF37;font-size:11px;">Transfer To</label><select id="transferTo" style="width:100%;padding:10px;background:#0a0e14;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#FFF;font-family:inherit;"><option value="invest">Investment Account</option><option value="wallet">Wallet</option><option value="partner">Partnership Account</option></select></div>
+    <div style="text-align:left;margin-bottom:10px;"><label style="color:#D4AF37;font-size:11px;">Amount ($)</label><input type="number" id="transferAmount" placeholder="Enter amount" style="width:100%;padding:10px;background:#0a0e14;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#FFF;font-family:inherit;"></div>
+    <button class="modal-action-btn" onclick="processTransfer()">Confirm Transfer</button>
+    <button class="modal-close" onclick="document.getElementById('transferModal').style.display='none';">Cancel</button>
+  </div>
+</div>
+<script>
+  // ========== Firebase Functions ==========
+  function getUserId() {
+    const session = JSON.parse(localStorage.getItem('eot_session'));
+    return session ? session.id : null;
+  }
+
+  async function getUserData() {
+    const uid = getUserId();
+    if (!uid) return null;
+    const doc = await firebase.firestore().collection('users').doc(uid).get();
+    return doc.exists ? doc.data() : null;
+  }
+
+  async function getBalance() {
+    const data = await getUserData();
+    return data ? (data.balance || { totalUSDT: 0, totalInvested: 0, totalProfit: 0 }) : { totalUSDT: 0, totalInvested: 0, totalProfit: 0 };
+  }
+
+  async function saveBalance(balance) {
+    const uid = getUserId();
+    if (!uid) return;
+    await firebase.firestore().collection('users').doc(uid).update({ balance: balance });
+    localStorage.setItem('eot_balance', JSON.stringify(balance));
+  }
+
+  async function getInvestments() {
+    const uid = getUserId();
+    if (!uid) return [];
+    const snapshot = await firebase.firestore().collection('investments').where('userId', '==', uid).get();
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  async function saveInvestment(investment) {
+    const uid = getUserId();
+    if (!uid) return;
+    await firebase.firestore().collection('investments').add({ ...investment, userId: uid, createdAt: new Date().toISOString() });
+  }
+
+  const SESSION_KEY = 'eot_session', NOTIFICATIONS_KEY = 'eot_notifications', NEWS_KEY = 'eot_news';
+  function fmt(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function getSession() { return JSON.parse(localStorage.getItem(SESSION_KEY)); }
+
+  // ========== Chat ==========
+  function getChatQuestions() { return window.CHAT_QUESTIONS || []; }
+  function loadQuestions() { const c=document.getElementById('chatQuestions');if(!c)return;const q=getChatQuestions();if(!q.length){c.innerHTML='';return;}c.style.display='block';c.innerHTML='<div style="font-size:10px;color:#999;margin-bottom:4px;">FAQ:</div>'+q.map((q,i)=>'<button class="chat-question-btn" onclick="askQuestion('+i+')">'+q.icon+' '+q.question+'</button>').join(''); }
+  function askQuestion(i){const q=(getChatQuestions()||[])[i];if(!q)return;const b=document.getElementById('chatBody'),n=new Date(),t=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');b.innerHTML+='<div class="chat-msg sent"><div class="chat-msg-text">'+q.question+'</div><div class="chat-msg-time">'+t+'</div></div>';document.getElementById('chatQuestions').style.display='none';setTimeout(()=>{b.innerHTML+='<div class="chat-msg received"><div class="chat-msg-text">'+q.answer+'</div><div class="chat-msg-time">'+t+'</div></div>';b.scrollTop=b.scrollHeight;},800);b.scrollTop=b.scrollHeight;}
+  function toggleChat(){const c=document.getElementById('chatWindow');c.classList.toggle('show');if(c.classList.contains('show'))loadQuestions();}
+  function sendMessage(){const inp=document.getElementById('chatInput'),msg=inp.value.trim();if(!msg)return;const b=document.getElementById('chatBody'),n=new Date(),t=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');b.innerHTML+='<div class="chat-msg sent"><div class="chat-msg-text">'+msg+'</div><div class="chat-msg-time">'+t+'</div></div>';document.getElementById('chatQuestions').style.display='none';setTimeout(()=>{b.innerHTML+='<div class="chat-msg received"><div class="chat-msg-text">Thank you for contacting us! We will reply soon.</div><div class="chat-msg-time">'+t+'</div></div>';b.scrollTop=b.scrollHeight;},1000);inp.value='';b.scrollTop=b.scrollHeight;}
+
+  // ========== Ticker ==========
+  function loadTicker(){const news=JSON.parse(localStorage.getItem(NEWS_KEY))||[];const def=['Exciting offers coming soon','Invest today, earn tomorrow','Exceptional returns up to 604%','Join 12,000+ investors','Our platform is safe & reliable'];const items=news.length>0?news:def;document.getElementById('tickerContent').innerHTML=[...items,...items].map(n=>'<div class="ticker-item"><span class="ticker-dot"></span> '+n+'</div>').join('');}
+
+  // ========== Sectors ==========
+  const sectors=[{id:1,name:'Oil & Gas',type:'weekly',min:50,low:8,mid:15,high:75,duration:'7 Days',img:'sector-1.jpg',companies:'ExxonMobil, Shell, Chevron, BP, Saudi Aramco, TotalEnergies',desc:'One of the strongest global sectors with price fluctuations offering excellent opportunities.'},{id:2,name:'Solar Energy',type:'weekly',min:50,low:7,mid:14,high:68,duration:'7 Days',img:'sector-2.jpg',companies:'Tesla Energy, First Solar, SunPower, Enphase Energy, JinkoSolar, Canadian Solar',desc:'A rapidly growing sector with increasing global demand for clean energy.'},{id:3,name:'Water Resources',type:'weekly',min:50,low:9,mid:16,high:80,duration:'7 Days',img:'sector-3.jpg',companies:'Veolia, American Water Works, Suez, Xylem, Pentair, Essential Utilities',desc:'A vital sector with global water scarcity and increasing infrastructure investments.'},{id:4,name:'Natural Gas',type:'weekly',min:60,low:10,mid:18,high:85,duration:'7 Days',img:'sector-4.jpg',companies:'Gazprom, Cheniere Energy, QatarEnergy, Equinor, ConocoPhillips, Woodside',desc:'A strategic sector powering the world with major shifts in the European market.'},{id:5,name:'Maritime Shipping',type:'monthly',min:100,low:12,mid:22,high:110,duration:'30 Days',img:'sector-5.jpg',companies:'Maersk, MSC, COSCO, Hapag-Lloyd, Evergreen, NYK Line',desc:'The artery of global trade with expected recovery after supply chain crises.'},{id:6,name:'Aviation',type:'monthly',min:100,low:10,mid:20,high:100,duration:'30 Days',img:'sector-6.jpg',companies:'Boeing, Airbus, Emirates, Delta, Lufthansa, Singapore Airlines',desc:'A sector recovering strongly with the return of global travel.'},{id:7,name:'Construction',type:'monthly',min:200,low:14,mid:28,high:140,duration:'30 Days',img:'sector-7.jpg',companies:'Bechtel, Vinci, ACS Group, Bouygues, Skanska, China State Construction',desc:'A global construction boom with mega projects in the Middle East and Asia.'},{id:8,name:'Healthcare',type:'monthly',min:200,low:13,mid:26,high:130,duration:'30 Days',img:'sector-8.jpg',companies:'Johnson & Johnson, Pfizer, Roche, Novartis, Merck, AstraZeneca',desc:'A strong defensive sector with increasing global health spending.'},{id:9,name:'Telecom',type:'monthly',min:200,low:15,mid:30,high:150,duration:'30 Days',img:'sector-9.jpg',companies:'AT&T, Verizon, T-Mobile, Vodafone, China Mobile, Deutsche Telekom',desc:'The 5G and IoT revolution opens new horizons for growth in telecom.'},{id:10,name:'E-Commerce',type:'monthly',min:300,low:18,mid:35,high:175,duration:'30 Days',img:'sector-10.jpg',companies:'Amazon, Alibaba, Shopify, JD.com, Mercado Libre, eBay',desc:'Accelerated growth with consumers shifting to digital shopping worldwide.'},{id:11,name:'Technology',type:'monthly',min:300,low:20,mid:38,high:190,duration:'30 Days',img:'sector-11.jpg',companies:'Apple, Microsoft, Google, Meta, NVIDIA, Samsung',desc:'The most innovative sector with massive investments in AI and computing.'},{id:12,name:'Automotive',type:'monthly',min:300,low:16,mid:32,high:160,duration:'30 Days',img:'sector-12.jpg',companies:'Tesla, Toyota, Volkswagen, BMW, Ford, BYD',desc:'The EV and autonomous driving revolution is changing the industry.'},{id:13,name:'Cybersecurity',type:'monthly',min:250,low:22,mid:40,high:200,duration:'30 Days',img:'sector-13.jpg',companies:'CrowdStrike, Palo Alto Networks, Fortinet, Zscaler, Okta, Cloudflare',desc:'Top priority for companies and governments with increasing cyber attacks.'}];
+  const sectorsContinued=[{id:14,name:'Mining & Metals',type:'yearly',min:600,low:28,mid:55,high:280,duration:'365 Days',img:'sector-14.jpg',companies:'BHP Group, Rio Tinto, Glencore, Vale, Freeport-McMoRan, Newmont',desc:'Growing demand for rare minerals for clean energy and electronics technologies.'},{id:15,name:'Financial Services',type:'yearly',min:600,low:25,mid:50,high:250,duration:'365 Days',img:'sector-15.jpg',companies:'JPMorgan, Goldman Sachs, BlackRock, Visa, Mastercard, Berkshire Hathaway',desc:'A solid financial sector with rewarding returns in global markets.'},{id:16,name:'Investment Portfolios',type:'yearly',min:600,low:26,mid:52,high:260,duration:'365 Days',img:'sector-16.jpg',companies:'Vanguard, Fidelity, BlackRock, Charles Schwab, State Street, PIMCO',desc:'Investment diversification with professional risk management.'},{id:17,name:'Diamonds & Jewelry',type:'yearly',min:1500,low:32,mid:65,high:320,duration:'365 Days',img:'sector-17.jpg',companies:'De Beers, Tiffany & Co, Cartier, LVMH, Richemont, Pandora',desc:'Luxury assets maintaining their value with increasing demand from Asian markets.'},{id:18,name:'Commercial Real Estate',type:'yearly',min:1500,low:30,mid:60,high:300,duration:'365 Days',img:'sector-18.jpg',companies:'CBRE Group, JLL, Prologis, Simon Property, Brookfield, Mitsui Fudosan',desc:'Real estate investments in major city centers with rental yields and capital appreciation.'},{id:19,name:'Artificial Intelligence',type:'yearly',min:1500,low:35,mid:70,high:350,duration:'365 Days',img:'sector-19.jpg',companies:'OpenAI, DeepMind, Anthropic, C3.ai, Palantir, UiPath',desc:'The fastest growing tech revolution with applications across all sectors.'},{id:20,name:'Renewable Energy',type:'yearly',min:700,low:27,mid:53,high:265,duration:'365 Days',img:'sector-20.jpg',companies:'NextEra Energy, Iberdrola, Orsted, Enel Green Power, Vestas, Siemens Gamesa',desc:'The future of global energy with massive government investments for green transition.'},{id:21,name:'Space & Satellites',type:'yearly',min:2000,low:38,mid:75,high:380,duration:'365 Days',img:'sector-21.jpg',companies:'SpaceX, Blue Origin, Virgin Galactic, Northrop Grumman, Lockheed Martin, Rocket Lab',desc:'The new frontier of investment with commercial space race and satellite internet.'},{id:22,name:'Robotics',type:'yearly',min:1200,low:33,mid:68,high:340,duration:'365 Days',img:'sector-22.jpg',companies:'Boston Dynamics, ABB, Fanuc, KUKA, Intuitive Surgical, iRobot',desc:'Automation of industry and services with a boom in intelligent and collaborative robots.'},{id:23,name:'Biotechnology',type:'yearly',min:1000,low:30,mid:62,high:310,duration:'365 Days',img:'sector-23.jpg',companies:'Moderna, BioNTech, Amgen, Gilead Sciences, Regeneron, CRISPR Therapeutics',desc:'A revolution in medicine and gene therapies with unprecedented scientific discoveries.'},{id:24,name:'Smart Agriculture',type:'monthly',min:350,low:19,mid:36,high:180,duration:'30 Days',img:'sector-24.jpg',companies:'John Deere, Corteva, Nutrien, AGCO, Trimble Agriculture, Bayer Crop Science',desc:'Advanced agricultural technologies to meet global food security challenges.'},{id:25,name:'Electric Transport',type:'monthly',min:280,low:21,mid:42,high:210,duration:'30 Days',img:'sector-25.jpg',companies:'Tesla, Rivian, Lucid Motors, NIO, BYD, ChargePoint',desc:'The future of sustainable transport with accelerating global shift to EVs.'}];
+  const allSectors=[...sectors,...sectorsContinued];let selectedSectorForInvest=null;
+  function getTypeLabel(type){return type==='weekly'?'Weekly':type==='monthly'?'Monthly':'Yearly';}
+  function getTagClass(type){return type==='weekly'?'tag-weekly':type==='monthly'?'tag-monthly':'tag-yearly';}
+
+  function renderCards(){document.getElementById('investGrid').innerHTML=allSectors.map(s=>'<div class="invest-card"><div class="card-img" style="background-image:url(\''+s.img+'\');"><span class="card-tag '+getTagClass(s.type)+'">'+getTypeLabel(s.type)+'</span></div><div class="card-body"><div class="card-sector">'+s.name+'</div><div class="card-return">Return up to <span>'+s.high+'%</span></div><div class="card-duration">Duration: '+s.duration+'</div><div class="card-btns"><button class="card-btn" onclick="handleInvestClick('+s.id+')">Invest Now</button><button class="card-btn card-info-btn" onclick="openSectorInfo('+s.id+')">Info</button></div></div></div>').join('');}
+
+  async function checkEligibility(){const userData=await getUserData();const balance=await getBalance();let cond1=!!(userData&&userData.partnership&&userData.partnership.active);let cond2=false;if(userData&&userData.joinDate){const jd=new Date(userData.joinDate);const nd=new Date();if(Math.floor((nd-jd)/(1000*60*60*24))>=30)cond2=true;}let cond3=(balance.totalUSDT||0)>=(selectedSectorForInvest?selectedSectorForInvest.min:50);return{cond1,cond2,cond3,eligible:cond1&&cond2&&cond3,balance};}
+
+  async function handleInvestClick(sectorId){selectedSectorForInvest=allSectors.find(s=>s.id===sectorId);const result=await checkEligibility();if(result.eligible){const bal=result.balance.totalUSDT||0;document.getElementById('confirmSectorName').textContent='You are eligible to invest in this sector';document.getElementById('confirmName').textContent=selectedSectorForInvest.name;document.getElementById('confirmAmount').textContent='$'+selectedSectorForInvest.min;document.getElementById('confirmReturn').textContent=selectedSectorForInvest.low+'% - '+selectedSectorForInvest.high+'%';document.getElementById('confirmDuration').textContent=selectedSectorForInvest.duration;document.getElementById('confirmBalance').textContent='$'+bal.toFixed(2);document.getElementById('confirmInvestModal').style.display='flex';}else{document.getElementById('notEligibleContent').innerHTML='<div class="condition-row '+(result.cond1?'met':'notmet')+'"><span class="condition-icon-big">'+(result.cond1?'✓':'✗')+'</span><div style="text-align:left;"><strong>Active Partnership</strong><p style="margin:3px 0 0;font-size:11px;">'+(result.cond1?'You have an active subscription.':'You need to subscribe to the partnership program.')+'</p></div></div><div class="condition-row '+(result.cond2?'met':'notmet')+'"><span class="condition-icon-big">'+(result.cond2?'✓':'✗')+'</span><div style="text-align:left;"><strong>30 Days Member</strong><p style="margin:3px 0 0;font-size:11px;">'+(result.cond2?'30 days passed.':'30 days required.')+'</p></div></div><div class="condition-row '+(result.cond3?'met':'notmet')+'"><span class="condition-icon-big">'+(result.cond3?'✓':'✗')+'</span><div style="text-align:left;"><strong>Sufficient Balance</strong><p style="margin:3px 0 0;font-size:11px;">Minimum: $'+selectedSectorForInvest.min+'</p></div></div>';document.getElementById('notEligibleModal').style.display='flex';}}
+
+  async function confirmInvest(){const balance=await getBalance();const amt=selectedSectorForInvest.min;const available=balance.totalUSDT||0;if(available<amt){alert('Insufficient balance.');return;}balance.totalUSDT=available-amt;balance.totalInvested=(balance.totalInvested||0)+amt;await saveBalance(balance);await saveInvestment({name:selectedSectorForInvest.name,type:'invest',amount:amt,profit:0,returnRate:selectedSectorForInvest.low+'% - '+selectedSectorForInvest.high+'%',returnType:selectedSectorForInvest.type,date:new Date().toLocaleDateString('en-US')});document.getElementById('confirmInvestModal').style.display='none';updateTopBalance();alert('Investment successful in '+selectedSectorForInvest.name+' for $'+amt);}
+
+  function openSectorInfo(id){const s=allSectors.find(sec=>sec.id===id);const returns=[{period:'Daily',low:(s.low/30).toFixed(2),mid:(s.mid/30).toFixed(2),high:(s.high/30).toFixed(2)},{period:'Weekly',low:(s.low/4).toFixed(2),mid:(s.mid/4).toFixed(2),high:(s.high/4).toFixed(2)},{period:'Monthly',low:s.low,mid:s.mid,high:s.high},{period:'Yearly',low:(s.low*12).toFixed(0),mid:(s.mid*12).toFixed(0),high:(s.high*12).toFixed(0)}];document.getElementById('sectorInfoContent').innerHTML='<h3>'+s.name+'</h3><p class="modal-subtitle">'+s.desc+'</p><div class="sector-info-grid"><div class="sector-info-item"><strong>Category</strong><span>'+getTypeLabel(s.type)+'</span></div><div class="sector-info-item"><strong>Duration</strong><span>'+s.duration+'</span></div><div class="sector-info-item"><strong>Minimum</strong><span>$'+s.min+'</span></div><div class="sector-info-item"><strong>Max Return</strong><span style="color:#4ADE80;">'+s.high+'%</span></div></div><div class="sector-companies"><strong>Top Companies:</strong><br>'+s.companies+'</div><h4 style="color:#D4AF37;margin:10px 0;">Returns Table</h4><table class="sector-returns-table"><thead><tr><th>Period</th><th>Low</th><th>Mid</th><th>High</th></tr></thead><tbody>'+returns.map(r=>'<tr><td>'+r.period+'</td><td style="color:#F87171;">'+r.low+'%</td><td style="color:#FBBF24;">'+r.mid+'%</td><td style="color:#4ADE80;">'+r.high+'%</td></tr>').join('')+'</tbody></table><p style="font-size:10px;color:#999;">Returns are estimated and updated weekly.</p><button class="modal-action-btn" onclick="document.getElementById(\'sectorInfoModal\').style.display=\'none\';handleInvestClick('+s.id+');">Invest in this Sector</button><button class="modal-close" onclick="document.getElementById(\'sectorInfoModal\').style.display=\'none\';">Close</button>';document.getElementById('sectorInfoModal').style.display='flex';}
+
+  function openTransferModal(){document.getElementById('transferModal').style.display='flex';}
+  async function processTransfer(){const from=document.getElementById('transferFrom').value,to=document.getElementById('transferTo').value,amt=parseFloat(document.getElementById('transferAmount').value);if(from===to){alert('Cannot transfer to the same account');return;}if(!amt||amt<=0){alert('Please enter a valid amount');return;}const balance=await getBalance();const available=balance.totalUSDT||0;if(from==='wallet'&&amt>available){alert('Insufficient balance.');return;}if(from==='wallet')balance.totalUSDT=available-amt;if(to==='wallet')balance.totalUSDT=(balance.totalUSDT||0)+amt;await saveBalance(balance);const transactions=JSON.parse(localStorage.getItem('eot_transactions'))||[];transactions.push({type:'transfer',amount:amt,from,to,date:new Date().toLocaleDateString('en-US')});localStorage.setItem('eot_transactions',JSON.stringify(transactions));updateTopBalance();document.getElementById('transferModal').style.display='none';alert('Transfer successful: $'+amt+' from '+from+' to '+to);}
+  window.onclick=function(e){if(e.target.classList.contains('modal-overlay'))e.target.style.display='none';};
+  async function updateTopBalance(){const balance=await getBalance();document.getElementById('topBalance').textContent='$'+(balance.totalUSDT||0).toFixed(2);}
+
+  let lastScroll=0;window.addEventListener('scroll',function(){const nav=document.getElementById('bottomNav');if(!nav)return;const s=window.pageYOffset;if(s>lastScroll&&s>80)nav.style.transform='translateY(100%)';else nav.style.transform='translateY(0)';lastScroll=s;});
+
+  // ========== Dots Menu ==========
+  function toggleDotsMenu(e){if(e)e.preventDefault();document.getElementById('dotsMenu').classList.toggle('show');}
+  function getNotifications(){const s=getSession();if(s){const all=JSON.parse(localStorage.getItem(NOTIFICATIONS_KEY))||[];return all.filter(n=>n.user===s.email||n.user==='all');}return[];}
+  function getUnreadCount(){return getNotifications().filter(n=>!n.read).length;}
+  function loadNotifBadge(){const badge=document.getElementById('notifCountBadge');if(!badge)return;const count=getUnreadCount();badge.style.display=count>0?'inline-block':'none';if(count>0)badge.textContent=count;}
+  function loadNotifSubmenu(){const list=document.getElementById('notifList'),empty=document.getElementById('notifEmpty');if(!list||!empty)return;const notifs=getNotifications().slice(-5).reverse();if(!notifs.length){empty.style.display='block';list.innerHTML='';}else{empty.style.display='none';list.innerHTML=notifs.map((n,i)=>'<div class="notif-submenu-item" onclick="markNotifRead('+i+');event.stopPropagation();">'+(!n.read?'<span class="notif-dot"></span>':'')+'<div class="notif-content"><div class="notif-title">'+(n.title||'Notification')+'</div><div class="notif-date">'+(n.date||'')+'</div></div></div>').join('');}}
+  function markNotifRead(index){const s=getSession();if(!s)return;const all=JSON.parse(localStorage.getItem(NOTIFICATIONS_KEY))||[];const userNotifs=all.filter(n=>n.user===s.email||n.user==='all');const target=userNotifs[userNotifs.length-1-index];if(target){const ri=all.findIndex(n=>n===target);if(ri!==-1){all[ri].read=true;localStorage.setItem(NOTIFICATIONS_KEY,JSON.stringify(all));loadNotifSubmenu();loadNotifBadge();}}}
+  function toggleNotifSubmenu(e){if(e)e.stopPropagation();const sub=document.getElementById('notifSubmenu'),lang=document.getElementById('langSubmenu');if(!sub)return;if(lang)lang.classList.remove('show');loadNotifSubmenu();loadNotifBadge();sub.classList.toggle('show');}
+  function toggleLangSubmenu(e){if(e)e.stopPropagation();const sub=document.getElementById('langSubmenu'),notif=document.getElementById('notifSubmenu');if(!sub)return;if(notif)notif.classList.remove('show');updateLangActive();sub.classList.toggle('show');}
+  function updateLangActive(){const cl=localStorage.getItem('eot_lang')||'en';document.querySelectorAll('.lang-submenu-item').forEach(el=>el.classList.remove('active'));const items=document.querySelectorAll('.lang-submenu-item');const langs=['ar','en','fr','he','es','de','tr'];const idx=langs.indexOf(cl);if(idx!==-1&&items[idx])items[idx].classList.add('active');}
+  function setLanguage(lang){const labels={ar:'العربية',en:'English',fr:'Français',he:'עברית',es:'Español',de:'Deutsch',tr:'Türkçe'};localStorage.setItem('eot_lang',lang);const label=document.getElementById('currentLangLabel');if(label)label.textContent=labels[lang]||'English';updateLangActive();document.getElementById('langSubmenu').classList.remove('show');if(lang==='ar'){setTimeout(()=>{window.location.href='invest-ar.html';},500);}}
+  function applyLangLabel(){const lang=localStorage.getItem('eot_lang')||'en';const labels={ar:'العربية',en:'English',fr:'Français',he:'עברית',es:'Español',de:'Deutsch',tr:'Türkçe'};const label=document.getElementById('currentLangLabel');if(label)label.textContent=labels[lang]||'English';}
+  function logout(){localStorage.removeItem(SESSION_KEY);window.location.href='login.html';}
+
+  document.addEventListener('click',function(e){const dm=document.getElementById('dotsMenu'),ns=document.getElementById('notifSubmenu'),ls=document.getElementById('langSubmenu');const bb=document.querySelector('.bottom-item .fa-ellipsis-h')?.parentElement;const nmi=document.getElementById('notifMenuItem'),lmi=document.getElementById('langMenuItem');if(dm&&bb&&!dm.contains(e.target)&&!bb.contains(e.target))dm.classList.remove('show');if(ns&&nmi&&!nmi.contains(e.target)&&!ns.contains(e.target))ns.classList.remove('show');if(ls&&lmi&&!lmi.contains(e.target)&&!ls.contains(e.target))ls.classList.remove('show');});
+  document.addEventListener('DOMContentLoaded',function(){const nmi=document.getElementById('notifMenuItem'),lmi=document.getElementById('langMenuItem');if(nmi)nmi.addEventListener('click',toggleNotifSubmenu);if(lmi)lmi.addEventListener('click',toggleLangSubmenu);});
+
+  // ========== Apply Theme (Dark Only) ==========
+  function applyTheme(){
+    const topLogo=document.querySelector('.top-bar .logo');if(topLogo){topLogo.style.color='#FFFFFF';const span=topLogo.querySelector('span');if(span)span.style.color='#D4AF37';}
+    const footerLogo=document.querySelector('.footer-logo');if(footerLogo){footerLogo.style.color='#FFFFFF';const span=footerLogo.querySelector('span');if(span)span.style.color='#D4AF37';}
+    const supportFloat=document.querySelector('.support-float');if(supportFloat){supportFloat.style.background='#1a1f2b';supportFloat.style.borderColor='rgba(212,175,55,0.2)';supportFloat.style.color='#D4AF37';}
+    document.body.style.background='#0a0e14';document.body.style.color='#E8EDF2';
+    document.querySelector('.top-bar').style.background='#0a0e14';
+    document.querySelectorAll('.section-title').forEach(el=>{el.style.color='#D4AF37';});
+    document.querySelectorAll('.invest-card').forEach(el=>{el.style.background='#111620';el.style.borderColor='rgba(212,175,55,0.15)';});
+    document.querySelectorAll('.card-sector').forEach(el=>{el.style.color='#FFF';});
+    document.querySelectorAll('.card-return').forEach(el=>{el.style.color='#A09070';});
+    document.querySelectorAll('.card-duration').forEach(el=>{el.style.color='#D4AF37';});
+    document.querySelectorAll('.wallet-bar').forEach(el=>{el.style.background='#111620';el.style.borderColor='rgba(212,175,55,0.15)';});
+    document.querySelectorAll('.wallet-bar .balance-value').forEach(el=>{el.style.color='#FFF';});
+    document.querySelectorAll('.bottom-nav').forEach(el=>{el.style.background='rgba(10,14,20,0.95)';el.style.borderTopColor='rgba(212,175,55,0.1)';});
+    document.querySelectorAll('.bottom-item').forEach(el=>{el.style.color='#FFF';});
+    document.querySelectorAll('.bottom-item.active').forEach(el=>{el.style.color='#D4AF37';el.style.background='rgba(212,175,55,0.1)';});
+    document.querySelectorAll('.dots-menu').forEach(el=>{el.style.background='#1a1f2b';el.style.borderColor='rgba(212,175,55,0.15)';});
+    document.querySelectorAll('.dots-menu-item').forEach(el=>{el.style.color='#E8EDF2';});
+    document.querySelectorAll('.notif-submenu, .lang-submenu').forEach(el=>{el.style.background='#1a1f2b';el.style.borderColor='rgba(212,175,55,0.15)';});
+    document.querySelectorAll('.notif-submenu-item, .lang-submenu-item').forEach(el=>{el.style.color='#E8EDF2';});
+    document.querySelectorAll('.modal-box').forEach(el=>{el.style.background='#111620';el.style.borderColor='rgba(212,175,55,0.2)';});
+    document.querySelectorAll('.chat-window').forEach(el=>{el.style.background='#1a1f2b';});
+    document.querySelectorAll('.chat-input').forEach(el=>{el.style.background='#0a0e14';el.style.color='#FFF';});
+  }
+
+  window.onload = async function() {
+    const session = getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+    localStorage.setItem('theme', 'dark');
+    applyTheme();
+    applyLangLabel();
+    loadTicker();
+    renderCards();
+    updateTopBalance();
+    loadNotifBadge();
+  };
+</script>
+
+</body>
+</html>

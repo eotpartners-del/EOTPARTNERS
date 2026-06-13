@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إنشاء حساب | EOT PARTNERS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="firebase-auth.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #0a0e14 0%, #1a2740 50%, #0a0e14 100%);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      color: #FFF; padding: 20px;
+    }
+
+    .register-container {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 24px; padding: 35px 28px; width: 100%; max-width: 440px;
+      backdrop-filter: blur(10px); box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    }
+
+    .logo-section { text-align: center; margin-bottom: 28px; }
+    .logo-section .logo { font-size: 26px; font-weight: 800; letter-spacing: 2px; color: #FFF; text-decoration: none; }
+    .logo-section .logo span { color: #D4AF37; }
+    .logo-section p { font-size: 12px; color: #8E9AAF; margin-top: 6px; }
+
+    .input-group { margin-bottom: 16px; }
+    .input-group label { display: block; font-size: 11px; color: #A0AAB8; margin-bottom: 6px; font-weight: 600; }
+    .input-group input {
+      width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 14px;
+      color: #FFF; font-size: 14px; font-family: inherit; transition: 0.3s;
+    }
+    .input-group input:focus { outline: none; border-color: #D4AF37; background: rgba(212,175,55,0.04); }
+    .input-group input::placeholder { color: #555; }
+
+    .ref-info {
+      background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.15);
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 18px;
+      font-size: 11px; color: #D4AF37; text-align: center;
+    }
+
+    .btn-submit {
+      width: 100%; padding: 15px; background: linear-gradient(135deg, #D4AF37, #b8941f);
+      color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 15px;
+      cursor: pointer; font-family: inherit; transition: 0.3s; margin-bottom: 12px;
+    }
+    .btn-submit:hover { background: #e0bc3f; }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .login-link { text-align: center; font-size: 12px; color: #8E9AAF; }
+    .login-link a { color: #D4AF37; text-decoration: none; font-weight: 600; }
+
+    .error-msg {
+      background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2);
+      color: #F87171; padding: 10px 14px; border-radius: 10px;
+      font-size: 12px; text-align: center; margin-bottom: 14px; display: none;
+    }
+
+    .success-msg {
+      background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2);
+      color: #4ADE80; padding: 10px 14px; border-radius: 10px;
+      font-size: 12px; text-align: center; margin-bottom: 14px; display: none;
+    }
+
+    .loading-spinner {
+      display: none; width: 20px; height: 20px; border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000; border-radius: 50%; animation: spin 0.6s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="register-container">
+  <div class="logo-section">
+    <a href="dashboard.html" class="logo">EOT<span> PARTNERS</span></a>
+    <p>إنشاء حساب جديد للانضمام إلى المنصة</p>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+  <div class="success-msg" id="successMsg"></div>
+
+  <div class="ref-info" id="refInfo" style="display:none;">
+    <i class="fas fa-link"></i> تمت دعوتك بواسطة: <strong id="refDisplay"></strong>
+  </div>
+
+  <div class="input-group">
+    <label>الاسم الكامل</label>
+    <input type="text" id="fullName" placeholder="أدخل اسمك الكامل">
+  </div>
+
+  <div class="input-group">
+    <label>البريد الإلكتروني</label>
+    <input type="email" id="email" placeholder="example@email.com">
+  </div>
+
+  <div class="input-group">
+    <label>كلمة المرور</label>
+    <input type="password" id="password" placeholder="********" minlength="6">
+  </div>
+
+  <div class="input-group">
+    <label>تأكيد كلمة المرور</label>
+    <input type="password" id="confirmPassword" placeholder="********" minlength="6">
+  </div>
+
+  <button class="btn-submit" id="submitBtn" onclick="handleRegister()">
+    <span id="btnText">إنشاء الحساب</span>
+    <div class="loading-spinner" id="spinner"></div>
+  </button>
+
+  <div class="login-link">
+    لديك حساب بالفعل؟ <a href="login.html">تسجيل الدخول</a>
+  </div>
+</div>
+
+<script>
+  function getRefCodeFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('ref') || null;
+  }
+
+  let refCode = getRefCodeFromURL();
+  if (refCode && refCode.includes('-')) {
+    refCode = refCode.split('-')[0];
+  }
+
+  if (refCode) {
+    document.getElementById('refInfo').style.display = 'block';
+    document.getElementById('refDisplay').textContent = refCode;
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.getElementById('successMsg').style.display = 'none';
+  }
+
+  function showSuccess(msg) {
+    const el = document.getElementById('successMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.getElementById('errorMsg').style.display = 'none';
+  }
+
+  function setLoading(loading) {
+    const btn = document.getElementById('submitBtn');
+    const text = document.getElementById('btnText');
+    const spinner = document.getElementById('spinner');
+    if (loading) {
+      btn.disabled = true; text.style.display = 'none'; spinner.style.display = 'block';
+    } else {
+      btn.disabled = false; text.style.display = 'inline'; spinner.style.display = 'none';
+    }
+  }
+
+  async function handleRegister() {
+    document.getElementById('errorMsg').style.display = 'none';
+    document.getElementById('successMsg').style.display = 'none';
+
+    const fullName = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (!fullName) { showError('يرجى إدخال الاسم الكامل'); return; }
+    if (!email || !email.includes('@')) { showError('يرجى إدخال بريد إلكتروني صحيح'); return; }
+    if (password.length < 6) { showError('كلمة المرور 6 أحرف على الأقل'); return; }
+    if (password !== confirmPassword) { showError('كلمة المرور غير متطابقة'); return; }
+
+    setLoading(true);
+    try {
+      const result = await registerUser(fullName, email, password, refCode);
+      if (result.success) {
+        // حفظ الجلسة
+        const sessionData = {
+          id: result.userId,
+          fullName: fullName,
+          email: email,
+          refCode: result.refCode,
+          joinDate: new Date().toISOString()
+        };
+        localStorage.setItem('eot_session', JSON.stringify(sessionData));
+
+        // حفظ نسخة محلية للمستخدم (للاستعلام عند تسجيل الدخول)
+        localStorage.setItem('user_' + email, JSON.stringify({
+          fullName: fullName,
+          email: email,
+          password: password,
+          refCode: result.refCode,
+          joinDate: new Date().toISOString()
+        }));
+
+        localStorage.setItem('eot_balance_' + email, JSON.stringify({
+          totalUSDT: 0,
+          totalInvested: 0,
+          totalProfit: 0
+        }));
+
+        showSuccess('تم إنشاء الحساب بنجاح! جاري تحويلك...');
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+      } else {
+        showError(result.message);
+      }
+    } catch (error) {
+      showError('حدث خطأ. تأكد من اتصالك بالإنترنت');
+    }
+    setLoading(false);
+  }
+</script>
+
+</body>
+</html>

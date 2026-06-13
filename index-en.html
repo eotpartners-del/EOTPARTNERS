@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EOT PARTNERS | Integrated Financial Management & Investment Company</title>
+  <script src="chat-data.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { overflow-x: hidden; width: 100%; max-width: 100vw; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+      background-color: #070707; color: #e5e5e5; line-height: 1.7;
+    }
+
+    .news-ticker {
+      background: linear-gradient(90deg, #0d0d0d 0%, #1a1a10 50%, #0d0d0d 100%);
+      border-bottom: 1px solid rgba(212,175,55,0.25); padding: 10px 0;
+      overflow: hidden; position: fixed; top: 0; width: 100%; z-index: 1002; height: 42px;
+    }
+    .news-ticker-track {
+      display: flex; animation: tickerScroll 80s linear infinite;
+      white-space: nowrap; width: max-content;
+    }
+    .news-ticker-item {
+      display: inline-block; padding: 0 80px; color: #d0d0d0;
+      font-size: 14px; white-space: nowrap; letter-spacing: 0.3px; line-height: 22px;
+    }
+    .news-ticker-item .gold { color: #d4af37; font-weight: 700; }
+    .news-ticker-item .green { color: #4ADE80; font-weight: 700; }
+    @keyframes tickerScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+    .navbar {
+      background: rgba(10,10,10,0.96); backdrop-filter: blur(12px);
+      padding: 15px 20px; display: flex; justify-content: space-between;
+      align-items: center; position: fixed; width: 100%; top: 42px; z-index: 1000;
+      border-bottom: 1px solid rgba(212,175,55,0.18); gap: 10px;
+    }
+    .nav-left-group { display: flex; align-items: center; gap: 10px; }
+    .lang-wrapper { position: relative; min-width: 50px; }
+    .lang-btn {
+      display: flex; align-items: center; gap: 8px; background: transparent;
+      border: 1px solid rgba(212,175,55,0.3); color: #d4af37;
+      padding: 8px 14px; border-radius: 20px; cursor: pointer;
+      font-size: 13px; font-weight: 600; font-family: inherit; transition: 0.35s; white-space: nowrap;
+    }
+    .lang-btn:hover { background: rgba(212,175,55,0.1); border-color: #d4af37; }
+    .lang-icon { font-size: 16px; }
+    .lang-arrow { font-size: 10px; transition: 0.3s; }
+    .lang-btn.active .lang-arrow { transform: rotate(180deg); }
+    .lang-dropdown {
+      position: absolute; top: 110%; left: 0;
+      background: rgba(20,20,20,0.98); border: 1px solid rgba(212,175,55,0.25);
+      border-radius: 12px; padding: 8px 0; min-width: 170px;
+      opacity: 0; visibility: hidden; transform: translateY(-10px);
+      transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      backdrop-filter: blur(10px); z-index: 1001;
+    }
+    .lang-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+    .lang-option {
+      display: flex; align-items: center; gap: 10px; padding: 10px 18px;
+      color: #ccc; font-size: 14px; transition: 0.25s; cursor: pointer;
+      border: none; background: transparent; width: 100%; text-align: left; font-family: inherit;
+    }
+    .lang-option:hover { background: rgba(212,175,55,0.1); color: #d4af37; }
+    .lang-option.active-lang { color: #d4af37; font-weight: 700; }
+    .lang-flag { font-size: 18px; width: 24px; text-align: center; }
+
+    .logo-wrapper {
+      display: flex; align-items: center; gap: 20px;
+      position: absolute; left: 50%; transform: translateX(-50%);
+    }
+    .nav-ornament {
+      width: 50px; height: 1px;
+      background: linear-gradient(to right, transparent, #d4af37); position: relative;
+    }
+    .nav-ornament.left { background: linear-gradient(to left, transparent, #d4af37); }
+    .nav-ornament::after {
+      content: ''; position: absolute; width: 5px; height: 5px;
+      background: #d4af37; border-radius: 50%; top: -2px;
+    }
+    .nav-ornament.right::after { right: 0; }
+    .nav-ornament.left::after { left: 0; }
+    .logo {
+      font-size: 28px; font-weight: 700; letter-spacing: 3px;
+      color: white; white-space: nowrap; text-decoration: none;
+    }
+    .logo span { color: #d4af37; }
+
+    .hero {
+      min-height: 100vh;
+      background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&h=1080&fit=crop') center/cover no-repeat;
+      background-attachment: scroll; position: relative;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 180px 20px 80px; margin-top: 42px;
+    }
+    .hero-overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, rgba(0,0,0,0.92) 0%, rgba(10,10,10,0.82) 35%, rgba(20,15,5,0.8) 70%, rgba(0,0,0,0.94) 100%);
+      z-index: 1;
+    }
+    .hero-content { position: relative; z-index: 2; max-width: 900px; }
+    .hero-badge {
+      display: inline-block; background: rgba(212,175,55,0.12);
+      border: 1px solid rgba(212,175,55,0.4); color: #d4af37;
+      padding: 9px 24px; border-radius: 25px; font-size: 15px;
+      font-weight: 600; margin-bottom: 30px; letter-spacing: 1px;
+    }
+    .hero h1 {
+      font-size: 62px; margin-bottom: 25px; font-weight: 700; color: white;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.6); letter-spacing: 1px; line-height: 1.3;
+    }
+    .hero h1 .gold { color: #d4af37; }
+    .hero p {
+      font-size: 20px; max-width: 760px; margin: 0 auto 40px;
+      color: #d0d0d0; line-height: 1.9; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    .hero-stats { display: flex; gap: 60px; justify-content: center; flex-wrap: wrap; margin-bottom: 45px; }
+    .hero-stat { text-align: center; }
+    .hero-stat-number { font-size: 48px; font-weight: 700; color: #d4af37; display: block; }
+    .hero-stat-label { font-size: 15px; color: #bbb; letter-spacing: 1px; }
+    .hero-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+    .hero-btn-primary {
+      background: #d4af37; color: #000; text-decoration: none; font-size: 17px;
+      font-weight: 700; padding: 15px 38px; border-radius: 30px; transition: 0.35s;
+      border: 2px solid #d4af37; box-shadow: 0 6px 20px rgba(212,175,55,0.25);
+    }
+    .hero-btn-primary:hover { background: transparent; color: #d4af37; transform: translateY(-4px); }
+    .hero-btn-secondary {
+      background: transparent; color: #fff; text-decoration: none; font-size: 17px;
+      font-weight: 600; padding: 15px 38px; border-radius: 30px; transition: 0.35s;
+      border: 2px solid rgba(255,255,255,0.4);
+    }
+    .hero-btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: #fff; transform: translateY(-4px); }
+    img { max-width: 100%; height: auto; }
+
+    .support-float { position: fixed; bottom: 30px; right: 20px; width: 48px; height: 48px; background: #1a1f2b; border: 1px solid rgba(212,175,55,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 998; cursor: pointer; box-shadow: 0 4px 15px rgba(212,175,55,0.15); color: #D4AF37; font-size: 20px; transition: 0.3s; }
+    .support-float:hover { transform: scale(1.05); background: rgba(212,175,55,0.05); }
+    .support-float .support-pulse { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: rgba(212,175,55,0.2); animation: supportPulse 2s infinite; }
+    @keyframes supportPulse { 0%{transform:scale(1);opacity:1} 100%{transform:scale(1.6);opacity:0} }
+  </style>
+</head>
+<body>
+  <!-- News Ticker -->
+<div class="news-ticker">
+  <div class="news-ticker-track">
+    <span class="news-ticker-item">Success starts with a decision, and every investment step brings you closer to your financial goals</span><span class="news-ticker-item">Build your own investment team and get an instant welcome bonus upon registration</span><span class="news-ticker-item"><span class="gold">Exclusive Offer:</span> Invest in real estate projects with returns starting from 8% annually</span><span class="news-ticker-item">Build your financial future today with diversified portfolios designed specifically for you</span><span class="news-ticker-item">A specialized team working on market analysis and identifying the best investment opportunities</span><span class="news-ticker-item">Every new investor receives a customized financial plan tailored to their goals and ambitions</span><span class="news-ticker-item"><span class="gold">Opportunity:</span> New real estate development projects in strategic high-growth locations</span><span class="news-ticker-item">Join over 250,000 investors achieving their returns with us confidently and securely</span><span class="news-ticker-item">Reward yourself with an investment decision today and enjoy regular monthly returns</span><span class="news-ticker-item">Learn how to build your portfolio with a team of top financial analysts</span><span class="news-ticker-item">Success starts with a decision, and every investment step brings you closer to your financial goals</span><span class="news-ticker-item">Build your own investment team and get an instant welcome bonus upon registration</span><span class="news-ticker-item"><span class="gold">Exclusive Offer:</span> Invest in real estate projects with returns starting from 8% annually</span><span class="news-ticker-item">Build your financial future today with diversified portfolios designed specifically for you</span><span class="news-ticker-item">A specialized team working on market analysis and identifying the best investment opportunities</span><span class="news-ticker-item">Every new investor receives a customized financial plan tailored to their goals and ambitions</span><span class="news-ticker-item"><span class="gold">Opportunity:</span> New real estate development projects in strategic high-growth locations</span><span class="news-ticker-item">Join over 250,000 investors achieving their returns with us confidently and securely</span><span class="news-ticker-item">Reward yourself with an investment decision today and enjoy regular monthly returns</span><span class="news-ticker-item">Learn how to build your portfolio with a team of top financial analysts</span>
+  </div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="nav-left-group">
+    <div class="lang-wrapper">
+      <button class="lang-btn" onclick="toggleLangDropdown()" id="langBtn">
+        <span class="lang-icon">🌐</span>
+        <span id="currentLang">English</span>
+        <span class="lang-arrow">▼</span>
+      </button>
+      <div class="lang-dropdown" id="langDropdown">
+        <button class="lang-option" onclick="changeLang('العربية', this)"><span class="lang-flag">🇸🇦</span> العربية</button>
+        <button class="lang-option active-lang" onclick="changeLang('English', this)"><span class="lang-flag">🇬🇧</span> English</button>
+        <button class="lang-option" onclick="changeLang('Français', this)"><span class="lang-flag">🇫🇷</span> Français</button>
+        <button class="lang-option" onclick="changeLang('Русский', this)"><span class="lang-flag">🇷🇺</span> Русский</button>
+        <button class="lang-option" onclick="changeLang('Türkçe', this)"><span class="lang-flag">🇹🇷</span> Türkçe</button>
+      </div>
+    </div>
+  </div>
+  <div class="logo-wrapper">
+    <div class="nav-ornament right"></div>
+    <a href="index-en.html" class="logo notranslate">EOT<span> PARTNERS</span></a>
+    <div class="nav-ornament left"></div>
+  </div>
+  <div></div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Integrated Financial Management & Investment Company</div>
+    <h1>Towards <span class="gold">New Horizons</span> of Financial Excellence</h1>
+    <p>We provide advanced services in capital management and developing customized investment solutions for individuals and institutions. We rely on a precise methodology aimed at building long-term value.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="hero-stat-number">+250,000</span><span class="hero-stat-label">Clients Worldwide</span></div>
+      <div class="hero-stat"><span class="hero-stat-number">+35</span><span class="hero-stat-label">Investment Sectors</span></div>
+      <div class="hero-stat"><span class="hero-stat-number">$12.8B</span><span class="hero-stat-label">Assets Under Management</span></div>
+    </div>
+    <div class="hero-buttons">
+      <a href="login.html" class="hero-btn-primary">Start Investing Now</a>
+      <a href="about-en.html" class="hero-btn-secondary">Discover More</a>
+    </div>
+  </div>
+</section>
+<style>
+  .section { padding: 100px 40px; text-align: center; }
+  .section-dark { background: #0a0a0a; }
+  .section-darker { background: #050505; }
+  .section-gold-bg {
+    background: linear-gradient(180deg, #0d0d0d 0%, #0a0a05 50%, #0d0d0d 100%);
+    border-top: 1px solid rgba(212,175,55,0.08); border-bottom: 1px solid rgba(212,175,55,0.08);
+  }
+  .section-title { font-size: 42px; margin-bottom: 15px; color: #d4af37; letter-spacing: 1px; font-weight: 700; }
+  .section-subtitle { color: #bdbdbd; font-size: 18px; margin-bottom: 55px; max-width: 700px; margin-left: auto; margin-right: auto; }
+  .title-line { width: 80px; height: 3px; background: #d4af37; margin: 0 auto 20px; border-radius: 2px; }
+
+  .about-expanded { background: #0a0a0a; padding: 100px 40px; }
+  .about-container { max-width: 1000px; margin: 0 auto; text-align: left; }
+  .about-container h2 { text-align: center; color: #d4af37; font-size: 42px; margin-bottom: 15px; }
+  .about-block { margin-bottom: 50px; }
+  .about-block h3 { color: #fff; font-size: 24px; margin-bottom: 18px; border-left: 3px solid #d4af37; padding-left: 18px; }
+  .about-block p { color: #c0c0c0; font-size: 16px; line-height: 2; text-align: justify; margin-bottom: 15px; }
+  .about-list { list-style: none; }
+  .about-list li { padding: 12px 0; color: #d0d0d0; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,0.03); padding-left: 20px; position: relative; }
+  .about-list li::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: #d4af37; border-radius: 50%; }
+  .highlight-box { background: rgba(212,175,55,0.05); border: 1px solid rgba(212,175,55,0.2); border-radius: 12px; padding: 30px; margin: 30px 0; }
+  .highlight-box p { color: #e0e0e0; font-size: 17px; line-height: 2; text-align: justify; }
+
+  .projects-section { background: #050505; padding: 100px 40px; text-align: center; }
+  .projects-table-wrapper { max-width: 1100px; margin: 0 auto; overflow-x: auto; border-radius: 16px; border: 1px solid rgba(212,175,55,0.2); }
+  .projects-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+  .projects-table thead { background: linear-gradient(180deg, #1a1a0a, #141410); }
+  .projects-table th { color: #d4af37; padding: 18px 15px; font-size: 16px; font-weight: 700; text-align: center; border-bottom: 2px solid #d4af37; }
+  .projects-table td { padding: 16px 15px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 15px; color: #ddd; }
+  .projects-table tbody tr { background: #0a0a0a; }
+  .projects-table tbody tr:nth-child(even) { background: #0d0d0d; }
+  .badge-available { background: rgba(74,222,128,0.1); color: #4ADE80; padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid rgba(74,222,128,0.25); }
+  .badge-soon { background: rgba(212,175,55,0.1); color: #d4af37; padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid rgba(212,175,55,0.25); }
+  .badge-hot { background: rgba(239,68,68,0.1); color: #EF4444; padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid rgba(239,68,68,0.25); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  .mega-footer { background: #000; border-top: 2px solid rgba(212,175,55,0.35); padding: 70px 40px 0; }
+  .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.5fr; gap: 40px; max-width: 1200px; margin: 0 auto; text-align: left; }
+  .footer-col h4 { color: #d4af37; font-size: 18px; margin-bottom: 25px; font-weight: 700; padding-bottom: 12px; position: relative; }
+  .footer-col h4::after { content: ''; position: absolute; bottom: 0; left: 0; width: 40px; height: 2px; background: #d4af37; }
+  .footer-col p { color: #b0b0b0; font-size: 14px; line-height: 2; margin-bottom: 12px; text-align: justify; }
+  .footer-links { list-style: none; }
+  .footer-links li { margin-bottom: 12px; }
+  .footer-links a { color: #b0b0b0; text-decoration: none; font-size: 14px; transition: 0.3s; }
+  .footer-links a:hover { color: #d4af37; }
+  .crypto-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; }
+  .crypto-icon img { width: 32px; height: 32px; object-fit: contain; filter: brightness(0.9); transition: 0.3s; }
+  .crypto-icon:hover img { filter: brightness(1.1); transform: scale(1.2); }
+  .footer-bottom-bar { border-top: 1px solid rgba(255,255,255,0.05); margin-top: 50px; padding: 25px 0; text-align: center; }
+  .footer-bottom-bar p { color: #888; font-size: 13px; }
+  .gold { color: #d4af37; font-weight: 700; }
+  .footer-logo { font-size: 26px; font-weight: 700; letter-spacing: 3px; color: #fff !important; margin-bottom: 15px; display: block; }
+  .footer-logo span { color: #d4af37; }
+
+  @media (max-width: 992px) { .footer-grid { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 768px) {
+    .navbar { padding: 10px; }
+    .lang-btn { padding: 6px 10px; font-size: 11px; }
+    .logo-wrapper { position: static; transform: none; flex: 1; justify-content: center; gap: 6px; }
+    .nav-ornament { width: 12px; }
+    .logo { font-size: 17px; letter-spacing: 1px; }
+    .hero { margin-top: 36px; padding: 130px 15px 50px; }
+    .hero h1 { font-size: 28px; }
+    .hero-stats { gap: 18px; }
+    .hero-stat-number { font-size: 32px; }
+    .section { padding: 55px 15px; }
+    .section-title { font-size: 26px; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .footer-col { text-align: center; }
+    .footer-col h4::after { left: 50%; transform: translateX(-50%); }
+  }
+</style>
+<!-- About Us -->
+<section class="about-expanded">
+  <div class="about-container">
+    <h2>About Us</h2>
+    <div class="title-line"></div>
+    <div class="about-block">
+      <h3>Integrated Financial Management & Investment Company</h3>
+      <p>Our company provides advanced services in capital management and developing customized investment solutions for both individuals and institutions. We rely on a precise methodology aimed at building long-term value through organized asset management and continuous analysis of global financial market opportunities, with a focus on balancing growth and stability.</p>
+      <div class="highlight-box">
+        <p>We believe that success in the investment field is not achieved through random decisions or uncalculated moves, but through a professional framework combining deep data analysis, understanding market dynamics, and implementing flexible strategies adaptable to various economic conditions.</p>
+      </div>
+    </div>
+    <div class="about-block">
+      <h3>Our Services</h3>
+      <p>Our services cover a wide range of investment activities including:</p>
+      <ul class="about-list">
+        <li>Professional portfolio management according to predefined objectives</li>
+        <li>Design and implementation of capital allocation strategies</li>
+        <li>Analysis of global economic trends and their impact on various assets</li>
+        <li>Development of data-driven analytical models</li>
+        <li>Customized investment solutions for individuals and institutions</li>
+        <li>Periodic performance monitoring and plan updates as needed</li>
+      </ul>
+      <p>We provide an organized investment environment allowing clients to benefit from the expertise of a specialized team without direct involvement in daily operational details.</p>
+    </div>
+    <div class="about-block">
+      <h3>How We Work</h3>
+      <p>Our work process begins with a comprehensive understanding of the client's financial goals, determining appropriate risk levels, and studying their investment horizon. A customized financial plan is then built with thoughtful capital allocation across multiple asset classes, executed and monitored by a specialized team of 200 experts across 12 countries worldwide.</p>
+      <p>We provide regular reports showing performance progress with explanations of decisions made and their reasons, ensuring full transparency for the client at all times.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Team & Expertise -->
+<section class="section section-darker">
+  <h2 class="section-title">Team & Expertise</h2>
+  <div class="title-line"></div>
+  <p class="section-subtitle">A select group of specialists in multiple fields with cumulative experience in diverse global economic environments</p>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:25px;max-width:1100px;margin:0 auto;">
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:35px 20px;text-align:center;">
+      <div style="font-size:42px;color:#d4af37;font-weight:700;">85+</div>
+      <div style="color:#fff;font-size:18px;font-weight:600;">Financial Analysts</div>
+    </div>
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:35px 20px;text-align:center;">
+      <div style="font-size:42px;color:#d4af37;font-weight:700;">45+</div>
+      <div style="color:#fff;font-size:18px;font-weight:600;">Asset Managers</div>
+    </div>
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:35px 20px;text-align:center;">
+      <div style="font-size:42px;color:#d4af37;font-weight:700;">35+</div>
+      <div style="color:#fff;font-size:18px;font-weight:600;">Risk Experts</div>
+    </div>
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:35px 20px;text-align:center;">
+      <div style="font-size:42px;color:#d4af37;font-weight:700;">50+</div>
+      <div style="color:#fff;font-size:18px;font-weight:600;">System Developers</div>
+    </div>
+  </div>
+  <div style="max-width:900px;margin:40px auto 0;text-align:left;color:#c0c0c0;font-size:16px;line-height:2;">
+    <p>Our team consists of over <strong style="color:#d4af37;">200 experts and specialists</strong> across multiple fields. We have offices in <strong style="color:#d4af37;">12 countries</strong> worldwide with cumulative experience exceeding <strong style="color:#d4af37;">25 years</strong>.</p>
+  </div>
+</section>
+
+<!-- Risk Management -->
+<section class="section section-gold-bg">
+  <h2 class="section-title">Risk Management Approach</h2>
+  <div class="title-line"></div>
+  <div style="max-width:900px;margin:0 auto;text-align:left;color:#c0c0c0;font-size:16px;line-height:2;">
+    <p>Risk management is a fundamental element in all our operations. We use advanced AI-powered analytical tools to measure potential market changes and evaluate different scenarios before taking any executive steps.</p>
+    <div class="highlight-box"><p>Transparency and client communication are our priorities. We provide regular reports showing overall performance with clear explanations of any changes made and their reasons.</p></div>
+  </div>
+</section>
+
+<!-- Company Goals -->
+<section class="section section-dark">
+  <h2 class="section-title">Our Goals</h2>
+  <div class="title-line"></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:25px;max-width:1000px;margin:0 auto;">
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:30px;text-align:center;"><h4 style="color:#fff;">Professional Investment Solutions</h4></div>
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:30px;text-align:center;"><h4 style="color:#fff;">Long-Term Relationships</h4></div>
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:30px;text-align:center;"><h4 style="color:#fff;">Tools & Models Development</h4></div>
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:30px;text-align:center;"><h4 style="color:#fff;">Financial Stability Enhancement</h4></div>
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:30px;text-align:center;"><h4 style="color:#fff;">Organized Investment Experience</h4></div>
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:30px;text-align:center;"><h4 style="color:#fff;">Professional Commitment</h4></div>
+  </div>
+</section>
+
+<!-- Investment Projects -->
+<section class="projects-section">
+  <h2 class="section-title">Available Investment Projects</h2>
+  <div class="title-line"></div>
+  <p class="section-subtitle">Over 35 diverse investment sectors with flexible options for all plans and ambitions</p>
+  <div class="projects-table-wrapper">
+    <table class="projects-table">
+      <thead><tr><th>Investment Sector</th><th>Duration</th><th>Expected Return</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Luxury Residential Construction</td><td>6-12 months</td><td>8%-12%</td><td><span class="badge-available">Available</span></td></tr>
+        <tr><td>Commercial Development</td><td>12-24 months</td><td>10%-15%</td><td><span class="badge-hot">High Demand</span></td></tr>
+        <tr><td>Integrated Urban Complexes</td><td>12-24 months</td><td>12%-18%</td><td><span class="badge-available">Available</span></td></tr>
+        <tr><td>Development Land Investment</td><td>6-18 months</td><td>9%-14%</td><td><span class="badge-available">Available</span></td></tr>
+        <tr><td>Hospitality & Hotels</td><td>12-24 months</td><td>11%-16%</td><td><span class="badge-soon">Soon</span></td></tr>
+        <tr><td>Renewable Energy Projects</td><td>12-18 months</td><td>8%-12%</td><td><span class="badge-soon">Soon</span></td></tr>
+        <tr><td>Financial Technology</td><td>6-18 months</td><td>14%-22%</td><td><span class="badge-hot">High Demand</span></td></tr>
+        <tr><td>Index Funds</td><td>3-12 months</td><td>6%-10%</td><td><span class="badge-available">Available</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Performance Data -->
+<section class="section section-darker">
+  <h2 class="section-title">Performance Data & Statistics</h2>
+  <div class="title-line"></div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:25px;max-width:1000px;margin:0 auto;">
+    <div style="text-align:center;padding:25px;"><div style="font-size:48px;font-weight:700;color:#d4af37;">+250,000</div><div style="color:#bbb;">Investors</div></div>
+    <div style="text-align:center;padding:25px;"><div style="font-size:48px;font-weight:700;color:#d4af37;">$12.8B</div><div style="color:#bbb;">Assets Managed</div></div>
+    <div style="text-align:center;padding:25px;"><div style="font-size:48px;font-weight:700;color:#d4af37;">+1,850</div><div style="color:#bbb;">Projects Completed</div></div>
+    <div style="text-align:center;padding:25px;"><div style="font-size:48px;font-weight:700;color:#d4af37;">98.7%</div><div style="color:#bbb;">Client Satisfaction</div></div>
+  </div>
+</section>
+
+<!-- Quick Links -->
+<section class="section section-dark">
+  <h2 class="section-title">Quick Links</h2>
+  <div class="title-line"></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:900px;margin:0 auto;">
+    <a href="about-en.html" style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:14px;padding:28px;text-decoration:none;color:#fff;text-align:center;"><h4 style="color:#d4af37;">About Us</h4></a>
+    <a href="invest.html" style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:14px;padding:28px;text-decoration:none;color:#fff;text-align:center;"><h4 style="color:#d4af37;">Available Projects</h4></a>
+    <a href="partnership.html" style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:14px;padding:28px;text-decoration:none;color:#fff;text-align:center;"><h4 style="color:#d4af37;">Partnerships</h4></a>
+    <a href="login.html" style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:14px;padding:28px;text-decoration:none;color:#fff;text-align:center;"><h4 style="color:#d4af37;">Login</h4></a>
+    <a href="register.html" style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:14px;padding:28px;text-decoration:none;color:#fff;text-align:center;"><h4 style="color:#d4af37;">Create Account</h4></a>
+    <a href="about-en.html" style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:14px;padding:28px;text-decoration:none;color:#fff;text-align:center;"><h4 style="color:#d4af37;">FAQ</h4></a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="mega-footer">
+  <div class="footer-grid">
+    <div class="footer-col">
+      <div class="footer-logo notranslate">EOT<span> PARTNERS</span></div>
+      <p>An integrated financial management and investment company providing advanced capital management and customized investment solutions.</p>
+      <p style="color:#d4af37;font-weight:600;">Established in 2020</p>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul class="footer-links">
+        <li><a href="about-en.html">About Us</a></li>
+        <li><a href="invest.html">Projects</a></li>
+        <li><a href="partnership.html">Partnerships</a></li>
+        <li><a href="login.html">Login</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <ul class="footer-links">
+        <li><a href="terms.html">Terms & Conditions</a></li>
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="risk.html">Risk Disclosure</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Cryptocurrencies</h4>
+      <div class="crypto-grid">
+        <div class="crypto-icon"><img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="BTC" loading="lazy"></div>
+        <div class="crypto-icon"><img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="ETH" loading="lazy"></div>
+        <div class="crypto-icon"><img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="USDT" loading="lazy"></div>
+        <div class="crypto-icon"><img src="https://cryptologos.cc/logos/bnb-bnb-logo.png" alt="BNB" loading="lazy"></div>
+        <div class="crypto-icon"><img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="SOL" loading="lazy"></div>
+        <div class="crypto-icon"><img src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png" alt="USDC" loading="lazy"></div>
+      </div>
+    </div>
+  </div>
+  <div style="max-width:1200px;margin:45px auto 0;padding-top:40px;border-top:1px solid rgba(255,255,255,0.04);text-align:center;">
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:40px;">
+      <span class="notranslate" style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia',serif;">MERRILL LYNCH</span>
+      <span class="notranslate" style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia',serif;">BLACKROCK</span>
+      <span class="notranslate" style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia',serif;">GOLDMAN SACHS</span>
+      <span class="notranslate" style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia',serif;">JPMORGAN</span>
+      <span class="notranslate" style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia',serif;">MORGAN STANLEY</span>
+      <span class="notranslate" style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia',serif;">VANGUARD</span>
+      <span class="notranslate" style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia',serif;">FIDELITY</span>
+      <span class="notranslate" style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia',serif;">HSBC</span>
+      <span class="notranslate" style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia',serif;">UBS</span>
+    </div>
+  </div>
+  <div class="footer-bottom-bar">
+    <p>&copy; <span id="currentYear"></span> <span class="gold notranslate">EOT PARTNERS</span>. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- Support Icon -->
+<div class="support-float" title="Support" onclick="toggleChat()">
+  <span class="support-pulse"></span>
+  <i class="fas fa-headset"></i>
+</div>
+
+<!-- Chat Window -->
+<div class="chat-window" id="chatWindow" style="display:none;position:fixed;bottom:100px;right:20px;width:320px;height:400px;background:#1a1f2b;border-radius:16px;z-index:600;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,0.5);overflow:hidden;">
+  <div style="background:#1a2740;color:#FFF;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;font-size:13px;"><span><i class="fas fa-headset"></i> Support</span><button onclick="toggleChat()" style="background:none;border:none;color:#FFF;font-size:16px;cursor:pointer;">✕</button></div>
+  <div id="chatBody" style="flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;"><div style="align-self:flex-end;max-width:85%;"><div style="background:#1a2740;color:#FFF;padding:10px 14px;border-radius:14px;font-size:12px;">Welcome! How can I help you today?</div></div></div>
+  <div style="display:flex;padding:10px;border-top:1px solid rgba(255,255,255,0.05);gap:8px;"><input type="text" id="chatInput" placeholder="Type your message..." style="flex:1;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:10px 14px;font-size:11px;outline:none;font-family:inherit;background:#0a0e14;color:#FFF;" onkeypress="if(event.key==='Enter')sendMessage()"><button onclick="sendMessage()" style="background:#D4AF37;border:none;color:#FFF;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:14px;"><i class="fas fa-paper-plane"></i></button></div>
+</div>
+
+<script>
+  function toggleLangDropdown(){var d=document.getElementById('langDropdown'),b=document.getElementById('langBtn');d.classList.toggle('show');b.classList.toggle('active');}
+  function changeLang(lang,el){
+    document.getElementById('currentLang').textContent=lang;
+    document.getElementById('langDropdown').classList.remove('show');
+    document.getElementById('langBtn').classList.remove('active');
+    document.querySelectorAll('.lang-option').forEach(function(o){o.classList.remove('active-lang')});
+    el.classList.add('active-lang');
+    if(lang==='العربية'){window.location.href='index-ar.html';}
+  }
+  document.addEventListener('click',function(e){var w=document.querySelector('.lang-wrapper'),d=document.getElementById('langDropdown'),b=document.getElementById('langBtn');if(w&&!w.contains(e.target)){d.classList.remove('show');b.classList.remove('active');}});
+  document.getElementById('currentYear').textContent=new Date().getFullYear();
+
+  var tickerTrack=document.querySelector('.news-ticker-track'),ticker=document.querySelector('.news-ticker');
+  ticker.addEventListener('mouseenter',function(){tickerTrack.style.animationPlayState='paused';});
+  ticker.addEventListener('mouseleave',function(){tickerTrack.style.animationPlayState='running';});
+
+  function toggleChat(){var c=document.getElementById('chatWindow');if(c.style.display==='none'||c.style.display===''){c.style.display='flex';loadChatQuestions()}else{c.style.display='none'}}
+  function loadChatQuestions(){var q=window.CHAT_QUESTIONS||[];if(!q.length)return;var b=document.getElementById('chatBody');b.innerHTML+='<div style="padding:8px;border-top:1px solid rgba(255,255,255,0.05);margin-top:8px;"><div style="font-size:10px;color:#999;">FAQ:</div>'+q.map(function(q,i){return'<button onclick="askChatQuestion('+i+')" style="display:block;width:100%;text-align:left;padding:8px 12px;margin-bottom:4px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:10px;font-size:11px;cursor:pointer;color:#D4AF37;font-family:inherit;">'+q.icon+' '+q.question+'</button>'}).join('')+'</div>';b.scrollTop=b.scrollHeight}
+  function askChatQuestion(i){var q=(window.CHAT_QUESTIONS||[])[i];if(!q)return;var b=document.getElementById('chatBody'),n=new Date(),t=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');b.innerHTML+='<div style="align-self:flex-start;max-width:85%;"><div style="background:rgba(212,175,55,0.15);color:#FFF;padding:10px 14px;border-radius:14px;font-size:12px;">'+q.question+'</div></div>';setTimeout(function(){b.innerHTML+='<div style="align-self:flex-end;max-width:85%;"><div style="background:#1a2740;color:#FFF;padding:10px 14px;border-radius:14px;font-size:12px;">'+q.answer+'</div></div>';b.scrollTop=b.scrollHeight},800);b.scrollTop=b.scrollHeight}
+  function sendMessage(){var inp=document.getElementById('chatInput'),msg=inp.value.trim();if(!msg)return;var b=document.getElementById('chatBody'),n=new Date(),t=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');b.innerHTML+='<div style="align-self:flex-start;max-width:85%;"><div style="background:rgba(212,175,55,0.15);color:#FFF;padding:10px 14px;border-radius:14px;font-size:12px;">'+msg+'</div></div>';setTimeout(function(){b.innerHTML+='<div style="align-self:flex-end;max-width:85%;"><div style="background:#1a2740;color:#FFF;padding:10px 14px;border-radius:14px;font-size:12px;">Thank you for contacting us!</div></div>';b.scrollTop=b.scrollHeight},1000);inp.value='';b.scrollTop=b.scrollHeight}
+  document.addEventListener('click',function(e){var c=document.getElementById('chatWindow'),b=document.querySelector('.support-float');if(c&&b&&!c.contains(e.target)&&!b.contains(e.target))c.style.display='none';});
+</script>
+</body>
+</html>

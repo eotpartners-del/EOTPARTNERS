@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard | EOT PARTNERS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      background: #0a0e14;
+      color: #E8EDF2;
+      min-height: 100vh;
+      padding-bottom: 20px;
+    }
+
+    .top-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 20px; background: #0a0e14;
+      border-bottom: 1px solid rgba(212,175,55,0.1);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .back-btn {
+      width: 38px; height: 38px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #D4AF37; font-size: 16px; cursor: pointer;
+      transition: 0.3s; text-decoration: none;
+    }
+    .back-btn:hover { background: rgba(212,175,55,0.15); }
+    .logo { font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #FFFFFF; text-decoration: none; }
+    .logo span { color: #D4AF37; }
+
+    .page-container { max-width: 900px; margin: 0 auto; padding: 20px 14px; }
+
+    .page-title { text-align: center; margin-bottom: 24px; }
+    .page-title h1 { font-size: 26px; color: #D4AF37; margin-bottom: 4px; }
+    .page-title p { font-size: 12px; color: #A09070; }
+
+    .table-wrap {
+      background: #111620; border: 1px solid rgba(212,175,55,0.12);
+      border-radius: 16px; overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    th {
+      background: rgba(212,175,55,0.06); padding: 12px 8px;
+      color: #D4AF37; font-weight: 700; font-size: 10px;
+      letter-spacing: 0.5px; text-align: center; white-space: nowrap;
+    }
+    td { padding: 10px 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.03); color: #A0AAB8; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .rank-col { font-weight: 800; font-size: 13px; }
+    .rank-gold { color: #FFD700; }
+    .rank-silver { color: #C0C0C0; }
+    .rank-bronze { color: #CD7F32; }
+
+    .trader-info { display: flex; align-items: center; gap: 8px; justify-content: center; }
+    .trader-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    .trader-name { font-weight: 600; color: #FFF; }
+    .flag { font-size: 18px; }
+    .sector-tag {
+      padding: 4px 10px; border-radius: 10px; font-size: 9px;
+      font-weight: 600; white-space: nowrap;
+    }
+    .sector-oil { background: rgba(74,222,128,0.1); color: #4ADE80; }
+    .sector-tech { background: rgba(96,165,250,0.1); color: #60A5FA; }
+    .sector-realestate { background: rgba(212,175,55,0.1); color: #D4AF37; }
+    .sector-finance { background: rgba(192,132,252,0.1); color: #C084FC; }
+    .sector-energy { background: rgba(251,146,60,0.1); color: #FB923C; }
+    .sector-health { background: rgba(244,114,182,0.1); color: #F472B6; }
+
+    .profit-positive { color: #4ADE80; font-weight: 700; }
+    .profit-pct { color: #4ADE80; font-weight: 600; font-size: 10px; }
+
+    @media (max-width: 768px) {
+      table { font-size: 10px; }
+      th, td { padding: 8px 4px; }
+      .page-title h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+  <a href="dashboard-en.html" class="logo">EOT<span> PARTNERS</span></a>
+  <div style="width:38px;"></div>
+</div>
+
+<div class="page-container">
+  <div class="page-title">
+    <h1>🏆 Leaderboard</h1>
+    <p>Top performing investors ranked by monthly return and total profits</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Investor</th>
+          <th>Country</th>
+          <th>Investment Sector</th>
+          <th>Monthly Return</th>
+          <th>Total Profits</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboardBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const leaders = [
+    { name: 'Rayan Zahr', country: '🇱🇧', sector: 'Oil & Gas', sectorClass: 'sector-oil', monthlyReturn: '+9.91%', totalProfit: '+$29,744.20', avatar: 'R', color: '#FFD700' },
+    { name: 'Jawad Al-Ali', country: '🇸🇦', sector: 'Technology', sectorClass: 'sector-tech', monthlyReturn: '+27.27%', totalProfit: '+$27,270.39', avatar: 'J', color: '#C0C0C0' },
+    { name: 'Senthil Kumar', country: '🇮🇳', sector: 'Real Estate', sectorClass: 'sector-realestate', monthlyReturn: '+23.12%', totalProfit: '+$23,117.89', avatar: 'S', color: '#CD7F32' },
+    { name: 'Aleksander Wolski', country: '🇵🇱', sector: 'Financial Services', sectorClass: 'sector-finance', monthlyReturn: '+21.71%', totalProfit: '+$21,714.74', avatar: 'A', color: '#4ADE80' },
+    { name: 'Victor Gonzalez', country: '🇪🇸', sector: 'Renewable Energy', sectorClass: 'sector-energy', monthlyReturn: '+21.51%', totalProfit: '+$21,510.68', avatar: 'V', color: '#60A5FA' },
+    { name: 'Mathis Girard', country: '🇫🇷', sector: 'Healthcare', sectorClass: 'sector-health', monthlyReturn: '+21.26%', totalProfit: '+$21,256.90', avatar: 'M', color: '#C084FC' },
+    { name: 'Rachid El-Masri', country: '🇱🇧', sector: 'Oil & Gas', sectorClass: 'sector-oil', monthlyReturn: '+13.96%', totalProfit: '+$20,938.48', avatar: 'R', color: '#F472B6' },
+    { name: 'Deshawn Lee', country: '🇰🇷', sector: 'Technology', sectorClass: 'sector-tech', monthlyReturn: '+9.95%', totalProfit: '+$19,907.68', avatar: 'D', color: '#FB923C' },
+    { name: 'Oleksandr Melnyk', country: '🇺🇦', sector: 'Smart Agriculture', sectorClass: 'sector-energy', monthlyReturn: '+33.80%', totalProfit: '+$16,897.90', avatar: 'O', color: '#34D399' },
+    { name: 'Kate Johnson', country: '🇬🇧', sector: 'E-Commerce', sectorClass: 'sector-tech', monthlyReturn: '+33.30%', totalProfit: '+$16,649.91', avatar: 'K', color: '#A78BFA' },
+    { name: 'Sultan Mahmoud', country: '🇦🇪', sector: 'Real Estate', sectorClass: 'sector-realestate', monthlyReturn: '+16.48%', totalProfit: '+$16,484.38', avatar: 'S', color: '#FBBF24' },
+    { name: 'Mohammed Al-Sayed', country: '🇱🇧', sector: 'Financial Services', sectorClass: 'sector-finance', monthlyReturn: '+15.82%', totalProfit: '+$15,821.64', avatar: 'M', color: '#38BDF8' },
+    { name: 'Vencislav Stoianov', country: '🇧🇬', sector: 'Oil & Gas', sectorClass: 'sector-oil', monthlyReturn: '+7.89%', totalProfit: '+$15,788.00', avatar: 'V', color: '#A3E635' },
+    { name: 'Surendra Verma', country: '🇮🇳', sector: 'Technology', sectorClass: 'sector-tech', monthlyReturn: '+15.32%', totalProfit: '+$15,317.67', avatar: 'S', color: '#F87171' },
+    { name: 'Bartosz Łukasik', country: '🇵🇱', sector: 'Renewable Energy', sectorClass: 'sector-energy', monthlyReturn: '+7.54%', totalProfit: '+$15,086.66', avatar: 'B', color: '#818CF8' },
+    { name: 'Alberto Hernandez', country: '🇲🇽', sector: 'Healthcare', sectorClass: 'sector-health', monthlyReturn: '+14.98%', totalProfit: '+$14,984.68', avatar: 'A', color: '#22D3EE' },
+    { name: 'Kim Hui Gwan', country: '🇰🇷', sector: 'Oil & Gas', sectorClass: 'sector-oil', monthlyReturn: '+14.63%', totalProfit: '+$14,634.39', avatar: 'K', color: '#E879F9' },
+    { name: 'Jorge Castillo', country: '🇨🇴', sector: 'Real Estate', sectorClass: 'sector-realestate', monthlyReturn: '+7.11%', totalProfit: '+$14,219.00', avatar: 'J', color: '#FDA4AF' },
+    { name: 'Mamta Kumari', country: '🇮🇳', sector: 'E-Commerce', sectorClass: 'sector-tech', monthlyReturn: '+14.02%', totalProfit: '+$14,019.40', avatar: 'M', color: '#FCD34D' },
+    { name: 'Vadym Shevchenko', country: '🇺🇦', sector: 'Financial Services', sectorClass: 'sector-finance', monthlyReturn: '+13.69%', totalProfit: '+$13,693.61', avatar: 'V', color: '#F59E0B' }
+  ];
+
+  function renderTable() {
+    document.getElementById('leaderboardBody').innerHTML = leaders.map((l, i) => {
+      let rankClass = '';
+      if (i === 0) rankClass = 'rank-gold';
+      else if (i === 1) rankClass = 'rank-silver';
+      else if (i === 2) rankClass = 'rank-bronze';
+
+      return `
+        <tr>
+          <td class="rank-col ${rankClass}">${i < 3 ? ['🥇','🥈','🥉'][i] : '#'+(i+1)}</td>
+          <td>
+            <div class="trader-info">
+              <div class="trader-avatar" style="background:${l.color}20;color:${l.color};">${l.avatar}</div>
+              <span class="trader-name">${l.name}</span>
+            </div>
+          </td>
+          <td><span class="flag">${l.country}</span></td>
+          <td><span class="sector-tag ${l.sectorClass}">${l.sector}</span></td>
+          <td><span class="profit-pct">${l.monthlyReturn}</span></td>
+          <td><span class="profit-positive">${l.totalProfit}</span></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  window.onload = function() {
+    const session = localStorage.getItem('eot_session');
+    if (!session) { window.location.href = 'login.html'; return; }
+    renderTable();
+  };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المكافآت | EOT PARTNERS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      background: #06080C;
+      color: #E8EDF2;
+      min-height: 100vh;
+      padding-bottom: 40px;
+    }
+
+    .top-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 20px; background: rgba(6,8,12,0.95);
+      border-bottom: 1px solid rgba(212,175,55,0.08);
+      position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+    }
+    .back-btn {
+      width: 38px; height: 38px; background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #D4AF37; font-size: 16px; cursor: pointer;
+      transition: 0.3s; text-decoration: none;
+    }
+    .back-btn:hover { background: rgba(212,175,55,0.1); }
+    .logo { font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #FFF; text-decoration: none; }
+    .logo span { color: #D4AF37; }
+
+    .page-container { max-width: 800px; margin: 0 auto; padding: 28px 14px; }
+
+    /* Hero Section */
+    .hero {
+      text-align: center; margin-bottom: 32px;
+      padding: 36px 24px;
+      background: linear-gradient(160deg, #0d1117 0%, #111820 100%);
+      border: 1px solid rgba(212,175,55,0.1); border-radius: 24px;
+    }
+    .hero .hero-badge {
+      display: inline-block; padding: 6px 16px;
+      background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 20px; font-size: 10px; color: #D4AF37;
+      font-weight: 600; letter-spacing: 1.5px; margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+    .hero h1 { font-size: 30px; color: #FFF; margin-bottom: 8px; font-weight: 800; }
+    .hero h1 span { color: #D4AF37; }
+    .hero p { font-size: 13px; color: #6B7280; max-width: 500px; margin: 0 auto; line-height: 1.9; }
+
+    /* Grand Prize */
+    .grand-prize {
+      background: linear-gradient(145deg, #1a1a06 0%, #0d0d03 40%, #1a1a06 100%);
+      border: 2px solid rgba(212,175,55,0.45); border-radius: 24px;
+      padding: 32px 24px; text-align: center; margin-bottom: 28px;
+      position: relative; overflow: hidden;
+    }
+    .grand-prize::before {
+      content: ''; position: absolute; top: -50px; right: -50px;
+      width: 140px; height: 140px; background: rgba(212,175,55,0.03); border-radius: 50%;
+    }
+    .grand-prize::after {
+      content: ''; position: absolute; bottom: -30px; left: -30px;
+      width: 90px; height: 90px; background: rgba(212,175,55,0.02); border-radius: 50%;
+    }
+    .grand-tag {
+      display: inline-block; background: linear-gradient(135deg, #D4AF37, #b8941f);
+      color: #000; padding: 7px 20px; border-radius: 20px;
+      font-size: 11px; font-weight: 800; margin-bottom: 16px;
+      letter-spacing: 1px; position: relative; z-index: 1;
+    }
+    .grand-icon {
+      width: 70px; height: 70px; margin: 0 auto 12px;
+      background: rgba(212,175,55,0.1); border: 2px solid rgba(212,175,55,0.3);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 30px; color: #FFD700; position: relative; z-index: 1;
+    }
+    .grand-amount { font-size: 54px; font-weight: 900; color: #FFD700; letter-spacing: -1px; position: relative; z-index: 1; }
+    .grand-title { font-size: 18px; color: #FFF; font-weight: 700; margin: 4px 0; position: relative; z-index: 1; }
+    .grand-desc { font-size: 12px; color: #8B7355; max-width: 450px; margin: 0 auto; position: relative; z-index: 1; line-height: 1.9; }
+    .grand-terms {
+      display: inline-block; margin-top: 14px; padding: 9px 18px;
+      background: rgba(255,255,255,0.02); border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 10px; font-size: 11px; color: #D4AF37;
+      position: relative; z-index: 1; font-weight: 600;
+    }
+
+    /* Rewards */
+    .section-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+    }
+    .section-header .line { flex: 1; height: 1px; background: rgba(212,175,55,0.1); }
+    .section-header h3 { font-size: 14px; color: #D4AF37; font-weight: 700; white-space: nowrap; }
+
+    .rewards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 28px; }
+
+    .reward-card {
+      background: #0F1219; border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 16px; padding: 20px 16px; transition: 0.3s;
+    }
+    .reward-card:hover { border-color: rgba(212,175,55,0.2); background: #111620; }
+    .reward-card .card-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 12px;
+    }
+    .reward-card .card-value { font-size: 22px; font-weight: 800; color: #D4AF37; margin-bottom: 2px; }
+    .reward-card .card-title { font-size: 13px; color: #FFF; font-weight: 600; margin-bottom: 6px; }
+    .reward-card .card-desc { font-size: 10px; color: #6B7280; line-height: 1.7; }
+
+    /* Details */
+    .info-section {
+      background: #0F1219; border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 18px; padding: 24px; margin-bottom: 24px;
+    }
+    .info-section h3 { color: #D4AF37; font-size: 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .info-item {
+      display: flex; gap: 12px; padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 11px;
+    }
+    .info-num {
+      width: 26px; height: 26px; min-width: 26px;
+      background: rgba(212,175,55,0.08); color: #D4AF37;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 11px;
+    }
+    .info-text { color: #8B8F9E; line-height: 1.9; }
+    .info-text strong { color: #FFF; }
+
+    /* CTA */
+    .cta-box {
+      text-align: center; padding: 32px 20px;
+      background: linear-gradient(135deg, rgba(212,175,55,0.04) 0%, transparent 100%);
+      border: 1px solid rgba(212,175,55,0.1); border-radius: 20px;
+    }
+    .cta-box h3 { font-size: 17px; color: #FFF; margin-bottom: 8px; }
+    .cta-box p { font-size: 12px; color: #6B7280; line-height: 2; }
+    .cta-box .gold-text { color: #D4AF37; font-weight: 700; }
+
+    @media (max-width: 600px) {
+      .rewards-grid { grid-template-columns: 1fr; }
+      .grand-amount { font-size: 40px; }
+      .hero h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn"><i class="fas fa-arrow-right"></i></a>
+  <a href="dashboard-ar.html" class="logo">EOT<span> PARTNERS</span></a>
+  <div style="width:38px;"></div>
+</div>
+
+<div class="page-container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">REWARDS PROGRAM</div>
+    <h1>برنامج <span>المكافآت</span></h1>
+    <p>كل خطوة استثمارية تقربك من مكافآت حصرية. صممنا برنامج المكافآت ليكافئ المستثمرين الأكثر نشاطاً وإخلاصاً</p>
+  </div>
+
+  <!-- Grand Prize -->
+  <div class="grand-prize">
+    <span class="grand-tag">GRAND PRIZE</span>
+    <div class="grand-icon"><i class="fas fa-trophy"></i></div>
+    <div class="grand-amount">$1,000</div>
+    <div class="grand-title">جائزة الحوت الكبرى</div>
+    <div class="grand-desc">ادعُ 20 صديقاً للانضمام إلى عقود شراكة من فئة 3 أشهر كحد أدنى، واستلم المكافأة فور اكتمال العدد</div>
+    <span class="grand-terms"><i class="fas fa-users"></i> 20 مدعو × عقد شراكة 3 أشهر = $1,000</span>
+  </div>
+
+  <!-- Rewards Grid -->
+  <div class="section-header">
+    <span class="line"></span>
+    <h3>جميع المكافآت</h3>
+    <span class="line"></span>
+  </div>
+
+  <div class="rewards-grid">
+    <div class="reward-card">
+      <div class="card-icon" style="background:rgba(212,175,55,0.1);color:#D4AF37;"><i class="fas fa-gem"></i></div>
+      <div class="card-value">+10%</div>
+      <div class="card-title">مكافأة الإيداع الأول</div>
+      <div class="card-desc">احصل على 10% إضافية على قيمة أول إيداع لك حتى $500</div>
+    </div>
+
+    <div class="reward-card">
+      <div class="card-icon" style="background:rgba(74,222,128,0.1);color:#4ADE80;"><i class="fas fa-handshake"></i></div>
+      <div class="card-value">$50</div>
+      <div class="card-title">مكافأة الإحالة</div>
+      <div class="card-desc">ادعُ صديقاً واحصل على $50 عند إتمام أول استثمار له</div>
+    </div>
+
+    <div class="reward-card">
+      <div class="card-icon" style="background:rgba(192,132,252,0.1);color:#C084FC;"><i class="fas fa-crown"></i></div>
+      <div class="card-value">$200</div>
+      <div class="card-title">مكافأة VIP</div>
+      <div class="card-desc">عند وصول إجمالي استثماراتك إلى $10,000 تحصل على المكافأة</div>
+    </div>
+
+    <div class="reward-card">
+      <div class="card-icon" style="background:rgba(96,165,250,0.1);color:#60A5FA;"><i class="fas fa-medal"></i></div>
+      <div class="card-value">$500</div>
+      <div class="card-title">المتصدر الشهري</div>
+      <div class="card-desc">المركز الأول في لوحة الصدارة الشهرية يربح $500</div>
+    </div>
+
+    <div class="reward-card">
+      <div class="card-icon" style="background:rgba(251,146,60,0.1);color:#FB923C;"><i class="fas fa-calendar-check"></i></div>
+      <div class="card-value">$100</div>
+      <div class="card-title">مكافأة الوفاء</div>
+      <div class="card-desc">لكل 6 أشهر متواصلة من الاستثمار النشط تحصل على $100</div>
+    </div>
+
+    <div class="reward-card">
+      <div class="card-icon" style="background:rgba(244,114,182,0.1);color:#F472B6;"><i class="fas fa-star"></i></div>
+      <div class="card-value">$250</div>
+      <div class="card-title">مكافأة التميز</div>
+      <div class="card-desc">عند إكمال 5 استثمارات في قطاعات مختلفة خلال 3 أشهر</div>
+    </div>
+  </div>
+
+  <!-- Info Section -->
+  <div class="info-section">
+    <h3><i class="fas fa-clipboard-list"></i> شروط وأحكام المكافآت</h3>
+    <div class="info-item">
+      <span class="info-num">1</span>
+      <span class="info-text">جميع المكافآت تُضاف إلى رصيد <strong>المحفظة</strong> ويمكن سحبها بعد استيفاء شروط الاستثمار.</span>
+    </div>
+    <div class="info-item">
+      <span class="info-num">2</span>
+      <span class="info-text">مكافأة الإيداع الأول تُمنح <strong>مرة واحدة فقط</strong> عند أول عملية إيداع في الحساب.</span>
+    </div>
+    <div class="info-item">
+      <span class="info-num">3</span>
+      <span class="info-text">جائزة الحوت الكبرى تتطلب <strong>20 مدعواً</strong> بعقود شراكة من فئة 3 أشهر كحد أدنى.</span>
+    </div>
+    <div class="info-item">
+      <span class="info-num">4</span>
+      <span class="info-text">لوحة الصدارة تُحدث <strong>يومياً</strong> وتُمنح الجائزة في اليوم الأول من كل شهر.</span>
+    </div>
+    <div class="info-item">
+      <span class="info-num">5</span>
+      <span class="info-text">مكافأة الوفاء تُمنح <strong>تلقائياً</strong> عند إتمام 6 أشهر متواصلة من الاستثمار النشط.</span>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-box">
+    <h3>ابدأ رحلتك الاستثمارية اليوم</h3>
+    <p>كل <span class="gold-text">استثمار</span> تقوم به يقرّبك من المكافآت.</p>
+    <p>كل <span class="gold-text">صديق</span> تدعوه يزيد من أرباحك.</p>
+    <p>كل <span class="gold-text">شهر</span> أنت فيه نشط يمنحك فرصة للفوز.</p>
+    <p style="margin-top:14px;font-weight:700;color:#D4AF37;font-size:14px;">المكافآت تنتظرك. ابدأ الآن!</p>
+  </div>
+
+</div>
+
+<script>
+  window.onload = function() {
+    const session = localStorage.getItem('eot_session');
+    if (!session) { window.location.href = 'login.html'; return; }
+  };
+</script>
+
+</body>
+</html>

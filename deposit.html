@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إيداع | EOT PARTNERS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      background: url('https://images.unsplash.com/photo-1610375461246-83df859d849d?w=1200&h=2000&fit=crop') center/cover no-repeat fixed;
+      color: #E8EDF2;
+      min-height: 100vh;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(6, 8, 12, 0.85);
+      z-index: -1;
+    }
+
+    body.light-mode { background: #f5f5f5 !important; color: #1a1a1a !important; }
+    body.light-mode::before { background: rgba(245, 245, 245, 0.92) !important; }
+    body.light-mode .top-bar { background: rgba(255,255,255,0.95) !important; border-bottom-color: rgba(0,0,0,0.1) !important; }
+    body.light-mode .logo { background: linear-gradient(135deg, #1a1a1a 40%, #8b6914 100%) !important; -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important; }
+    body.light-mode .back-btn { background: rgba(139,105,20,0.08) !important; border-color: rgba(139,105,20,0.25) !important; color: #8b6914 !important; }
+    body.light-mode .currency-group { background: #fff !important; border-color: rgba(0,0,0,0.06) !important; }
+    body.light-mode .group-title { color: #8b6914 !important; }
+    body.light-mode .network-card { background: #f9f9f9 !important; border-color: rgba(0,0,0,0.08) !important; }
+    body.light-mode .network-card:hover { border-color: #8b6914 !important; box-shadow: 0 8px 20px rgba(139,105,20,0.1) !important; }
+    body.light-mode .network-name { color: #1a1a1a !important; }
+    body.light-mode .network-fee { color: #8b6914 !important; background: rgba(139,105,20,0.1) !important; }
+    body.light-mode .modal-box { background: #fff !important; border-color: rgba(0,0,0,0.1) !important; }
+    body.light-mode .modal-box h3 { color: #8b6914 !important; }
+    body.light-mode .modal-box input { background: #f0f0f0 !important; color: #1a1a1a !important; border-color: rgba(0,0,0,0.1) !important; }
+    body.light-mode .info-card { background: #fff !important; border-color: rgba(0,0,0,0.06) !important; }
+    body.light-mode .info-card h3 { color: #8b6914 !important; }
+    body.light-mode .info-list li { color: #555 !important; }
+    body.light-mode .info-list li i { color: #8b6914 !important; }
+    body.light-mode .address-box { background: #f0f0f0 !important; color: #1a1a1a !important; border-color: rgba(0,0,0,0.1) !important; }
+    body.light-mode .btn-outline { border-color: rgba(0,0,0,0.1) !important; color: #666 !important; }
+
+    .top-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo {
+      font-size: 22px; font-weight: 800; letter-spacing: 1px;
+      background: linear-gradient(135deg, #FFFFFF 40%, #D4AF37 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .back-btn {
+      background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25);
+      padding: 8px 16px; border-radius: 25px; color: #D4AF37;
+      text-decoration: none; font-size: 12px; font-weight: 600; transition: 0.3s;
+    }
+    .back-btn:hover { background: rgba(212, 175, 55, 0.18); }
+
+    .main-container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+
+    .page-header { text-align: center; margin-bottom: 28px; }
+    .page-header h1 { font-size: 26px; color: #D4AF37; margin-bottom: 4px; font-weight: 800; }
+    .page-header p { font-size: 13px; color: #8E9AAF; }
+
+    .currency-group {
+      background: linear-gradient(160deg, #141414 0%, #0a0a0a 40%, #141410 70%, #0a0a0a 100%);
+      border: 1px solid rgba(180,150,100,0.12); border-radius: 20px;
+      padding: 20px; margin-bottom: 20px;
+    }
+    .group-title {
+      font-size: 16px; font-weight: 700; color: #D4AF37;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+    }
+    .networks-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .network-card {
+      background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 14px; padding: 14px 10px; cursor: pointer;
+      transition: all 0.3s ease; text-align: center;
+    }
+    .network-card:hover {
+      border-color: #D4AF37; transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(212,175,55,0.1);
+    }
+    .network-icon {
+      width: 44px; height: 44px; margin: 0 auto 8px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; background: rgba(255,255,255,0.03);
+    }
+    .network-icon img { width: 30px; height: 30px; border-radius: 50%; object-fit: contain; }
+    .network-icon i { font-size: 24px; }
+    .network-name { font-weight: 700; font-size: 12px; color: #E8EDF2; }
+    .network-fee { font-size: 9px; color: #6B7280; margin-top: 3px; }
+
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.92); z-index: 200;
+      align-items: center; justify-content: center; backdrop-filter: blur(8px);
+    }
+    .modal-box {
+      background: linear-gradient(160deg, #141414 0%, #0a0a0a 100%);
+      border: 1px solid rgba(212,175,55,0.25); border-radius: 24px;
+      padding: 24px 20px; width: 90%; max-width: 420px; text-align: center;
+    }
+    .modal-box h3 { color: #D4AF37; margin-bottom: 4px; font-size: 18px; }
+    .modal-box .modal-sub { font-size: 12px; color: #8E9AAF; margin-bottom: 16px; }
+    .modal-box input {
+      width: 100%; padding: 14px; background: #1A1E28;
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 14px;
+      color: #FFF; font-size: 18px; text-align: center; font-family: inherit; margin-bottom: 6px;
+    }
+    .modal-box input:focus { outline: none; border-color: #D4AF37; }
+    .modal-min { font-size: 10px; color: #6B7280; margin-bottom: 16px; }
+
+    .timer-circle {
+      width: 110px; height: 110px; border-radius: 50%;
+      border: 5px solid rgba(34,211,238,0.3);
+      display: flex; align-items: center; justify-content: center;
+      margin: 16px auto; position: relative;
+    }
+    .timer-circle-inner { text-align: center; }
+    .timer-minutes {
+      font-size: 30px; font-weight: 800; color: #22D3EE; letter-spacing: 1px;
+    }
+    .timer-label {
+      font-size: 9px; color: #6B7280; letter-spacing: 2px; text-transform: uppercase;
+    }
+
+    .address-box {
+      background: #1A1E28; padding: 14px; border-radius: 12px;
+      margin: 10px 0; word-break: break-all;
+      font-size: 12px; font-family: monospace; color: #A0AAB8;
+      border: 1px solid rgba(255,255,255,0.06); text-align: left; direction: ltr;
+    }
+
+    .btn-gold {
+      width: 100%; padding: 14px; background: linear-gradient(135deg, #D4AF37, #C4A030);
+      color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 14px;
+      cursor: pointer; font-family: inherit; transition: 0.3s;
+    }
+    .btn-gold:hover { background: #E0BC3F; }
+    .btn-outline {
+      width: 100%; padding: 12px; background: transparent;
+      border: 1px solid rgba(255,255,255,0.08); color: #8E9AAF;
+      border-radius: 14px; margin-top: 8px; cursor: pointer; font-family: inherit; transition: 0.3s;
+    }
+    .btn-outline:hover { border-color: #F87171; color: #F87171; }
+
+    .info-card {
+      background: rgba(15,18,25,0.7); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.04); border-radius: 16px;
+      padding: 18px; margin-top: 20px;
+    }
+    .info-card h3 { color: #D4AF37; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .info-list { list-style: none; }
+    .info-list li {
+      font-size: 11px; color: #A0AAB8; padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      display: flex; align-items: center; gap: 8px; line-height: 1.7;
+    }
+    .info-list li:last-child { border-bottom: none; }
+    .info-list li i { color: #D4AF37; font-size: 10px; width: 14px; text-align: center; }
+
+    .toast-msg {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600;
+      z-index: 999; display: none; animation: toastIn 0.3s ease;
+      border: 1px solid rgba(248,113,113,0.3);
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(-15px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .networks-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-right"></i> العودة</a>
+  <div class="logo">EOT PARTNERS</div>
+</div>
+
+<div class="main-container">
+  <div class="page-header">
+    <h1><i class="fas fa-arrow-down"></i> إيداع الأموال</h1>
+    <p>اختر طريقة الإيداع المناسبة لك</p>
+  </div>
+
+  <div class="currency-group">
+    <div class="group-title">
+      <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg" width="22" height="22" style="border-radius:50%;">
+      USDT - عملة مستقرة
+    </div>
+    <div class="networks-grid">
+      <div class="network-card" onclick="openAmountModal('USDT', 'TRC20', 'TReArCfojJVvfZnNYaVEHFj9HDef1Hs2ub', '1 USDT', 10)">
+        <div class="network-icon"><img src="https://cryptologos.cc/logos/tron-trx-logo.svg" alt="TRON"></div>
+        <div class="network-name">TRC20</div>
+        <div class="network-fee">TRON • رسوم 1 USDT</div>
+      </div>
+      <div class="network-card" onclick="openAmountModal('USDT', 'ERC20', '0xf56c0bf5595101c004d1e14aa06c8c7b35dadf30', '8 USDT', 50)">
+        <div class="network-icon"><img src="https://cryptologos.cc/logos/ethereum-eth-logo.svg" alt="Ethereum"></div>
+        <div class="network-name">ERC20</div>
+        <div class="network-fee">Ethereum • رسوم 8 USDT</div>
+      </div>
+      <div class="network-card" onclick="openAmountModal('USDT', 'BEP20', '0xf56c0bf5595101c004d1e14aa06c8c7b35dadf30', '0.5 USDT', 10)">
+        <div class="network-icon"><img src="https://cryptologos.cc/logos/bnb-bnb-logo.svg" alt="BNB"></div>
+        <div class="network-name">BEP20</div>
+        <div class="network-fee">BSC • رسوم 0.5 USDT</div>
+      </div>
+      <div class="network-card" onclick="openAmountModal('USDT', 'SOL', 'Fk4PrXyAB8UPVLouxvhLrNYgDtvnEYRtb8Mqwi1mW9NZ', '0.1 USDT', 10)">
+        <div class="network-icon"><img src="https://cryptologos.cc/logos/solana-sol-logo.svg" alt="Solana"></div>
+        <div class="network-name">Solana</div>
+        <div class="network-fee">Solana • رسوم 0.1 USDT</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="currency-group">
+    <div class="group-title"><i class="fas fa-coins" style="color:#D4AF37;"></i> عملات رقمية أخرى</div>
+    <div class="networks-grid">
+      <div class="network-card" onclick="openAmountModal('Bitcoin', 'BTC', 'bc1qqw8tnn2yh3tkvmkzjrf0q6ygrjmnm0c6k6r8zf', '0.0005 BTC', 0.001)">
+        <div class="network-icon"><img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg" alt="Bitcoin"></div>
+        <div class="network-name">Bitcoin</div>
+        <div class="network-fee">BTC • رسوم 0.0005</div>
+      </div>
+      <div class="network-card" onclick="openAmountModal('Ethereum', 'ETH', '0xf56c0bf5595101c004d1e14aa06c8c7b35dadf30', '0.005 ETH', 0.01)">
+        <div class="network-icon"><img src="https://cryptologos.cc/logos/ethereum-eth-logo.svg" alt="Ethereum"></div>
+        <div class="network-name">Ethereum</div>
+        <div class="network-fee">ETH • رسوم 0.005</div>
+      </div>
+      <div class="network-card" onclick="openAmountModal('BNB', 'BEP20', '0xf56c0bf5595101c004d1e14aa06c8c7b35dadf30', '0.01 BNB', 0.05)">
+        <div class="network-icon"><img src="https://cryptologos.cc/logos/bnb-bnb-logo.svg" alt="BNB"></div>
+        <div class="network-name">BNB</div>
+        <div class="network-fee">BSC • رسوم 0.01</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="info-card">
+    <h3><i class="fas fa-info-circle"></i> تعليمات الإيداع</h3>
+    <ul class="info-list">
+      <li><i class="fas fa-check"></i> اختر العملة والشبكة المناسبة لك، ثم أدخل المبلغ المطلوب إيداعه.</li>
+      <li><i class="fas fa-check"></i> بعد التأكيد، ستظهر لك عنوان المحفظة مع مؤقت زمني لإتمام الدفع.</li>
+      <li><i class="fas fa-check"></i> تأكد من اختيار نفس الشبكة في محفظتك الخارجية عند الإرسال.</li>
+      <li><i class="fas fa-check"></i> بعد إتمام الدفع، سيتم مراجعة المعاملة وإضافة الرصيد إلى حسابك.</li>
+      <li><i class="fas fa-check"></i> في حال مواجهة أي مشكلة، فريق الدعم جاهز لمساعدتك.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- مودال 1 -->
+<div class="modal-overlay" id="amountModal">
+  <div class="modal-box">
+    <h3 id="amountModalTitle">تأكيد الإيداع</h3>
+    <p class="modal-sub" id="amountModalSub"></p>
+    <input type="number" id="depositAmount" placeholder="أدخل المبلغ">
+    <div class="modal-min" id="amountModalMin"></div>
+    <button class="btn-gold" onclick="confirmAmount()">تأكيد الإيداع</button>
+    <button class="btn-outline" onclick="closeAmountModal()">إلغاء</button>
+  </div>
+</div>
+
+<!-- مودال 2: مؤقت -->
+<div class="modal-overlay" id="timerModal">
+  <div class="modal-box" style="max-width:480px;padding:28px 22px;">
+    <h3 style="font-size:20px;">إتمام عملية الدفع</h3>
+    
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:14px;margin:14px 0;">
+      <div style="font-size:10px;color:#6B7280;letter-spacing:2px;margin-bottom:4px;">المبلغ المطلوب</div>
+      <div style="font-size:28px;font-weight:800;background:linear-gradient(180deg,#FFFFFF 0%,#D4C08A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;" id="timerAmount"></div>
+      <div style="font-size:11px;color:#8E9AAF;margin-top:2px;" id="timerNetwork"></div>
+    </div>
+
+    <div class="timer-circle">
+      <div class="timer-circle-inner">
+        <div class="timer-minutes" id="timerMinutes">30:00</div>
+        <div class="timer-label">دقيقة متبقية</div>
+      </div>
+    </div>
+
+    <div style="margin:12px 0;">
+      <div style="font-size:10px;color:#6B7280;letter-spacing:2px;margin-bottom:6px;text-align:right;">عنوان المحفظة</div>
+      <div class="address-box" id="timerAddress"></div>
+    </div>
+
+    <button class="btn-gold" onclick="copyTimerAddress()"><i class="fas fa-copy"></i> نسخ العنوان</button>
+
+    <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.15);border-radius:12px;padding:12px;margin-top:12px;text-align:right;">
+      <div style="font-size:10px;color:#FBBF24;font-weight:700;margin-bottom:6px;">تنبيهات مهمة</div>
+      <ul style="list-style:none;font-size:10px;color:#A0AAB8;line-height:2;">
+        <li>• تأكد من استخدام نفس الشبكة (<span id="timerNetWarning" style="color:#FBBF24;"></span>) عند الإرسال</li>
+        <li>• أي خطأ في الشبكة أو العنوان يؤدي إلى فقدان المبلغ نهائياً</li>
+        <li>• أكمل الدفع قبل انتهاء الوقت المحدد</li>
+      </ul>
+    </div>
+
+    <button class="btn-outline" onclick="closeTimerModal()">إغلاق</button>
+  </div>
+</div>
+
+<div class="toast-msg" id="toastMsg"></div>
+
+<script>
+  (function() {
+    emailjs.init("mz2N1H12HeeZMHSpy");
+  })();
+
+  let currentDeposit = {};
+  let timerInterval = null;
+  let timeLeft = 1800;
+
+  // ========== توست ==========
+  function showToast(msg, type = 'error') {
+    const toast = document.getElementById('toastMsg');
+    const icon = type === 'success' ? '✓' : type === 'warning' ? '!' : '✗';
+    const bgColor = type === 'success' ? 'rgba(74,222,128,0.15)' : type === 'warning' ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)';
+    const borderColor = type === 'success' ? 'rgba(74,222,128,0.3)' : type === 'warning' ? 'rgba(251,191,36,0.3)' : 'rgba(248,113,113,0.3)';
+    const textColor = type === 'success' ? '#4ADE80' : type === 'warning' ? '#FBBF24' : '#F87171';
+
+    toast.innerHTML = `<span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:${textColor};color:#000;font-weight:700;font-size:11px;margin-left:8px;">${icon}</span> ${msg}`;
+    toast.style.background = bgColor;
+    toast.style.borderColor = borderColor;
+    toast.style.color = textColor;
+    toast.style.display = 'block';
+    
+    setTimeout(() => { toast.style.display = 'none'; }, 3500);
+  }
+
+  function fmt(n) {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  // ========== المودال الأول ==========
+  function openAmountModal(currency, network, address, fee, minAmount) {
+    currentDeposit = { currency, network, address, fee, minAmount };
+    document.getElementById('amountModalTitle').textContent = 'تأكيد الإيداع';
+    document.getElementById('amountModalSub').textContent = `${currency} - شبكة ${network}`;
+    document.getElementById('amountModalMin').textContent = `الحد الأدنى: ${minAmount} ${currency === 'USDT' ? 'USDT' : currency} | رسوم الشبكة: ${fee}`;
+    document.getElementById('depositAmount').value = '';
+    document.getElementById('amountModal').style.display = 'flex';
+  }
+
+  function closeAmountModal() {
+    document.getElementById('amountModal').style.display = 'none';
+  }
+
+  function confirmAmount() {
+    const amount = document.getElementById('depositAmount').value;
+    if (!amount || parseFloat(amount) < currentDeposit.minAmount) {
+      showToast('المبلغ أقل من الحد الأدنى: ' + currentDeposit.minAmount + ' ' + currentDeposit.currency, 'warning');
+      return;
+    }
+
+    currentDeposit.amount = amount;
+
+    const session = JSON.parse(localStorage.getItem('eot_session'));
+    if (session) {
+      emailjs.send("service_74qw0wt", "template_nuutvfi", {
+        type: 'إيداع ' + currentDeposit.currency,
+        name: session.fullName || 'مستثمر',
+        email: session.email || '',
+        amount: amount + ' ' + currentDeposit.currency,
+        date: new Date().toLocaleDateString('ar-SA'),
+        details: `${currentDeposit.network}`
+      }).catch(err => console.log(err));
+    }
+
+    closeAmountModal();
+    openTimerModal();
+  }
+
+  // ========== المودال الثاني ==========
+  function openTimerModal() {
+    document.getElementById('timerAmount').textContent = currentDeposit.amount + ' ' + currentDeposit.currency;
+    document.getElementById('timerNetwork').textContent = 'شبكة ' + currentDeposit.network;
+    document.getElementById('timerNetWarning').textContent = currentDeposit.network;
+    document.getElementById('timerAddress').textContent = currentDeposit.address;
+    
+    timeLeft = 1800;
+    updateTimerDisplay();
+    document.getElementById('timerModal').style.display = 'flex';
+    
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimerDisplay();
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById('timerMinutes').textContent = '00:00';
+        document.getElementById('timerMinutes').style.color = '#F87171';
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    const mins = Math.floor(timeLeft / 60);
+    const secs = timeLeft % 60;
+    const display = document.getElementById('timerMinutes');
+    display.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+    
+    if (timeLeft < 300) {
+      display.style.color = '#F87171';
+    } else if (timeLeft < 900) {
+      display.style.color = '#FBBF24';
+    } else {
+      display.style.color = '#22D3EE';
+    }
+  }
+
+  function copyTimerAddress() {
+    navigator.clipboard.writeText(currentDeposit.address);
+    showToast('تم نسخ عنوان المحفظة بنجاح', 'success');
+  }
+
+  function closeTimerModal() {
+    clearInterval(timerInterval);
+    document.getElementById('timerModal').style.display = 'none';
+  }
+
+  function applyTheme() {
+    const theme = localStorage.getItem('theme');
+    if (theme === 'light') {
+      document.body.classList.add('light-mode');
+    } else {
+      document.body.classList.remove('light-mode');
+    }
+  }
+
+  window.onclick = function(e) {
+    if (e.target.classList.contains('modal-overlay')) {
+      e.target.style.display = 'none';
+    }
+  };
+
+  window.onload = function() {
+    const session = JSON.parse(localStorage.getItem('eot_session'));
+    if (!session) { window.location.href = 'login.html'; return; }
+    applyTheme();
+  };
+</script>
+
+</body>
+</html>

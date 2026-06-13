@@ -1,0 +1,3 @@
+/                                                    /dashboard.html    200
+/secure/register/partner/:code                        /register.html?ref=:code    200
+/:code                                                /register.html?ref=:code    200

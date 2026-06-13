@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اكتشف المزيد | EOT PARTNERS</title> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"><script src="chat-data.js"></script>
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+      background-color: #070707;
+      color: #e5e5e5;
+      line-height: 1.8;
+    }
+
+    .gold {
+      color: #d4af37;
+      font-weight: 700;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .navbar {
+      background: rgba(10, 10, 10, 0.96);
+      backdrop-filter: blur(12px);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.18);
+    }
+
+    .nav-left-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .darkmode-toggle:hover {
+      background: rgba(212, 175, 55, 0.1);
+      border-color: #d4af37;
+      transform: scale(1.1);
+    }
+
+    .lang-wrapper {
+      position: relative;
+      min-width: 50px;
+    }
+
+    .lang-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: #d4af37;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      transition: 0.35s ease;
+      white-space: nowrap;
+    }
+
+    .lang-btn:hover {
+      background: rgba(212, 175, 55, 0.1);
+      border-color: #d4af37;
+    }
+
+    .lang-icon { font-size: 16px; }
+    .lang-arrow { font-size: 10px; transition: 0.3s ease; }
+    .lang-btn.active .lang-arrow { transform: rotate(180deg); }
+
+    .lang-dropdown {
+      position: absolute;
+      top: 110%;
+      right: 0;
+      background: rgba(20, 20, 20, 0.98);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      border-radius: 12px;
+      padding: 8px 0;
+      min-width: 170px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: 0.3s ease;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      z-index: 1001;
+    }
+
+    .lang-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .lang-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      color: #ccc;
+      text-decoration: none;
+      font-size: 14px;
+      transition: 0.25s ease;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: right;
+      font-family: inherit;
+    }
+
+    .lang-option:hover {
+      background: rgba(212, 175, 55, 0.1);
+      color: #d4af37;
+    }
+
+    .lang-option.active-lang {
+      color: #d4af37;
+      font-weight: 700;
+    }
+
+    .lang-flag {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .logo-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .nav-ornament {
+      width: 50px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #d4af37);
+      position: relative;
+    }
+
+    .nav-ornament.left {
+      background: linear-gradient(to left, transparent, #d4af37);
+    }
+
+    .nav-ornament::after {
+      content: '';
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      background: #d4af37;
+      border-radius: 50%;
+      top: -2px;
+    }
+
+    .nav-ornament.right::after { right: 0; }
+    .nav-ornament.left::after { left: 0; }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: white;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .logo span { color: #d4af37; }
+
+    .page-header {
+      min-height: 45vh;
+      background: linear-gradient(135deg, #050505 0%, #0d0d0d 45%, #141005 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 160px 20px 70px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+    }
+
+    .page-header h1 {
+      font-size: 48px;
+      color: #d4af37;
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+    }
+
+    .page-header p {
+      font-size: 20px;
+      color: #bdbdbd;
+    }
+
+    .section {
+      padding: 80px 40px;
+      text-align: center;
+    }
+
+    .section-dark { background: #0a0a0a; }
+    .section-darker { background: #050505; }
+
+    .section-title {
+      font-size: 38px;
+      color: #d4af37;
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+      font-weight: 700;
+    }
+
+    .section-subtitle {
+      color: #bdbdbd;
+      font-size: 18px;
+      margin-bottom: 45px;
+    }
+
+    .title-line {
+      width: 80px;
+      height: 3px;
+      background: #d4af37;
+      margin: 0 auto 40px;
+      border-radius: 2px;
+    }
+
+    .info-card {
+      max-width: 850px;
+      margin: 0 auto;
+      background: rgba(20, 20, 20, 0.8);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 16px;
+      padding: 35px 30px;
+      text-align: right;
+    }
+
+    .info-card p {
+      font-size: 17px;
+      color: #cccccc;
+      margin-bottom: 15px;
+      line-height: 2;
+    }
+
+    .highlight-box {
+      background: rgba(212, 175, 55, 0.05);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 12px;
+      padding: 25px;
+      margin: 25px 0;
+    }
+
+    .highlight-box p {
+      color: #e0e0e0;
+      font-size: 16px;
+    }
+
+    .about-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .about-list li {
+      padding: 12px 0;
+      color: #d0d0d0;
+      font-size: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      padding-right: 20px;
+      position: relative;
+    }
+
+    .about-list li::before {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      background: #d4af37;
+      border-radius: 50%;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 25px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .step-card {
+      background: linear-gradient(180deg, #141414 0%, #101010 100%);
+      padding: 35px 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      transition: 0.35s ease;
+      text-align: center;
+    }
+
+    .step-card:hover {
+      transform: translateY(-8px);
+      border-color: #d4af37;
+      box-shadow: 0 10px 25px rgba(212, 175, 55, 0.15);
+    }
+
+    .step-card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 18px;
+    }
+
+    .step-card h3 {
+      color: #ffffff;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .step-card p {
+      color: #b9b9b9;
+      font-size: 14px;
+    }
+    .support-float { position: fixed; bottom: 30px; left: 20px; width: 48px; height: 48px; background: #1a1f2b; border: 1px solid rgba(212,175,55,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 998; cursor: pointer; box-shadow: 0 4px 15px rgba(212,175,55,0.15); color: #D4AF37; font-size: 20px; transition: 0.3s; }
+.support-float:hover { transform: scale(1.05); background: rgba(212,175,55,0.05); }
+.support-float .support-pulse { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: rgba(212,175,55,0.2); animation: supportPulse 2s infinite; }
+@keyframes supportPulse { 0%{transform:scale(1);opacity:1} 100%{transform:scale(1.6);opacity:0} }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-left-group">
+      
+      <div class="lang-wrapper">
+        <button class="lang-btn" onclick="toggleLangDropdown()" id="langBtn">
+          <span class="lang-icon">🌐</span>
+          <span id="currentLang">العربية</span>
+          <span class="lang-arrow">▼</span>
+        </button>
+        <div class="lang-dropdown" id="langDropdown">
+          <button class="lang-option active-lang" onclick="changeLang('العربية', this)"><span class="lang-flag">🇸🇦</span> العربية</button>
+          <button class="lang-option" onclick="changeLang('English', this)"><span class="lang-flag">🇬🇧</span> English</button>
+          <button class="lang-option" onclick="changeLang('Русский', this)"><span class="lang-flag">🇷🇺</span> Русский</button>
+          <button class="lang-option" onclick="changeLang('עברית', this)"><span class="lang-flag">🇮🇱</span> עברית</button>
+          <button class="lang-option" onclick="changeLang('Français', this)"><span class="lang-flag">🇫🇷</span> Français</button>
+          <button class="lang-option" onclick="changeLang('Türkçe', this)"><span class="lang-flag">🇹🇷</span> Türkçe</button>
+          <button class="lang-option" onclick="changeLang('中文', this)"><span class="lang-flag">🇨🇳</span> 中文</button>
+        </div>
+      </div>
+    </div>
+    <div class="logo-wrapper">
+      <div class="nav-ornament right"></div>
+      <a href="index.html" class="logo">EOT<span> PARTNERS</span></a>
+      <div class="nav-ornament left"></div>
+    </div>
+    <div></div>
+  </nav>
+
+  <section class="page-header">
+    <h1>اكتشف عالم النجاح والاستثمار</h1>
+    <p>تعرف على شركتنا المتكاملة في إدارة الأصول وتطوير الحلول الاستثمارية</p>
+  </section>
+
+  <!-- من نحن -->
+  <section class="section">
+    <h2 class="section-title">من نحن</h2>
+    <div class="title-line"></div>
+    <div class="info-card">
+      <p><strong>EOT PARTNERS</strong> هي شركة إدارة واستثمار مالي متكاملة تقدم خدمات متقدمة في مجال إدارة رؤوس الأموال وتطوير الحلول الاستثمارية المصممة خصيصاً لتلبية احتياجات الأفراد والمؤسسات على حد سواء.</p>
+      <p>نعتمد في عملنا على منهجية دقيقة تهدف إلى بناء قيمة طويلة الأمد من خلال إدارة منظمة للأصول، وتحليل مستمر للفرص المتاحة في الأسواق المالية العالمية، مع التركيز على تحقيق التوازن بين النمو والاستقرار.</p>
+      <div class="highlight-box">
+        <p>نحن نؤمن بأن النجاح في المجال الاستثماري لا يتحقق من خلال قرارات عشوائية أو تحركات غير مدروسة، بل من خلال إطار عمل احترافي يجمع بين التحليل العميق للبيانات، وفهم ديناميكيات الأسواق، وتطبيق استراتيجيات مرنة قابلة للتكيف مع مختلف الظروف الاقتصادية.</p>
+      </div>
+      <p style="margin-top:20px;">ندير حالياً أصولاً تتجاوز قيمتها <span class="gold">12.8 مليار دولار</span> لأكثر من <span class="gold">250,000 عميل</span> حول العالم من خلال <span class="gold">35 قطاعاً استثمارياً</span> متنوعاً.</p>
+    </div>
+  </section>
+
+  <!-- مجال العمل والخدمات -->
+  <section class="section section-dark">
+    <h2 class="section-title">مجال العمل والخدمات</h2>
+    <div class="title-line"></div>
+    <div class="info-card">
+      <p>تغطي خدماتنا مجموعة واسعة من الأنشطة الاستثمارية التي تشمل:</p>
+      <ul class="about-list">
+        <li>إدارة المحافظ المالية بشكل احترافي وفق أهداف محددة مسبقاً</li>
+        <li>تصميم وتنفيذ استراتيجيات تخصيص رأس المال</li>
+        <li>دراسة وتحليل الاتجاهات الاقتصادية العالمية وتأثيرها على الأصول المختلفة</li>
+        <li>تطوير نماذج تحليل تعتمد على البيانات والإحصاءات والذكاء الاصطناعي</li>
+        <li>تقديم حلول استثمارية مخصصة للأفراد والمؤسسات</li>
+        <li>متابعة الأداء بشكل دوري وتحديث الخطط الاستثمارية عند الحاجة</li>
+      </ul>
+      <p style="margin-top:20px;">نعمل على توفير بيئة استثمارية منظمة تتيح للعملاء الاستفادة من خبرات فريق متخصص يضم أكثر من <span class="gold">200 خبير</span> دون الحاجة إلى الانخراط المباشر في التفاصيل التشغيلية اليومية.</p>
+    </div>
+  </section>
+
+  <!-- آلية العمل -->
+  <section class="section">
+    <h2 class="section-title">آلية العمل لدينا</h2>
+    <div class="title-line"></div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=200&fit=crop" alt="تحليل" loading="lazy">
+        <h3>فهم الأهداف</h3>
+        <p>نبدأ بفهم شامل لأهدافك المالية وتحديد مستوى المخاطر المناسب لك ودراسة أفقك الاستثماري.</p>
+      </div>
+      <div class="step-card">
+        <img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=300&h=200&fit=crop" alt="تخطيط" loading="lazy">
+        <h3>بناء الخطة</h3>
+        <p>نصمم خطة مالية مخصصة بتوزيع مدروس لرأس المال بين فئات متعددة من الأصول.</p>
+      </div>
+      <div class="step-card">
+        <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=300&h=200&fit=crop" alt="تنفيذ" loading="lazy">
+        <h3>التنفيذ والمتابعة</h3>
+        <p>فريق متخصص من 200 خبير يتابع الأسواق على مدار الساعة في 12 دولة حول العالم.</p>
+      </div>
+      <div class="step-card">
+        <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=300&h=200&fit=crop" alt="تقارير" loading="lazy">
+        <h3>تقارير شفافة</h3>
+        <p>نوفر تقارير دورية توضح سير الأداء مع شرح للقرارات المتخذة وأسبابها بكل شفافية.</p>
+      </div>
+    </div>
+  </section><!-- الفريق والخبرة -->
+<section class="section section-darker">
+  <h2 class="section-title">الفريق والخبرة</h2>
+  <div class="title-line"></div>
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; max-width: 1100px; margin: 0 auto;">
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:30px 18px;text-align:center;">
+      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=120&h=120&fit=crop&crop=center" alt="تحليل" style="width:65px;height:65px;border-radius:50%;object-fit:cover;margin-bottom:15px;border:2px solid #d4af37;" loading="lazy">
+      <div style="font-size:40px;font-weight:700;color:#d4af37;margin-bottom:8px;">85+</div>
+      <div style="color:#fff;font-size:18px;font-weight:600;">محلل مالي</div>
+    </div>
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:30px 18px;text-align:center;">
+      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=center" alt="إدارة" style="width:65px;height:65px;border-radius:50%;object-fit:cover;margin-bottom:15px;border:2px solid #d4af37;" loading="lazy">
+      <div style="font-size:40px;font-weight:700;color:#d4af37;margin-bottom:8px;">45+</div>
+      <div style="color:#fff;font-size:18px;font-weight:600;">مدير أصول</div>
+    </div>
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:30px 18px;text-align:center;">
+      <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&h=120&fit=crop&crop=center" alt="مخاطر" style="width:65px;height:65px;border-radius:50%;object-fit:cover;margin-bottom:15px;border:2px solid #d4af37;" loading="lazy">
+      <div style="font-size:40px;font-weight:700;color:#d4af37;margin-bottom:8px;">35+</div>
+      <div style="color:#fff;font-size:18px;font-weight:600;">خبير مخاطر</div>
+    </div>
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:30px 18px;text-align:center;">
+      <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=120&h=120&fit=crop&crop=center" alt="تطوير" style="width:65px;height:65px;border-radius:50%;object-fit:cover;margin-bottom:15px;border:2px solid #d4af37;" loading="lazy">
+      <div style="font-size:40px;font-weight:700;color:#d4af37;margin-bottom:8px;">50+</div>
+      <div style="color:#fff;font-size:18px;font-weight:600;">مطور أنظمة</div>
+    </div>
+  </div>
+  <div class="info-card" style="margin-top:40px;">
+    <p>يتكون فريق العمل لدينا من أكثر من <span class="gold">200 خبير ومتخصص</span> في مجالات متعددة تشمل تحليل البيانات المالية والأسواق العالمية، وإدارة الأصول وتوزيع الاستثمارات، وتصميم الأنظمة والنماذج المالية، ودراسة المخاطر ووضع استراتيجيات الحد منها، وتطوير أدوات تقييم الأداء المالي. نمتلك مكاتب في <span class="gold">12 دولة</span> حول العالم.</p>
+    <p>يمتلك الفريق خبرات تراكمية تتجاوز <span class="gold">25 عاماً</span> في التعامل مع بيئات اقتصادية متنوعة، مما يمنح الشركة القدرة على التعامل مع التغيرات السريعة في الأسواق واتخاذ قرارات مدروسة في الوقت المناسب.</p>
+  </div>
+</section>
+
+<!-- أرقام النجاح -->
+<section class="section">
+  <h2 class="section-title">أرقام تتحدث عن نجاحنا</h2>
+  <div class="title-line"></div>
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; max-width: 1000px; margin: 0 auto;">
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:30px 18px;text-align:center;">
+      <div style="font-size:42px;font-weight:700;color:#d4af37;margin-bottom:8px;">+250,000</div>
+      <div style="color:#bbb;font-size:15px;">عميل حول العالم</div>
+    </div>
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:30px 18px;text-align:center;">
+      <div style="font-size:42px;font-weight:700;color:#d4af37;margin-bottom:8px;">$12.8B</div>
+      <div style="color:#bbb;font-size:15px;">الأصول المدارة</div>
+    </div>
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:30px 18px;text-align:center;">
+      <div style="font-size:42px;font-weight:700;color:#d4af37;margin-bottom:8px;">+1,850</div>
+      <div style="color:#bbb;font-size:15px;">مشروع منجز</div>
+    </div>
+    <div style="background:#0d0d0d;border:1px solid rgba(212,175,55,0.1);border-radius:16px;padding:30px 18px;text-align:center;">
+      <div style="font-size:42px;font-weight:700;color:#d4af37;margin-bottom:8px;">98.7%</div>
+      <div style="color:#bbb;font-size:15px;">نسبة رضا العملاء</div>
+    </div>
+  </div>
+</section>
+
+<!-- دعوة للانضمام -->
+<section class="section section-dark" style="text-align:center;">
+  <h2 class="section-title">هل أنت مستعد للانضمام إلى قائمة الناجحين؟</h2>
+  <p style="color:#bdbdbd;font-size:18px;margin-bottom:30px;">انضم إلى أكثر من 250,000 مستثمر يحققون عوائدهم معنا في 35 قطاعاً استثمارياً</p>
+  <a href="login.html" style="display:inline-block;background:#d4af37;color:#000;text-decoration:none;font-size:17px;font-weight:700;padding:15px 40px;border-radius:30px;transition:0.35s;border:2px solid #d4af37;box-shadow:0 6px 20px rgba(212,175,55,0.25);">ابدأ الآن</a>
+</section><style>
+  /* ========== الفوتر ========== */
+  .mega-footer {
+    background: #000000;
+    border-top: 2px solid rgba(212, 175, 55, 0.35);
+    padding: 70px 40px 0;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: right;
+  }
+
+  .footer-col h4 {
+    color: #d4af37;
+    font-size: 18px;
+    margin-bottom: 25px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    position: relative;
+    padding-bottom: 12px;
+  }
+
+  .footer-col h4::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 40px;
+    height: 2px;
+    background: #d4af37;
+    border-radius: 2px;
+  }
+
+  .footer-col p {
+    color: #b0b0b0;
+    font-size: 14px;
+    line-height: 2;
+    margin-bottom: 12px;
+    text-align: justify;
+  }
+
+  .footer-links {
+    list-style: none;
+    padding: 0;
+  }
+
+  .footer-links li {
+    margin-bottom: 12px;
+  }
+
+  .footer-links li a {
+    color: #b0b0b0;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.3s ease;
+    display: inline-block;
+  }
+
+  .footer-links li a:hover {
+    color: #d4af37;
+  }
+
+  .crypto-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 10px;
+  }
+
+  .crypto-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s ease;
+    padding: 6px;
+    background: transparent;
+    border: none;
+  }
+
+  .crypto-icon:hover {
+    transform: scale(1.2);
+  }
+
+  .crypto-icon img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    filter: brightness(0.9);
+    transition: 0.3s ease;
+  }
+
+  .crypto-icon:hover img {
+    filter: brightness(1.1);
+  }
+
+  .footer-bottom-bar {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin-top: 50px;
+    padding: 25px 0;
+    text-align: center;
+  }
+
+  .footer-bottom-bar p {
+    color: #888;
+    font-size: 13px;
+    margin: 0;
+    letter-spacing: 0.5px;
+  }
+
+  .footer-bottom-bar .gold {
+    color: #d4af37;
+  }
+
+  .footer-logo {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #ffffff !important;
+    margin-bottom: 15px;
+    display: block;
+  }
+
+  .footer-logo span {
+    color: #d4af37;
+  }
+
+  .mega-footer a {
+    pointer-events: none;
+    cursor: default;
+  }
+
+  /* ========== أيقونة الدعم ========== */
+  .float-support {
+    position: fixed;
+    bottom: 30px;
+    left: 20px;
+    width: 52px;
+    height: 48px;
+    background: linear-gradient(145deg, #3B82F6, #2563EB);
+    border: none;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 998;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
+    transition: all 0.35s ease;
+    animation: softGlow 3s infinite;
+  }
+
+  .float-support:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 28px rgba(59, 130, 246, 0.6);
+    background: linear-gradient(145deg, #60A5FA, #3B82F6);
+  }
+
+  .float-support::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 12px;
+    height: 12px;
+    background: #4ADE80;
+    border: 2px solid #0B0E14;
+    border-radius: 50%;
+    animation: onlineBlink 2s infinite;
+  }
+
+  @keyframes softGlow {
+    0%, 100% { box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5); }
+    50% { box-shadow: 0 4px 28px rgba(59, 130, 246, 0.7); }
+  }
+
+  @keyframes onlineBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* ========== نافذة الدعم المنبثقة ========== */
+  .support-popup {
+    position: fixed;
+    bottom: 100px;
+    left: 20px;
+    width: 360px;
+    max-width: 90vw;
+    background: #141414;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+    z-index: 997;
+    display: none;
+    animation: popupSlide 0.3s ease;
+  }
+
+  .support-popup.show {
+    display: block;
+  }
+
+  @keyframes popupSlide {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .support-popup-header {
+    background: linear-gradient(135deg, #d4af37, #b8941f);
+    padding: 15px 20px;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .support-popup-header h3 {
+    color: #000;
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .support-close-btn {
+    background: rgba(0,0,0,0.2);
+    border: none;
+    color: #000;
+    font-size: 18px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+  }
+
+  .support-close-btn:hover {
+    background: rgba(0,0,0,0.4);
+    color: #fff;
+  }
+
+  .support-popup-body {
+    padding: 20px;
+  }
+
+  .support-popup-body p {
+    color: #ccc;
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+
+  .support-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .support-input, .support-textarea {
+    background: #1a1a1a;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 12px 15px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    transition: 0.3s;
+  }
+
+  .support-input:focus, .support-textarea:focus {
+    outline: none;
+    border-color: #d4af37;
+  }
+
+  .support-textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .support-submit-btn {
+    background: #d4af37;
+    color: #000;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .support-submit-btn:hover {
+    background: #c19b20;
+  }
+
+  /* ========== الوضع النهاري ========== */
+  body.light-mode {
+    background-color: #f5f5f5;
+    color: #1a1a1a;
+  }
+
+  body.light-mode .navbar {
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom-color: rgba(0, 0, 0, 0.1);
+  }
+
+  body.light-mode .logo {
+    color: #1a1a1a;
+  }
+
+  body.light-mode .lang-btn {
+    color: #8b6914;
+    border-color: rgba(139, 105, 20, 0.4);
+  }
+
+  body.light-mode .lang-dropdown {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(0, 0, 0, 0.15);
+  }
+
+  body.light-mode .lang-option {
+    color: #333;
+  }
+
+  body.light-mode .page-header {
+    background: linear-gradient(135deg, #f0f0f0 0%, #faf5e8 45%, #f5f5f5 100%);
+  }
+
+  body.light-mode .page-header h1 {
+    color: #8b6914;
+  }
+
+  body.light-mode .page-header p {
+    color: #666;
+  }
+
+  body.light-mode .section-dark,
+  body.light-mode .section-darker {
+    background: #f0f0f0;
+  }
+
+  body.light-mode .section-title {
+    color: #8b6914;
+  }
+
+  body.light-mode .info-card {
+    background: #fff;
+    border-color: rgba(0,0,0,0.08);
+  }
+
+  body.light-mode .info-card p {
+    color: #555;
+  }
+
+  body.light-mode .highlight-box {
+    background: rgba(139, 105, 20, 0.05);
+    border-color: rgba(139, 105, 20, 0.2);
+  }
+
+  body.light-mode .highlight-box p {
+    color: #444;
+  }
+
+  body.light-mode .about-list li {
+    color: #555;
+  }
+
+  body.light-mode .step-card {
+    background: #fff;
+    border-color: rgba(0,0,0,0.08);
+  }
+
+  body.light-mode .step-card h3 {
+    color: #1a1a1a;
+  }
+
+  body.light-mode .step-card p {
+    color: #777;
+  }
+
+  body.light-mode .mega-footer {
+    background: #e8e8e8;
+    border-top-color: rgba(0,0,0,0.1);
+  }
+
+  body.light-mode .footer-col h4 {
+    color: #8b6914;
+  }
+
+  body.light-mode .footer-col h4::after {
+    background: #8b6914;
+  }
+
+  body.light-mode .footer-col p {
+    color: #555;
+  }
+
+  body.light-mode .footer-links li a {
+    color: #555;
+  }
+
+  body.light-mode .footer-logo {
+    color: #1a1a1a !important;
+  }
+
+  body.light-mode .footer-bottom-bar {
+    border-top-color: rgba(0,0,0,0.08);
+  }
+
+  body.light-mode .footer-bottom-bar p {
+    color: #777;
+  }
+
+  body.light-mode .support-popup {
+    background: #fff;
+    border-color: rgba(0,0,0,0.15);
+  }
+
+  body.light-mode .support-popup-body p {
+    color: #555;
+  }
+
+  body.light-mode .support-input,
+  body.light-mode .support-textarea {
+    background: #f5f5f5;
+    border-color: rgba(0,0,0,0.1);
+    color: #333;
+  }
+
+  /* ========== تحسينات الجوال ========== */
+  @media (max-width: 992px) {
+    .footer-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .steps-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    div[style*="grid-template-columns: repeat(4, 1fr)"] {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .navbar {
+      padding: 10px 10px;
+    }
+
+    .nav-left-group {
+      gap: 6px;
+    }
+
+    .lang-btn {
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+
+    .logo-wrapper {
+      position: static;
+      transform: none;
+      flex: 1;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .nav-ornament { width: 12px; }
+    .logo { font-size: 17px; letter-spacing: 1px; }
+
+    .page-header h1 { font-size: 28px; }
+    .page-header p { font-size: 15px; }
+    .section { padding: 50px 15px; }
+    .section-title { font-size: 26px; }
+    .steps-grid { grid-template-columns: 1fr; }
+
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 25px;
+    }
+
+    .footer-col { text-align: center; }
+    .footer-col h4::after {
+      right: 50%;
+      transform: translateX(50%);
+    }
+
+    .footer-col p { text-align: center; }
+    .mega-footer { padding: 50px 15px 0; }
+
+    .support-popup {
+      bottom: 85px;
+      left: 10px;
+      width: 300px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .page-header h1 { font-size: 24px; }
+    .section-title { font-size: 22px; }
+  }
+</style>  <!-- الفوتر الاحترافي -->
+  <footer class="mega-footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="footer-logo">EOT<span> PARTNERS</span></div>
+        <p>شركة إدارة واستثمار مالي متكاملة تقدم خدمات متقدمة في مجال إدارة رؤوس الأموال وتطوير الحلول الاستثمارية المصممة خصيصاً لتلبية احتياجات الأفراد والمؤسسات.</p>
+        <p style="color:#d4af37;font-weight:600;">تأسست الشركة عام 2020</p>
+      </div>
+      <div class="footer-col">
+        <h4>روابط سريعة</h4>
+        <ul class="footer-links">
+          <li><a href="about.html">من نحن</a></li>
+          <li><a href="invest.html">المشاريع المتاحة</a></li>
+          <li><a href="invest.html">كيفية الاستثمار</a></li>
+          <li><a href="partnership.html">الشراكات</a></li>
+          <li><a href="about.html">قصص النجاح</a></li>
+          <li><a href="about.html">الأسئلة الشائعة</a></li>
+          <li><a href="login.html">تسجيل الدخول</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>معلومات قانونية</h4>
+        <ul class="footer-links">
+          <li><a href="terms.html">الشروط والأحكام</a></li>
+          <li><a href="privacy.html">سياسة الخصوصية</a></li>
+          <li><a href="risk.html">إفصاح المخاطر الاستثمارية</a></li>
+          <li><a href="partnership-terms.html">شروط الشراكة والمشاركة في الأرباح</a></li>
+          <li><a href="aml.html">سياسة مكافحة غسيل الأموال</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>العملات الرقمية</h4>
+        <div class="crypto-grid">
+          <div class="crypto-icon"><img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="Bitcoin" loading="lazy"></div>
+          <div class="crypto-icon"><img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="Ethereum" loading="lazy"></div>
+          <div class="crypto-icon"><img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="Tether" loading="lazy"></div>
+          <div class="crypto-icon"><img src="https://cryptologos.cc/logos/bnb-bnb-logo.png" alt="BNB" loading="lazy"></div>
+          <div class="crypto-icon"><img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="Solana" loading="lazy"></div>
+          <div class="crypto-icon"><img src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png" alt="USDC" loading="lazy"></div>
+          <div class="crypto-icon"><img src="https://cryptologos.cc/logos/cardano-ada-logo.png" alt="Cardano" loading="lazy"></div>
+          <div class="crypto-icon"><img src="https://cryptologos.cc/logos/xrp-xrp-logo.png" alt="XRP" loading="lazy"></div>
+          <div class="crypto-icon"><img src="https://cryptologos.cc/logos/avalanche-avax-logo.png" alt="AVAX" loading="lazy"></div>
+          <div class="crypto-icon"><img src="https://cryptologos.cc/logos/polkadot-new-dot-logo.png" alt="Polkadot" loading="lazy"></div>
+          <div class="crypto-icon"><img src="https://cryptologos.cc/logos/polygon-matic-logo.png" alt="Polygon" loading="lazy"></div>
+          <div class="crypto-icon"><img src="https://cryptologos.cc/logos/multi-collateral-dai-dai-logo.png" alt="DAI" loading="lazy"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="max-width: 1200px; margin: 45px auto 0; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.04);">
+      <h4 style="color: #d4af37; font-size: 18px; margin-bottom: 25px; text-align: center; font-weight: 700; letter-spacing: 0.5px;"/h4>
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 40px;">
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">MERRILL LYNCH</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">BLACKROCK</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">GOLDMAN SACHS</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">JPMORGAN</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">MORGAN STANLEY</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">UBS</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">DEUTSCHE BANK</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">CREDIT SUISSE</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">BNP PARIBAS</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">HSBC</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">BARCLAYS</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">CITIGROUP</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">WELLS FARGO</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">SOCIETE GENERALE</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">NOMURA</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">MACQUARIE</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">VANGUARD</span>
+        <span style="color:#888;font-size:16px;font-weight:600;letter-spacing:3px;font-family:'Georgia','Times New Roman',serif;transition:0.3s;cursor:default;" onmouseover="this.style.color='#d4af37'" onmouseout="this.style.color='#888'">FIDELITY</span>
+      </div>
+    </div>
+
+    <div class="footer-bottom-bar">
+      <p>© 2020 - <span id="currentYear"></span> <span class="gold">EOT PARTNERS</span>. شركة إدارة واستثمار مالي متكاملة. جميع الحقوق محفوظة.</p>
+    </div>
+  </footer>
+  <div class="support-float" title="الدعم الفني" onclick="toggleChat()">
+  <span class="support-pulse"></span>
+  <i class="fas fa-headset"></i>
+</div>
+<!-- نافذة المحادثة -->
+<div class="chat-window" id="chatWindow" style="display:none;position:fixed;bottom:100px;left:20px;width:320px;height:400px;background:#1a1f2b;border-radius:16px;z-index:600;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,0.5);overflow:hidden;">
+  <div style="background:#1a2740;color:#FFF;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:600;">
+    <span><i class="fas fa-headset"></i> الدعم الفني</span>
+    <button onclick="toggleChat()" style="background:none;border:none;color:#FFF;font-size:16px;cursor:pointer;">✕</button>
+  </div>
+  <div id="chatBody" style="flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;">
+    <div style="align-self:flex-end;max-width:85%;"><div style="background:#1a2740;color:#FFF;padding:10px 14px;border-radius:14px;font-size:12px;">مرحباً بك!</div></div>
+  </div>
+  <div style="display:flex;padding:10px;border-top:1px solid rgba(255,255,255,0.05);gap:8px;">
+    <input type="text" id="chatInput" placeholder="اكتب رسالتك..." style="flex:1;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:10px 14px;font-size:11px;outline:none;font-family:inherit;background:#0a0e14;color:#FFF;" onkeypress="if(event.key==='Enter')sendMessage2()">
+    <button onclick="sendMessage2()" style="background:#D4AF37;border:none;color:#FFF;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:14px;"><i class="fas fa-paper-plane"></i></button>
+  </div>
+</div>
+
+  <script>
+    function toggleLangDropdown() {
+      const dropdown = document.getElementById('langDropdown');
+      const btn = document.getElementById('langBtn');
+      dropdown.classList.toggle('show');
+      btn.classList.toggle('active');
+    }
+
+    function changeLang(lang, element) {
+      document.getElementById('currentLang').textContent = lang;
+      document.getElementById('langDropdown').classList.remove('show');
+      document.getElementById('langBtn').classList.remove('active');
+      const allOptions = document.querySelectorAll('.lang-option');
+      allOptions.forEach(opt => opt.classList.remove('active-lang'));
+      element.classList.add('active-lang');
+      
+// الانتقال للنسخة الإنجليزية
+if (lang === 'English') {
+  window.location.href = 'about-en.html';
+}
+    }
+
+    document.addEventListener('click', function(event) {
+      const wrapper = document.querySelector('.lang-wrapper');
+      const dropdown = document.getElementById('langDropdown');
+      const btn = document.getElementById('langBtn');
+      if (!wrapper.contains(event.target)) {
+        dropdown.classList.remove('show');
+        btn.classList.remove('active');
+      }
+    });
+
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    
+// ========== المحادثة ==========
+function toggleChat(){var c=document.getElementById('chatWindow');if(c.style.display==='none'||c.style.display===''){c.style.display='flex';loadChatQuestions2()}else{c.style.display='none'}}
+function loadChatQuestions2(){var q=window.CHAT_QUESTIONS||[];if(!q.length)return;var b=document.getElementById('chatBody');b.innerHTML+='<div style="padding:8px;border-top:1px solid rgba(255,255,255,0.05);margin-top:8px;"><div style="font-size:10px;color:#999;">الأسئلة الشائعة:</div>'+q.map((q,i)=>'<button onclick="askChatQuestion2('+i+')" style="display:block;width:100%;text-align:right;padding:8px 12px;margin-bottom:4px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:10px;font-size:11px;cursor:pointer;color:#D4AF37;font-family:inherit;">'+q.icon+' '+q.question+'</button>').join('')+'</div>';b.scrollTop=b.scrollHeight}
+function askChatQuestion2(i){var q=(window.CHAT_QUESTIONS||[])[i];if(!q)return;var b=document.getElementById('chatBody'),n=new Date(),t=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');b.innerHTML+='<div style="align-self:flex-start;max-width:85%;"><div style="background:rgba(212,175,55,0.15);color:#FFF;padding:10px 14px;border-radius:14px;font-size:12px;">'+q.question+'</div></div>';setTimeout(function(){b.innerHTML+='<div style="align-self:flex-end;max-width:85%;"><div style="background:#1a2740;color:#FFF;padding:10px 14px;border-radius:14px;font-size:12px;">'+q.answer+'</div></div>';b.scrollTop=b.scrollHeight},800);b.scrollTop=b.scrollHeight}
+function sendMessage2(){var inp=document.getElementById('chatInput'),msg=inp.value.trim();if(!msg)return;var b=document.getElementById('chatBody'),n=new Date(),t=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');b.innerHTML+='<div style="align-self:flex-start;max-width:85%;"><div style="background:rgba(212,175,55,0.15);color:#FFF;padding:10px 14px;border-radius:14px;font-size:12px;">'+msg+'</div></div>';setTimeout(function(){b.innerHTML+='<div style="align-self:flex-end;max-width:85%;"><div style="background:#1a2740;color:#FFF;padding:10px 14px;border-radius:14px;font-size:12px;">شكراً لتواصلك!</div></div>';b.scrollTop=b.scrollHeight},1000);inp.value='';b.scrollTop=b.scrollHeight}
+  </script>
+</body>
+</html>

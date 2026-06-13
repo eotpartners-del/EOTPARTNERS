@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invite a Friend | EOT PARTNERS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      background: #06080C;
+      color: #E8EDF2;
+      min-height: 100vh;
+      padding-bottom: 40px;
+    }
+
+    .top-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 20px; background: rgba(6,8,12,0.95);
+      border-bottom: 1px solid rgba(212,175,55,0.08);
+      position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+    }
+    .back-btn {
+      width: 38px; height: 38px; background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #D4AF37; font-size: 16px; cursor: pointer;
+      transition: 0.3s; text-decoration: none;
+    }
+    .back-btn:hover { background: rgba(212,175,55,0.1); }
+    .logo { font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #FFF; text-decoration: none; }
+    .logo span { color: #D4AF37; }
+
+    .page-container { max-width: 700px; margin: 0 auto; padding: 28px 14px; }
+
+    .hero {
+      text-align: center; margin-bottom: 28px;
+      padding: 36px 24px;
+      background: linear-gradient(160deg, #0d1117 0%, #111820 100%);
+      border: 1px solid rgba(212,175,55,0.1); border-radius: 24px;
+    }
+    .hero .hero-badge {
+      display: inline-block; padding: 6px 16px;
+      background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 20px; font-size: 10px; color: #D4AF37;
+      font-weight: 600; letter-spacing: 1.5px; margin-bottom: 16px;
+    }
+    .hero h1 { font-size: 28px; color: #FFF; margin-bottom: 8px; font-weight: 800; }
+    .hero h1 span { color: #D4AF37; }
+    .hero p { font-size: 13px; color: #6B7280; max-width: 450px; margin: 0 auto; line-height: 1.9; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+    .stat-card {
+      background: #0F1219; border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 16px; padding: 18px 12px; text-align: center;
+    }
+    .stat-card .stat-icon {
+      width: 36px; height: 36px; margin: 0 auto 8px;
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .stat-card .stat-val { font-size: 22px; font-weight: 800; color: #D4AF37; }
+    .stat-card .stat-lbl { font-size: 10px; color: #6B7280; margin-top: 2px; }
+
+    .link-card {
+      background: #0F1219; border: 1px solid rgba(212,175,55,0.15);
+      border-radius: 18px; padding: 24px; margin-bottom: 24px; text-align: center;
+    }
+    .link-card h3 { font-size: 15px; color: #FFF; margin-bottom: 4px; }
+    .link-card .subtitle { font-size: 11px; color: #6B7280; margin-bottom: 16px; }
+    .link-row {
+      display: flex; gap: 10px; align-items: center;
+      background: rgba(0,0,0,0.4); border: 1px solid rgba(212,175,55,0.15);
+      border-radius: 12px; padding: 6px;
+    }
+    .link-row input {
+      flex: 1; background: transparent; border: none;
+      color: #D4AF37; font-size: 13px; font-family: monospace;
+      padding: 8px;
+    }
+    .link-row input:focus { outline: none; }
+    .copy-btn {
+      padding: 10px 20px; background: rgba(212,175,55,0.1);
+      border: 1px solid rgba(212,175,55,0.3); border-radius: 10px;
+      color: #D4AF37; font-weight: 700; font-size: 12px;
+      cursor: pointer; font-family: inherit; white-space: nowrap;
+      transition: 0.3s;
+    }
+    .copy-btn:hover { background: rgba(212,175,55,0.2); }
+
+    .commission-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+    .commission-card {
+      background: #0F1219; border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 16px; padding: 18px 12px; text-align: center;
+    }
+    .commission-card .com-icon {
+      width: 40px; height: 40px; margin: 0 auto 10px;
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .commission-card .com-pct { font-size: 24px; font-weight: 800; color: #D4AF37; }
+    .commission-card .com-title { font-size: 11px; color: #FFF; font-weight: 600; margin: 4px 0; }
+    .commission-card .com-desc { font-size: 9px; color: #6B7280; line-height: 1.5; }
+
+    .team-section {
+      background: #0F1219; border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 18px; padding: 24px; margin-bottom: 24px;
+    }
+    .team-section h3 { color: #D4AF37; font-size: 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .team-list { display: flex; flex-direction: column; gap: 6px; }
+    .team-member {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px; background: rgba(255,255,255,0.02);
+      border-radius: 12px;
+    }
+    .team-member .tm-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #D4AF37;
+      background: rgba(212,175,55,0.1);
+    }
+    .team-member .tm-info { flex: 1; }
+    .team-member .tm-name { font-size: 12px; color: #FFF; font-weight: 600; }
+    .team-member .tm-date { font-size: 9px; color: #6B7280; }
+    .team-member .tm-reward { font-size: 12px; color: #4ADE80; font-weight: 700; }
+    .empty-team { text-align: center; padding: 20px; color: #6B7280; font-size: 12px; }
+
+    .steps-section {
+      background: #0F1219; border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 18px; padding: 24px; margin-bottom: 24px;
+    }
+    .steps-section h3 { color: #D4AF37; font-size: 14px; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .step-item {
+      display: flex; gap: 14px; padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .step-num {
+      width: 36px; height: 36px; min-width: 36px;
+      background: rgba(212,175,55,0.1); color: #D4AF37;
+      border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 14px;
+    }
+    .step-info h4 { font-size: 13px; color: #FFF; margin-bottom: 2px; }
+    .step-info p { font-size: 10px; color: #6B7280; line-height: 1.7; }
+
+    .cta-box {
+      text-align: center; padding: 28px 20px;
+      background: linear-gradient(135deg, rgba(212,175,55,0.04) 0%, transparent 100%);
+      border: 1px solid rgba(212,175,55,0.1); border-radius: 20px;
+    }
+    .cta-box h3 { font-size: 16px; color: #FFF; margin-bottom: 8px; }
+    .cta-box p { font-size: 12px; color: #6B7280; line-height: 2; }
+    .cta-box .gold-text { color: #D4AF37; font-weight: 700; }
+
+    .toast {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      background: #1a1f2b; border: 1px solid #D4AF37; color: #FFF;
+      padding: 12px 24px; border-radius: 30px; font-size: 12px;
+      font-weight: 600; z-index: 999; display: none;
+    }
+
+    @media (max-width: 600px) {
+      .stats-row, .commission-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+  <a href="dashboard-en.html" class="logo">EOT<span> PARTNERS</span></a>
+  <div style="width:38px;"></div>
+</div>
+
+<div class="page-container">
+
+  <div class="hero">
+    <div class="hero-badge">REFERRAL PROGRAM</div>
+    <h1>Invite a <span>Friend</span> & Earn</h1>
+    <p>Share your referral link with friends and earn generous commissions for every friend who joins and invests through your link</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(212,175,55,0.1);color:#D4AF37;"><i class="fas fa-users"></i></div>
+      <div class="stat-val" id="totalInvites">0</div>
+      <div class="stat-lbl">Total Invited</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(74,222,128,0.1);color:#4ADE80;"><i class="fas fa-user-check"></i></div>
+      <div class="stat-val" id="activeInvites">0</div>
+      <div class="stat-lbl">Active Referrals</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(96,165,250,0.1);color:#60A5FA;"><i class="fas fa-dollar-sign"></i></div>
+      <div class="stat-val" id="totalRewards">$0</div>
+      <div class="stat-lbl">Total Rewards</div>
+    </div>
+  </div>
+
+  <div class="link-card">
+    <h3>Your Referral Link</h3>
+    <p class="subtitle">Copy the link and share it with your friends</p>
+    <div class="link-row">
+      <input type="text" id="refLink" readonly value="register.html?ref=EOTXXXXXX">
+      <button class="copy-btn" onclick="copyRefLink()"><i class="fas fa-copy"></i> Copy Link</button>
+    </div>
+  </div>
+
+  <div class="commission-grid">
+    <div class="commission-card">
+      <div class="com-icon" style="background:rgba(74,222,128,0.1);color:#4ADE80;"><i class="fas fa-user-plus"></i></div>
+      <div class="com-pct">10%</div>
+      <div class="com-title">Registration Commission</div>
+      <div class="com-desc">Of each new member's subscription value via your link</div>
+    </div>
+    <div class="commission-card">
+      <div class="com-icon" style="background:rgba(96,165,250,0.1);color:#60A5FA;"><i class="fas fa-sync-alt"></i></div>
+      <div class="com-pct">5%</div>
+      <div class="com-title">Renewal Commission</div>
+      <div class="com-desc">Of your team members' subscription renewals</div>
+    </div>
+    <div class="commission-card">
+      <div class="com-icon" style="background:rgba(212,175,55,0.1);color:#D4AF37;"><i class="fas fa-trophy"></i></div>
+      <div class="com-pct">$1,000</div>
+      <div class="com-title">Whale Prize</div>
+      <div class="com-desc">Invite 20 people with 3-month contracts</div>
+    </div>
+  </div>
+
+  <div class="team-section">
+    <h3><i class="fas fa-list"></i> Your Team Members</h3>
+    <div class="team-list" id="teamList">
+      <div class="empty-team">No members yet. Share your link to build your team</div>
+    </div>
+  </div>
+
+  <div class="steps-section">
+    <h3><i class="fas fa-list-ol"></i> How It Works</h3>
+    <div class="step-item">
+      <span class="step-num">1</span>
+      <div class="step-info">
+        <h4>Copy Your Referral Link</h4>
+        <p>Copy your unique referral link from above and share it with friends via any communication channel</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <span class="step-num">2</span>
+      <div class="step-info">
+        <h4>Your Friend Registers & Invests</h4>
+        <p>When your friend registers through your link and makes their first partnership investment</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <span class="step-num">3</span>
+      <div class="step-info">
+        <h4>You Earn</h4>
+        <p>Receive instant commission in your wallet. The more friends you invite, the more you earn</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-box">
+    <h3>Every Friend You Invite = Extra Profit</h3>
+    <p>There is no maximum limit for invites.</p>
+    <p>The <span class="gold-text">bigger your team</span>, the <span class="gold-text">bigger your profits</span>.</p>
+    <p style="margin-top:14px;font-weight:700;color:#D4AF37;font-size:14px;">Start inviting your friends today!</p>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const SESSION_KEY = 'eot_session';
+  function getSession() { return JSON.parse(localStorage.getItem(SESSION_KEY)); }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 2500);
+  }
+
+  function copyRefLink() {
+    const input = document.getElementById('refLink');
+    input.select();
+    navigator.clipboard.writeText(input.value);
+    const btn = document.querySelector('.copy-btn');
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+    setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i> Copy Link'; }, 2000);
+    showToast('Link copied successfully');
+  }
+
+  async function loadInviteStats() {
+    const session = getSession();
+    if (!session) return;
+
+    try {
+      const userDoc = await firebase.firestore().collection('users').doc(session.id).get();
+      if (!userDoc.exists) return;
+
+      const referrals = userDoc.data().referrals || [];
+      document.getElementById('totalInvites').textContent = referrals.length;
+
+      const activeReferrals = referrals.filter(r => r.invested || r.status === 'active');
+      document.getElementById('activeInvites').textContent = activeReferrals.length;
+
+      const totalRewards = referrals.reduce((sum, r) => sum + (r.reward || 0), 0);
+      document.getElementById('totalRewards').textContent = '$' + totalRewards.toFixed(2);
+
+      const teamList = document.getElementById('teamList');
+      if (referrals.length === 0) {
+        teamList.innerHTML = '<div class="empty-team">No members yet. Share your link to build your team</div>';
+      } else {
+        const colors = ['#D4AF37','#4ADE80','#60A5FA','#C084FC','#FB923C','#F472B6'];
+        teamList.innerHTML = referrals.slice().reverse().map((r, i) => `
+          <div class="team-member">
+            <div class="tm-avatar" style="background:${colors[i%6]}15;color:${colors[i%6]};">${(r.name||'?').charAt(0)}</div>
+            <div class="tm-info">
+              <div class="tm-name">${r.name||'New Member'}</div>
+              <div class="tm-date">${r.date||''}</div>
+            </div>
+            <div class="tm-reward">${r.reward?'+$'+r.reward.toFixed(2):'New'}</div>
+          </div>
+        `).join('');
+      }
+    } catch(e) {
+      console.log('Firebase not available, using localStorage');
+      const referrals = JSON.parse(localStorage.getItem('eot_referrals') || '[]');
+      document.getElementById('totalInvites').textContent = referrals.length;
+      document.getElementById('activeInvites').textContent = referrals.filter(r => r.reward).length;
+      const totalRewards = referrals.reduce((sum, r) => sum + (r.reward || 0), 0);
+      document.getElementById('totalRewards').textContent = '$' + totalRewards.toFixed(2);
+    }
+  }
+
+  window.onload = function() {
+    const session = getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+    const refCode = session.refCode || 'EOTXXXXXX';
+    document.getElementById('refLink').value = 'register.html?ref=' + refCode;
+    loadInviteStats();
+  };
+</script>
+
+</body>
+</html>

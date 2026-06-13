@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سحب | EOT PARTNERS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      background: url('https://images.unsplash.com/photo-1610375461246-83df859d849d?w=1200&h=2000&fit=crop') center/cover no-repeat fixed;
+      color: #E8EDF2;
+      min-height: 100vh;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(6, 8, 12, 0.85);
+      z-index: -1;
+    }
+
+    /* ========== الوضع النهاري ========== */
+    body.light-mode { background: #f5f5f5 !important; color: #1a1a1a !important; }
+    body.light-mode::before { background: rgba(245, 245, 245, 0.92) !important; }
+    body.light-mode .top-bar { background: rgba(255,255,255,0.95) !important; border-bottom-color: rgba(0,0,0,0.1) !important; }
+    body.light-mode .logo { background: linear-gradient(135deg, #1a1a1a 40%, #8b6914 100%) !important; -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important; }
+    body.light-mode .back-btn { background: rgba(139,105,20,0.08) !important; border-color: rgba(139,105,20,0.25) !important; color: #8b6914 !important; }
+    body.light-mode .balance-card, body.light-mode .withdraw-card, body.light-mode .info-card, body.light-mode .address-list {
+      background: #fff !important; border-color: rgba(0,0,0,0.06) !important;
+    }
+    body.light-mode .balance-label, body.light-mode .form-group label, body.light-mode .address-value, body.light-mode .info-list li { color: #555 !important; }
+    body.light-mode .balance-amount { background: linear-gradient(180deg, #1a1a1a 0%, #8b6914 100%) !important; -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important; }
+    body.light-mode .form-group select, body.light-mode .form-group input { background: #f0f0f0 !important; color: #1a1a1a !important; border-color: rgba(0,0,0,0.1) !important; }
+    body.light-mode .form-group select:focus, body.light-mode .form-group input:focus { border-color: #8b6914 !important; }
+    body.light-mode .info-card h3, body.light-mode .saved-header h3 { color: #8b6914 !important; }
+    body.light-mode .info-list li i { color: #8b6914 !important; }
+    body.light-mode .address-currency { color: #8b6914 !important; }
+    body.light-mode .address-item:hover { background: rgba(139,105,20,0.05) !important; }
+    body.light-mode .add-btn { background: rgba(139,105,20,0.1) !important; border-color: rgba(139,105,20,0.4) !important; color: #8b6914 !important; }
+    body.light-mode .modal-box { background: #fff !important; border-color: rgba(0,0,0,0.1) !important; }
+    body.light-mode .modal-box h3 { color: #8b6914 !important; }
+    body.light-mode .modal-box select, body.light-mode .modal-box input { background: #f0f0f0 !important; color: #1a1a1a !important; border-color: rgba(0,0,0,0.1) !important; }
+    body.light-mode .btn-gold { background: #8b6914 !important; color: #fff !important; }
+
+    .top-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo {
+      font-size: 22px; font-weight: 800; letter-spacing: 1px;
+      background: linear-gradient(135deg, #FFFFFF 40%, #D4AF37 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .back-btn {
+      background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25);
+      padding: 8px 16px; border-radius: 25px; color: #D4AF37;
+      text-decoration: none; font-size: 12px; font-weight: 600; transition: 0.3s;
+    }
+    .back-btn:hover { background: rgba(212, 175, 55, 0.18); }
+
+    .main-container { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
+
+    .page-header { text-align: center; margin-bottom: 24px; }
+    .page-header h1 { font-size: 26px; color: #D4AF37; margin-bottom: 4px; font-weight: 800; }
+    .page-header p { font-size: 13px; color: #8E9AAF; }
+
+    .balance-card {
+      background: linear-gradient(160deg, #141414 0%, #0a0a0a 40%, #141410 70%, #0a0a0a 100%);
+      border: 1px solid rgba(180,150,100,0.2); border-radius: 20px;
+      padding: 20px; margin-bottom: 20px; text-align: center;
+    }
+    .balance-label { font-size: 11px; color: #8B7D6B; letter-spacing: 2px; text-transform: uppercase; }
+    .balance-amount {
+      font-size: 36px; font-weight: 800;
+      background: linear-gradient(180deg, #FFFFFF 0%, #D4C08A 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+
+    .withdraw-card {
+      background: linear-gradient(160deg, #141414 0%, #0a0a0a 40%, #141410 70%, #0a0a0a 100%);
+      border: 1px solid rgba(180,150,100,0.12); border-radius: 20px;
+      padding: 22px 18px; margin-bottom: 20px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 11px; color: #8E9AAF; margin-bottom: 6px; letter-spacing: 0.5px; }
+    .form-group select, .form-group input {
+      width: 100%; padding: 13px 14px; background: #1A1E28;
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 12px;
+      color: #FFF; font-size: 14px; font-family: inherit;
+    }
+    .form-group select:focus, .form-group input:focus { outline: none; border-color: #D4AF37; }
+
+    .btn-gold {
+      width: 100%; padding: 14px; background: linear-gradient(135deg, #D4AF37, #C4A030);
+      color: #000; border: none; border-radius: 14px; font-weight: 700;
+      font-size: 15px; cursor: pointer; font-family: inherit; transition: 0.3s;
+    }
+    .btn-gold:hover { background: #E0BC3F; }
+
+    .info-card {
+      background: rgba(15,18,25,0.7); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.04); border-radius: 16px;
+      padding: 18px; margin-bottom: 20px;
+    }
+    .info-card h3 { color: #D4AF37; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .info-list { list-style: none; }
+    .info-list li {
+      font-size: 11px; color: #A0AAB8; padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      display: flex; align-items: center; gap: 8px; line-height: 1.7;
+    }
+    .info-list li:last-child { border-bottom: none; }
+    .info-list li i { color: #D4AF37; font-size: 10px; width: 14px; text-align: center; }
+
+    .saved-section { margin-top: 20px; }
+    .saved-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .saved-header h3 { color: #D4AF37; font-size: 14px; }
+    .add-btn {
+      background: rgba(212,175,55,0.1); border: 1px dashed rgba(212,175,55,0.4);
+      padding: 6px 12px; border-radius: 20px; color: #D4AF37;
+      cursor: pointer; font-size: 10px; font-family: inherit; transition: 0.3s;
+    }
+    .add-btn:hover { background: rgba(212,175,55,0.2); }
+    .address-list {
+      background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 12px; max-height: 220px; overflow-y: auto;
+    }
+    .address-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.03);
+      cursor: pointer; transition: 0.3s;
+    }
+    .address-item:hover { background: rgba(212,175,55,0.05); }
+    .address-currency { font-weight: 600; color: #D4AF37; font-size: 11px; }
+    .address-value { font-size: 10px; color: #6B7280; font-family: monospace; }
+    .delete-addr { color: #F87171; cursor: pointer; padding: 4px 8px; border-radius: 6px; font-size: 11px; }
+    .delete-addr:hover { background: rgba(248,113,113,0.15); }
+    .empty-addr { text-align: center; padding: 20px; color: #6B7280; font-size: 11px; }
+
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.92); z-index: 200;
+      align-items: center; justify-content: center; backdrop-filter: blur(8px);
+    }
+    .modal-box {
+      background: linear-gradient(160deg, #141414 0%, #0a0a0a 100%);
+      border: 1px solid rgba(212,175,55,0.25); border-radius: 24px;
+      padding: 24px 20px; width: 90%; max-width: 420px; text-align: center;
+    }
+    .modal-box h3 { color: #D4AF37; margin-bottom: 14px; }
+    .modal-box select, .modal-box input {
+      width: 100%; padding: 13px; background: #1A1E28;
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 12px;
+      color: #FFF; font-size: 13px; font-family: inherit; margin-bottom: 10px;
+    }
+    .modal-box select:focus, .modal-box input:focus { outline: none; border-color: #D4AF37; }
+
+    .timer-box {
+      background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 14px; padding: 12px; margin: 14px 0;
+      font-size: 24px; font-weight: 800; color: #22D3EE; letter-spacing: 2px;
+    }
+    .timer-box .timer-label { font-size: 10px; color: #6B7280; display: block; }
+
+    .toast-msg {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600;
+      z-index: 999; display: none; animation: toastIn 0.3s ease;
+      border: 1px solid rgba(248,113,113,0.3);
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(-15px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    .btn-outline {
+      width: 100%; padding: 12px; background: transparent;
+      border: 1px solid rgba(255,255,255,0.08); color: #8E9AAF;
+      border-radius: 14px; margin-top: 8px; cursor: pointer; font-family: inherit; transition: 0.3s;
+    }
+    .btn-outline:hover { border-color: #F87171; color: #F87171; }
+
+    @media (max-width: 500px) {
+      .balance-amount { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-right"></i> العودة</a>
+  <div class="logo">EOT PARTNERS</div>
+</div>
+
+<div class="main-container">
+  <div class="page-header">
+    <h1><i class="fas fa-arrow-up"></i> سحب الأموال</h1>
+    <p>قم بسحب أرباحك إلى محفظتك بكل سهولة وأمان</p>
+  </div>
+
+  <div class="balance-card">
+    <div class="balance-label">✦ الرصيد المتاح للسحب</div>
+    <div class="balance-amount" id="availableBalance">$0.00</div>
+  </div>
+
+  <div class="withdraw-card">
+    <div class="form-group">
+      <label>عملة السحب</label>
+      <select id="withdrawCurrency" onchange="updateNetworks()">
+        <option value="USDT">USDT</option>
+        <option value="BTC">Bitcoin (BTC)</option>
+        <option value="ETH">Ethereum (ETH)</option>
+        <option value="BNB">Binance Coin (BNB)</option>
+        <option value="XRP">XRP (Ripple)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>الشبكة</label>
+      <select id="withdrawNetwork">
+        <option value="">اختر الشبكة</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>عنوان المحفظة المستلم</label>
+      <input type="text" id="walletAddress" placeholder="أدخل عنوان محفظتك أو اختر من المحفوظات">
+    </div>
+    <div class="form-group">
+      <label>المبلغ ($) - الحد الأدنى 100 دولار</label>
+      <input type="number" id="withdrawAmount" placeholder="أدخل المبلغ" min="100">
+    </div>
+    <button class="btn-gold" onclick="confirmWithdraw()">تأكيد السحب</button>
+  </div>
+
+  <div class="info-card">
+    <h3><i class="fas fa-info-circle"></i> تعليمات وإرشادات السحب</h3>
+    <ul class="info-list">
+      <li><i class="fas fa-check"></i> الحد الأدنى للسحب هو <strong>$100</strong> لكل معاملة.</li>
+      <li><i class="fas fa-check"></i> تتم مراجعة طلبات السحب خلال <strong>24 ساعة</strong> عمل.</li>
+      <li><i class="fas fa-check"></i> تأكد من صحة عنوان المحفظة قبل تأكيد الطلب، لا يمكن استرجاع الأموال إلى عناوين خاطئة.</li>
+      <li><i class="fas fa-check"></i> رسوم شبكة السحب يتحملها المستلم حسب الشبكة المختارة.</li>
+      <li><i class="fas fa-check"></i> يمكنك حفظ عناوين محافظك المفضلة للاستخدام السريع.</li>
+    </ul>
+  </div>
+
+  <div class="saved-section">
+    <div class="saved-header">
+      <h3><i class="fas fa-bookmark"></i> عناوين محفظتي المحفوظة</h3>
+      <button class="add-btn" onclick="openAddAddressModal()"><i class="fas fa-plus"></i> إضافة</button>
+    </div>
+    <div class="address-list" id="addressesList">
+      <div class="empty-addr">لا توجد عناوين محفوظة</div>
+    </div>
+  </div>
+</div>
+
+<!-- مودال إضافة عنوان -->
+<div class="modal-overlay" id="addAddressModal">
+  <div class="modal-box">
+    <h3><i class="fas fa-plus-circle"></i> إضافة عنوان جديد</h3>
+    <select id="newAddressCurrency" onchange="updateNewAddressNetworks()">
+      <option value="USDT">USDT</option>
+      <option value="BTC">Bitcoin (BTC)</option>
+      <option value="ETH">Ethereum (ETH)</option>
+      <option value="BNB">Binance Coin (BNB)</option>
+      <option value="XRP">XRP (Ripple)</option>
+    </select>
+    <select id="newAddressNetwork">
+      <option value="">اختر الشبكة</option>
+    </select>
+    <input type="text" id="newAddressValue" placeholder="عنوان المحفظة">
+    <input type="text" id="addressLabel" placeholder="تسمية (اختياري)">
+    <button class="btn-gold" onclick="saveNewAddress()">حفظ العنوان</button>
+    <button class="btn-outline" onclick="closeAddAddressModal()">إلغاء</button>
+  </div>
+</div>
+
+<!-- مودال تأكيد السحب + مؤقت -->
+<div class="modal-overlay" id="timerModal">
+  <div class="modal-box">
+    <h3>⏳ تأكيد السحب</h3>
+    <p style="font-size:12px;color:#8E9AAF;margin-bottom:14px;" id="timerModalSub"></p>
+    <div class="timer-box">
+      <span id="timerDisplay">24:00:00</span>
+      <span class="timer-label">الوقت المتوقع للمعالجة</span>
+    </div>
+    <p style="font-size:11px;color:#6B7280;margin-top:8px;">تم استلام طلبك وسيتم مراجعته خلال 24 ساعة</p>
+    <button class="btn-outline" onclick="closeTimerModal()">إغلاق</button>
+  </div>
+</div>
+
+<div class="toast-msg" id="toastMsg"></div>
+
+<script>
+  // ========== EmailJS ==========
+  (function() {
+    emailjs.init("mz2N1H12HeeZMHSpy");
+  })();
+
+  const SESSION_KEY = 'eot_session';
+  const BALANCE_KEY = 'eot_balance';
+  const ADDRESSES_KEY = 'eot_withdraw_addresses_v2';
+  const TX_KEY = 'eot_transactions';
+
+  let timerInterval = null;
+
+  const currencyNetworks = {
+    USDT: ['TRC20', 'ERC20', 'BEP20', 'SOL'],
+    BTC: ['Bitcoin Network'],
+    ETH: ['ERC20', 'Arbitrum', 'Optimism'],
+    BNB: ['BEP20', 'BEP2'],
+    XRP: ['Ripple Network']
+  };
+
+  function showToast(msg, type = 'error') {
+    const toast = document.getElementById('toastMsg');
+    const icon = type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '❌';
+    const bgColor = type === 'success' ? 'rgba(74,222,128,0.15)' : type === 'warning' ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)';
+    const borderColor = type === 'success' ? 'rgba(74,222,128,0.3)' : type === 'warning' ? 'rgba(251,191,36,0.3)' : 'rgba(248,113,113,0.3)';
+    const textColor = type === 'success' ? '#4ADE80' : type === 'warning' ? '#FBBF24' : '#F87171';
+
+    toast.innerHTML = `<span style="margin-left:8px;">${icon}</span> ${msg}`;
+    toast.style.background = bgColor;
+    toast.style.borderColor = borderColor;
+    toast.style.color = textColor;
+    toast.style.display = 'block';
+    
+    setTimeout(() => { toast.style.display = 'none'; }, 3500);
+  }
+
+  function fmt(n) {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  // ========== عرض الشبكات ==========
+  function updateNetworks() {
+    const currency = document.getElementById('withdrawCurrency').value;
+    const networks = currencyNetworks[currency] || [];
+    const select = document.getElementById('withdrawNetwork');
+    select.innerHTML = '<option value="">اختر الشبكة</option>' + 
+      networks.map(n => `<option value="${n}">${n}</option>`).join('');
+    filterAddresses();
+  }
+
+  function updateNewAddressNetworks() {
+    const currency = document.getElementById('newAddressCurrency').value;
+    const networks = currencyNetworks[currency] || [];
+    const select = document.getElementById('newAddressNetwork');
+    select.innerHTML = '<option value="">اختر الشبكة</option>' + 
+      networks.map(n => `<option value="${n}">${n}</option>`).join('');
+  }
+
+  // ========== العناوين المحفوظة ==========
+  function getSavedAddresses() {
+    const addresses = localStorage.getItem(ADDRESSES_KEY);
+    return addresses ? JSON.parse(addresses) : [];
+  }
+
+  function saveAddresses(addresses) {
+    localStorage.setItem(ADDRESSES_KEY, JSON.stringify(addresses));
+  }
+
+  function filterAddresses() {
+    const selectedCurrency = document.getElementById('withdrawCurrency').value;
+    const allAddresses = getSavedAddresses();
+    const filtered = allAddresses.filter(addr => addr.currency === selectedCurrency);
+
+    const container = document.getElementById('addressesList');
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="empty-addr">لا توجد عناوين محفوظة لهذه العملة</div>';
+      return;
+    }
+    container.innerHTML = filtered.map((addr, index) => `
+      <div class="address-item" onclick="selectSavedAddress('${addr.address}')">
+        <div class="address-info">
+          <div class="address-currency">${addr.currency} (${addr.network || ''}) ${addr.label ? '- ' + addr.label : ''}</div>
+          <div class="address-value">${addr.address.substring(0, 20)}...${addr.address.substring(addr.address.length - 10)}</div>
+        </div>
+        <div class="delete-addr" onclick="deleteAddress(event, ${index})">
+          <i class="fas fa-trash"></i>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function selectSavedAddress(addressValue) {
+    const allAddresses = getSavedAddresses();
+    const found = allAddresses.find(a => a.address === addressValue);
+
+    if (found) {
+      document.getElementById('walletAddress').value = found.address;
+      document.getElementById('withdrawCurrency').value = found.currency;
+      updateNetworks();
+      setTimeout(() => {
+        if (found.network) {
+          document.getElementById('withdrawNetwork').value = found.network;
+        }
+      }, 200);
+      showToast('تم اختيار ' + found.currency + ' (' + (found.network || '') + ')', 'success');
+    }
+  }
+
+  function deleteAddress(event, index) {
+    event.stopPropagation();
+    const addresses = getSavedAddresses();
+    addresses.splice(index, 1);
+    saveAddresses(addresses);
+    filterAddresses();
+  }
+
+  function openAddAddressModal() {
+    document.getElementById('addAddressModal').style.display = 'flex';
+    updateNewAddressNetworks();
+  }
+
+  function closeAddAddressModal() {
+    document.getElementById('addAddressModal').style.display = 'none';
+    document.getElementById('newAddressValue').value = '';
+    document.getElementById('addressLabel').value = '';
+  }
+
+  function saveNewAddress() {
+    const currency = document.getElementById('newAddressCurrency').value;
+    const network = document.getElementById('newAddressNetwork').value;
+    const address = document.getElementById('newAddressValue').value.trim();
+    const label = document.getElementById('addressLabel').value.trim();
+    
+    if (!network) { showToast('يرجى اختيار الشبكة', 'warning'); return; }
+    if (!address) { showToast('يرجى إدخال عنوان المحفظة', 'warning'); return; }
+    
+    let addresses = getSavedAddresses();
+    addresses.push({ id: Date.now(), currency, network, address, label, dateAdded: new Date().toISOString() });
+    saveAddresses(addresses);
+    closeAddAddressModal();
+    
+    // تحديث القائمة مباشرة
+    const selectedCurrency = document.getElementById('withdrawCurrency').value;
+    const filtered = addresses.filter(addr => addr.currency === selectedCurrency);
+    const container = document.getElementById('addressesList');
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="empty-addr">لا توجد عناوين محفوظة لهذه العملة</div>';
+    } else {
+      container.innerHTML = filtered.map((addr, index) => `
+        <div class="address-item" onclick="selectSavedAddress('${addr.address}')">
+          <div class="address-info">
+            <div class="address-currency">${addr.currency} (${addr.network || ''}) ${addr.label ? '- ' + addr.label : ''}</div>
+            <div class="address-value">${addr.address.substring(0, 20)}...${addr.address.substring(addr.address.length - 10)}</div>
+          </div>
+          <div class="delete-addr" onclick="deleteAddress(event, ${index})">
+            <i class="fas fa-trash"></i>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    showToast('تم حفظ العنوان بنجاح', 'success');
+  }
+
+  // ========== الرصيد ==========
+  function getAvailableBalance() {
+    const balance = JSON.parse(localStorage.getItem(BALANCE_KEY));
+    return balance ? (balance.totalUSDT || 0) : 0;
+  }
+
+  // ========== تأكيد السحب ==========
+  function confirmWithdraw() {
+    const currency = document.getElementById('withdrawCurrency').value;
+    const network = document.getElementById('withdrawNetwork').value;
+    const address = document.getElementById('walletAddress').value.trim();
+    const amount = parseFloat(document.getElementById('withdrawAmount').value);
+    const balance = getAvailableBalance();
+
+    if (!address) { 
+      showToast('يرجى إدخال عنوان المحفظة قبل متابعة الطلب', 'warning'); 
+      return; 
+    }
+    if (!amount || amount < 100) { 
+      showToast('الحد الأدنى للسحب هو $100. يرجى إدخال مبلغ صحيح', 'warning'); 
+      return; 
+    }
+    if (amount > balance) { 
+      showToast('رصيدك الحالي غير كافٍ. المتاح للسحب: $' + fmt(balance.toFixed(2)), 'error'); 
+      return; 
+    }
+
+    const session = JSON.parse(localStorage.getItem(SESSION_KEY));
+    if (session) {
+      emailjs.send("service_74qw0wt", "template_nuutvfi", {
+        type: 'سحب ' + currency,
+        name: session.fullName || 'مستثمر',
+        email: session.email || '',
+        amount: '$' + amount,
+        date: new Date().toLocaleDateString('ar-SA'),
+        details: 'الشبكة: ' + network + ' | المحفظة: ' + address.substring(0, 8) + '...' + address.substring(address.length - 6)
+      }).catch(err => console.log(err));
+    }
+
+    const transactions = JSON.parse(localStorage.getItem(TX_KEY)) || [];
+    transactions.push({
+      type: 'withdraw',
+      title: 'سحب - ' + currency,
+      amount: amount,
+      date: new Date().toLocaleDateString('en-US'),
+      icon: 'fa-arrow-up',
+      iconClass: 'tx-icon-withdraw',
+      amountClass: 'tx-negative'
+    });
+    localStorage.setItem(TX_KEY, JSON.stringify(transactions));
+
+    document.getElementById('withdrawAmount').value = '';
+    document.getElementById('timerModalSub').textContent = `طلب سحب $${amount} ${currency} إلى محفظتك`;
+    document.getElementById('timerModal').style.display = 'flex';
+
+    let timeLeft = 86400;
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      const hrs = Math.floor(timeLeft / 3600);
+      const mins = Math.floor((timeLeft % 3600) / 60);
+      const secs = timeLeft % 60;
+      document.getElementById('timerDisplay').textContent = 
+        String(hrs).padStart(2, '0') + ':' + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById('timerDisplay').textContent = '00:00:00';
+      }
+    }, 1000);
+
+    showToast('تم استلام طلب السحب بنجاح! سنقوم بمراجعته خلال 24 ساعة', 'success');
+  }
+
+  function closeTimerModal() {
+    clearInterval(timerInterval);
+    document.getElementById('timerModal').style.display = 'none';
+  }
+
+  window.onclick = function(e) {
+    if (e.target.classList.contains('modal-overlay')) {
+      e.target.style.display = 'none';
+    }
+  };
+
+  function applyTheme() {
+    const theme = localStorage.getItem('theme');
+    if (theme === 'light') {
+      document.body.classList.add('light-mode');
+    } else {
+      document.body.classList.remove('light-mode');
+    }
+  }
+
+  window.onload = function() {
+    const session = JSON.parse(localStorage.getItem(SESSION_KEY));
+    if (!session) { window.location.href = 'login.html'; return; }
+    document.getElementById('availableBalance').textContent = '$' + fmt(getAvailableBalance().toFixed(2));
+    updateNetworks();
+    applyTheme();
+  };
+</script>
+
+</body>
+</html>

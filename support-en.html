@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support | EOT PARTNERS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      background: #06080C;
+      color: #E8EDF2;
+      min-height: 100vh;
+      padding-bottom: 30px;
+    }
+
+    .top-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 20px; background: rgba(6,8,12,0.95);
+      border-bottom: 1px solid rgba(212,175,55,0.08);
+      position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+    }
+    .back-btn {
+      width: 38px; height: 38px; background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #D4AF37; font-size: 16px; cursor: pointer;
+      transition: 0.3s; text-decoration: none;
+    }
+    .back-btn:hover { background: rgba(212,175,55,0.1); }
+    .logo { font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #FFF; text-decoration: none; }
+    .logo span { color: #D4AF37; }
+
+    .main-container { max-width: 700px; margin: 0 auto; padding: 24px 16px; }
+
+    .page-header { text-align: center; margin-bottom: 28px; }
+    .page-header .hero-icon {
+      width: 64px; height: 64px; margin: 0 auto 14px;
+      background: rgba(212,175,55,0.1); border: 2px solid rgba(212,175,55,0.2);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: #D4AF37;
+    }
+    .page-header h1 { font-size: 24px; color: #D4AF37; margin-bottom: 4px; font-weight: 800; }
+    .page-header p { font-size: 12px; color: #6B7280; }
+
+    .categories-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px;
+    }
+    .category-card {
+      background: #0F1219; border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 16px; padding: 18px 14px; cursor: pointer; transition: all 0.3s ease;
+    }
+    .category-card:hover { border-color: rgba(212,175,55,0.4); transform: translateY(-2px); }
+    .category-card .cat-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: #D4AF37; margin-bottom: 10px;
+    }
+    .category-card h4 { font-size: 13px; font-weight: 700; color: #FFF; margin-bottom: 3px; }
+    .category-card p { font-size: 9px; color: #6B7280; line-height: 1.5; }
+
+    .faq-card {
+      background: #0F1219; border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 18px; margin-bottom: 16px; overflow: hidden; display: none;
+    }
+    .faq-card h3 {
+      font-size: 15px; font-weight: 700; color: #D4AF37;
+      padding: 16px 18px; border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .faq-item { border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .faq-question {
+      padding: 14px 18px; cursor: pointer; font-size: 12px; font-weight: 600;
+      color: #E8EDF2; display: flex; justify-content: space-between; align-items: center;
+      transition: 0.3s;
+    }
+    .faq-question:hover { color: #D4AF37; }
+    .faq-question i { font-size: 9px; color: #4B5563; transition: 0.3s; }
+    .faq-answer {
+      display: none; padding: 0 18px 14px;
+      font-size: 11px; color: #6B7280; line-height: 1.9;
+    }
+    .faq-answer.open { display: block; }
+
+    .back-btn-link {
+      display: block; text-align: center; margin-bottom: 20px;
+      color: #6B7280; font-size: 11px; cursor: pointer; text-decoration: none;
+      transition: 0.3s;
+    }
+    .back-btn-link:hover { color: #D4AF37; }
+
+    .contact-card {
+      background: #0F1219; border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 18px; padding: 20px 18px; display: none;
+    }
+    .contact-card h3 { font-size: 15px; font-weight: 700; color: #D4AF37; margin-bottom: 14px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 10px; color: #6B7280; margin-bottom: 4px; }
+    .form-group input, .form-group textarea {
+      width: 100%; padding: 11px; background: #0a0e14;
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 10px;
+      color: #FFF; font-size: 13px; font-family: inherit; resize: vertical;
+    }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #D4AF37; }
+    .form-group textarea { min-height: 100px; }
+
+    .btn-gold {
+      width: 100%; padding: 12px; background: linear-gradient(135deg, #D4AF37, #C4A030);
+      color: #000; border: none; border-radius: 10px; font-weight: 700;
+      font-size: 13px; cursor: pointer; font-family: inherit; transition: 0.3s;
+    }
+    .btn-gold:hover { background: #E0BC3F; }
+    .btn-outline {
+      width: 100%; padding: 11px; background: transparent;
+      border: 1px solid rgba(255,255,255,0.08); color: #6B7280;
+      border-radius: 10px; margin-top: 6px; cursor: pointer;
+      font-family: inherit; font-size: 11px; transition: 0.3s;
+    }
+    .btn-outline:hover { border-color: #F87171; color: #F87171; }
+
+    .toast-msg {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600;
+      z-index: 999; display: none; animation: toastIn 0.3s ease;
+      border: 1px solid rgba(248,113,113,0.3);
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(-15px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    @media (max-width: 400px) {
+      .categories-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+  <a href="dashboard-en.html" class="logo">EOT<span> PARTNERS</span></a>
+  <div style="width:38px;"></div>
+</div>
+
+<div class="main-container">
+
+  <div class="page-header">
+    <div class="hero-icon"><i class="fas fa-headset"></i></div>
+    <h1>Help Center</h1>
+    <p>How can we help you today?</p>
+  </div>
+
+  <div class="categories-grid" id="categoriesGrid">
+    <div class="category-card" onclick="showFAQ('deposit')">
+      <div class="cat-icon"><i class="fas fa-wallet"></i></div>
+      <h4>Deposit & Withdrawal</h4>
+      <p>Payment methods, processing times, fees</p>
+    </div>
+    <div class="category-card" onclick="showFAQ('invest')">
+      <div class="cat-icon"><i class="fas fa-chart-line"></i></div>
+      <h4>Investment</h4>
+      <p>Sectors, returns, durations</p>
+    </div>
+    <div class="category-card" onclick="showFAQ('account')">
+      <div class="cat-icon"><i class="fas fa-user"></i></div>
+      <h4>Account</h4>
+      <p>Registration, verification, settings</p>
+    </div>
+    <div class="category-card" onclick="showFAQ('security')">
+      <div class="cat-icon"><i class="fas fa-lock"></i></div>
+      <h4>Security</h4>
+      <p>Password, privacy protection</p>
+    </div>
+    <div class="category-card" onclick="showFAQ('partnership')">
+      <div class="cat-icon"><i class="fas fa-handshake"></i></div>
+      <h4>Partnership</h4>
+      <p>Plans, team building, rewards</p>
+    </div>
+    <div class="category-card" onclick="showFAQ('kyc')">
+      <div class="cat-icon"><i class="fas fa-id-card"></i></div>
+      <h4>Verification</h4>
+      <p>Identity, residence, levels</p>
+    </div>
+  </div>
+
+  <div class="faq-card" id="faqCard">
+    <h3 id="faqTitle"></h3>
+    <div id="faqList"></div>
+    <div style="padding:12px 18px;text-align:center;">
+      <button class="btn-outline" onclick="showContact()">Didn't find an answer? Contact support</button>
+    </div>
+  </div>
+
+  <a class="back-btn-link" id="backToCategories" onclick="backToCategories()" style="display:none;">View all categories</a>
+
+  <div class="contact-card" id="contactCard">
+    <h3>Contact Support Team</h3>
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="contactName" placeholder="Your full name">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="contactEmail" placeholder="your@email.com">
+    </div>
+    <div class="form-group">
+      <label>Subject</label>
+      <input type="text" id="contactSubject" placeholder="Message subject">
+    </div>
+    <div class="form-group">
+      <label>Message</label>
+      <textarea id="contactMessage" placeholder="Write your message here..."></textarea>
+    </div>
+    <button class="btn-gold" onclick="sendContact()">Send Message</button>
+    <button class="btn-outline" onclick="hideContact()">Cancel</button>
+  </div>
+
+</div>
+
+<div class="toast-msg" id="toastMsg"></div>
+
+<script>
+  (function() {
+    emailjs.init("mz2N1H12HeeZMHSpy");
+  })();
+
+  function showToast(msg, type = 'error') {
+    const toast = document.getElementById('toastMsg');
+    const icon = type === 'success' ? '✓' : type === 'warning' ? '!' : '✗';
+    const bgColor = type === 'success' ? 'rgba(74,222,128,0.15)' : type === 'warning' ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)';
+    const borderColor = type === 'success' ? 'rgba(74,222,128,0.3)' : type === 'warning' ? 'rgba(251,191,36,0.3)' : 'rgba(248,113,113,0.3)';
+    const textColor = type === 'success' ? '#4ADE80' : type === 'warning' ? '#FBBF24' : '#F87171';
+
+    toast.innerHTML = `<span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:${textColor};color:#000;font-weight:700;font-size:11px;margin-right:8px;">${icon}</span> ${msg}`;
+    toast.style.background = bgColor;
+    toast.style.borderColor = borderColor;
+    toast.style.color = textColor;
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 3500);
+  }
+
+  const faqData = {
+    deposit: {
+      title: 'Deposit & Withdrawal',
+      questions: [
+        { q: 'What deposit methods are available?', a: 'USDT via TRC20, ERC20, BEP20, Solana. Also Bitcoin, Ethereum, BNB, XRP.' },
+        { q: 'How long does a deposit take?', a: 'Deposits are reviewed and credited to your account within 24 business hours after network confirmation.' },
+        { q: 'What is the minimum deposit?', a: 'It varies by currency and network. USDT via TRC20: 10 USDT. Check the deposit page for details.' },
+        { q: 'How can I withdraw my profits?', a: 'Go to the withdrawal page, select currency and network, enter your wallet address and amount. Minimum withdrawal is $100.' },
+        { q: 'How long does a withdrawal take?', a: 'Withdrawal requests are processed within 24 business hours.' }
+      ]
+    },
+    invest: {
+      title: 'Investment',
+      questions: [
+        { q: 'How do I start investing?', a: 'Go to the investment page, choose the appropriate sector, enter the amount. Minimum varies by sector.' },
+        { q: 'What sectors are available?', a: 'Oil & Gas, Solar Energy, Shipping, Aviation, Technology, Metals, Real Estate, Artificial Intelligence and more.' },
+        { q: 'How is the return calculated?', a: 'Returns range between low, medium, and high based on market performance. Added monthly to your account.' },
+        { q: 'Can I invest in more than one sector?', a: 'Yes, you can invest in one sector from each category (Weekly, Monthly, Yearly).' }
+      ]
+    },
+    account: {
+      title: 'Account',
+      questions: [
+        { q: 'How do I register a new account?', a: 'Go to the login page, click "Create Account", and enter your details.' },
+        { q: 'I forgot my password, what should I do?', a: 'On the login page, click "Forgot Password" and enter your email.' },
+        { q: 'Can I change my email?', a: 'Email cannot be changed after registration. Contact support for assistance.' }
+      ]
+    },
+    security: {
+      title: 'Security',
+      questions: [
+        { q: 'How do I change my password?', a: 'Go to My Account > Security > Enter current and new password.' },
+        { q: 'Is my data secure?', a: 'Yes, we use the latest encryption technologies to protect your data and transactions.' }
+      ]
+    },
+    partnership: {
+      title: 'Partnership',
+      questions: [
+        { q: 'How do I join the partnership?', a: 'Go to the partnership page, choose the appropriate plan, and pay the required amount.' },
+        { q: 'How do I build my team?', a: 'Share your referral link. When someone registers through your link and invests, you earn a commission.' },
+        { q: 'When do I receive partnership profits?', a: 'Partnership profits are added monthly to your balance.' }
+      ]
+    },
+    kyc: {
+      title: 'Verification',
+      questions: [
+        { q: 'How do I verify my identity?', a: 'After your first investment, go to My Account > Identity Verification > Upload ID for review.' },
+        { q: 'When is proof of residence required?', a: 'When reaching Advanced Investor level (investments exceeding $1,000).' },
+        { q: 'How long does verification review take?', a: 'Review takes 24-48 business hours.' }
+      ]
+    }
+  };
+
+  function showFAQ(category) {
+    const data = faqData[category];
+    if (!data) return;
+
+    document.getElementById('categoriesGrid').style.display = 'none';
+    document.getElementById('faqCard').style.display = 'block';
+    document.getElementById('contactCard').style.display = 'none';
+    document.getElementById('backToCategories').style.display = 'block';
+
+    document.getElementById('faqTitle').innerHTML = '<i class="fas fa-question-circle"></i> ' + data.title;
+    document.getElementById('faqList').innerHTML = data.questions.map((item, i) => `
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFAQ(this)">
+          <span>${item.q}</span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="faq-answer">${item.a}</div>
+      </div>
+    `).join('');
+  }
+
+  function toggleFAQ(element) {
+    const answer = element.nextElementSibling;
+    const arrow = element.querySelector('i');
+    const allAnswers = document.querySelectorAll('.faq-answer');
+    const allArrows = document.querySelectorAll('.faq-question i');
+
+    allAnswers.forEach(a => { if (a !== answer) a.classList.remove('open'); });
+    allArrows.forEach(a => { if (a !== arrow) a.style.transform = 'rotate(0deg)'; });
+
+    answer.classList.toggle('open');
+    arrow.style.transform = answer.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+  }
+
+  function backToCategories() {
+    document.getElementById('categoriesGrid').style.display = 'grid';
+    document.getElementById('faqCard').style.display = 'none';
+    document.getElementById('contactCard').style.display = 'none';
+    document.getElementById('backToCategories').style.display = 'none';
+  }
+
+  function showContact() {
+    document.getElementById('contactCard').style.display = 'block';
+    const session = JSON.parse(localStorage.getItem('eot_session'));
+    if (session) {
+      document.getElementById('contactName').value = session.fullName || '';
+      document.getElementById('contactEmail').value = session.email || '';
+    }
+  }
+
+  function hideContact() {
+    document.getElementById('contactCard').style.display = 'none';
+  }
+
+  async function sendContact() {
+    const name = document.getElementById('contactName').value.trim();
+    const email = document.getElementById('contactEmail').value.trim();
+    const subject = document.getElementById('contactSubject').value.trim();
+    const message = document.getElementById('contactMessage').value.trim();
+
+    if (!name || !email || !subject || !message) {
+      showToast('Please fill in all fields', 'warning');
+      return;
+    }
+
+    try {
+      await firebase.firestore().collection('support_messages').add({
+        from: name,
+        email: email,
+        subject: subject,
+        message: message,
+        date: new Date().toLocaleDateString('en-US'),
+        time: new Date().toLocaleTimeString('en-US'),
+        createdAt: new Date().toISOString()
+      });
+    } catch(e) {
+      const messages = JSON.parse(localStorage.getItem('eot_support_messages') || '[]');
+      messages.push({ from: name, email: email, subject: subject, message: message, date: new Date().toLocaleDateString('en-US') });
+      localStorage.setItem('eot_support_messages', JSON.stringify(messages));
+    }
+
+    emailjs.send("service_74qw0wt", "template_nuutvfi", {
+      type: 'Support - ' + subject,
+      name: name,
+      email: email,
+      amount: 'Support Message',
+      date: new Date().toLocaleDateString('en-US'),
+      details: message
+    }).then(() => {
+      showToast('Your message has been sent. We will reply shortly.', 'success');
+      document.getElementById('contactSubject').value = '';
+      document.getElementById('contactMessage').value = '';
+      hideContact();
+    }).catch(err => {
+      console.log(err);
+      showToast('Error sending message. Please try again.', 'error');
+    });
+  }
+
+  window.onload = function() {
+    const session = localStorage.getItem('eot_session');
+    if (!session) { window.location.href = 'login.html'; return; }
+  };
+</script>
+
+</body>
+</html>
