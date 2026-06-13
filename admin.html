@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم | EOT PARTNERS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      background: #06080C;
+      color: #E8EDF2;
+      min-height: 100vh;
+    }
+
+    .login-screen {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 20px;
+      background: linear-gradient(135deg, #06080C 0%, #0F1219 50%, #06080C 100%);
+    }
+    .login-box {
+      background: #0F1219; border: 1px solid rgba(212,175,55,0.25);
+      border-radius: 24px; padding: 36px 28px;
+      width: 100%; max-width: 400px; text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .login-box .admin-icon {
+      width: 70px; height: 70px; background: rgba(212,175,55,0.1);
+      border: 2px solid rgba(212,175,55,0.3); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px; font-size: 30px; color: #D4AF37;
+    }
+    .login-box h2 { color: #D4AF37; margin-bottom: 4px; font-size: 22px; }
+    .login-box .sub { color: #6B7280; font-size: 12px; margin-bottom: 24px; }
+    .login-box input {
+      width: 100%; padding: 14px; background: #1A1E28;
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+      color: #FFF; font-size: 14px; text-align: center; font-family: inherit;
+      margin-bottom: 14px; transition: 0.3s;
+    }
+    .login-box input:focus { outline: none; border-color: #D4AF37; }
+    .login-box .btn-login {
+      width: 100%; padding: 14px; background: linear-gradient(135deg, #D4AF37, #b8941f);
+      color: #000; border: none; border-radius: 12px; font-weight: 800;
+      font-size: 14px; cursor: pointer; font-family: inherit; transition: 0.3s;
+    }
+    .login-box .btn-login:hover { transform: translateY(-2px); }
+    .login-box .error { color: #F87171; font-size: 12px; margin-top: 10px; min-height: 18px; }
+
+    .admin-panel { display: none; padding-bottom: 40px; }
+
+    .top-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 20px; background: #0A0D13;
+      border-bottom: 1px solid rgba(212,175,55,0.12);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .top-bar .brand { display: flex; align-items: center; gap: 10px; }
+    .top-bar .brand i { color: #D4AF37; font-size: 22px; }
+    .top-bar .brand span { color: #FFF; font-weight: 700; font-size: 16px; }
+    .top-bar .brand span em { color: #D4AF37; font-style: normal; }
+    .top-bar .info-row { display: flex; align-items: center; gap: 14px; }
+    .top-bar .time { font-size: 11px; color: #6B7280; }
+    .top-bar .btn-logout {
+      background: transparent; border: 1px solid rgba(248,113,113,0.3);
+      color: #F87171; padding: 8px 16px; border-radius: 20px;
+      font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+
+    .main-container { max-width: 1100px; margin: 0 auto; padding: 20px 16px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .stat-card {
+      background: linear-gradient(135deg, #0F1219 0%, #131720 100%);
+      border: 1px solid rgba(255,255,255,0.04); border-radius: 16px;
+      padding: 18px 14px; text-align: center; transition: 0.3s;
+    }
+    .stat-card:hover { border-color: rgba(212,175,55,0.2); transform: translateY(-2px); }
+    .stat-card .stat-icon { font-size: 24px; margin-bottom: 6px; }
+    .stat-card .stat-val { font-size: 26px; font-weight: 800; color: #D4AF37; }
+    .stat-card .stat-lbl { font-size: 10px; color: #6B7280; letter-spacing: 1.5px; margin-top: 4px; }
+
+    .tabs-wrapper {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px;
+      background: #0F1219; border-radius: 16px; padding: 6px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .tab-btn {
+      padding: 10px 16px; border-radius: 12px; border: none;
+      background: transparent; color: #6B7280;
+      font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: 0.3s; display: flex; align-items: center; gap: 6px;
+    }
+    .tab-btn:hover { color: #A09070; }
+    .tab-btn.active { background: rgba(212,175,55,0.12); color: #D4AF37; }
+
+    .content-card {
+      background: #0F1219; border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 16px; padding: 20px; min-height: 300px;
+    }
+    .content-card .card-title {
+      font-size: 15px; font-weight: 700; color: #D4AF37;
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    th {
+      background: rgba(255,255,255,0.03); padding: 12px 10px;
+      text-align: center; color: #D4AF37; font-weight: 700; font-size: 10px;
+    }
+    td { padding: 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.03); color: #A0AAB8; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .badge { padding: 4px 10px; border-radius: 12px; font-size: 9px; font-weight: 700; display: inline-block; }
+    .badge-pending { background: rgba(234,179,8,0.15); color: #EAB308; }
+    .badge-approved { background: rgba(74,222,128,0.15); color: #4ADE80; }
+    .badge-rejected { background: rgba(239,68,68,0.15); color: #EF4444; }
+    .badge-active { background: rgba(74,222,128,0.15); color: #4ADE80; }
+    .badge-inactive { background: rgba(156,163,175,0.15); color: #9CA3AF; }
+
+    .btn-sm {
+      padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 600;
+      cursor: pointer; font-family: inherit; border: 1px solid; margin: 2px;
+      transition: 0.3s; display: inline-flex; align-items: center; gap: 4px;
+    }
+    .btn-approve { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.2); color: #4ADE80; }
+    .btn-reject { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.2); color: #EF4444; }
+    .btn-view { background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.2); color: #60A5FA; }
+    .btn-send { background: rgba(212,175,55,0.1); border-color: rgba(212,175,55,0.2); color: #D4AF37; }
+    .btn-edit { background: rgba(234,179,8,0.1); border-color: rgba(234,179,8,0.2); color: #EAB308; }
+
+    .search-card {
+      background: #131720; border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 14px; padding: 18px; margin-bottom: 16px;
+    }
+    .search-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .search-row input, .search-row textarea, .search-row select {
+      flex: 1; padding: 11px 14px; background: #1A1E28;
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+      color: #FFF; font-size: 13px; font-family: inherit; min-width: 150px;
+    }
+    .search-row input:focus, .search-row textarea:focus, .search-row select:focus {
+      outline: none; border-color: #D4AF37;
+    }
+    .search-row button {
+      padding: 11px 20px; background: #D4AF37; color: #000;
+      border: none; border-radius: 10px; font-weight: 700; font-size: 13px;
+      cursor: pointer; font-family: inherit; transition: 0.3s; white-space: nowrap;
+    }
+
+    .client-result {
+      background: #1A1E28; border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; padding: 14px; margin-top: 12px; display: none;
+    }
+    .client-result .c-name { font-size: 14px; font-weight: 700; color: #FFF; }
+    .client-result .c-email { font-size: 11px; color: #6B7280; }
+    .client-result .c-balance { font-size: 22px; font-weight: 800; color: #D4AF37; margin: 8px 0; }
+
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.93); z-index: 200;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-box {
+      background: #0F1219; border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 20px; padding: 24px; width: 100%; max-width: 500px;
+      text-align: center; max-height: 85vh; overflow-y: auto;
+    }
+    .modal-box h3 { color: #D4AF37; margin-bottom: 14px; font-size: 17px; }
+    .modal-box img { max-width: 100%; border-radius: 12px; margin: 10px 0; }
+    .modal-box .btn-gold {
+      width: 100%; padding: 12px; background: #D4AF37; color: #000;
+      border: none; border-radius: 10px; font-weight: 700; cursor: pointer;
+      font-family: inherit; font-size: 13px; margin-top: 8px;
+    }
+    .modal-box .btn-outline {
+      width: 100%; padding: 10px; background: transparent;
+      border: 1px solid rgba(255,255,255,0.08); color: #6B7280;
+      border-radius: 10px; margin-top: 6px; cursor: pointer; font-family: inherit;
+    }
+
+    .toast {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      background: #1A1E28; border: 1px solid #D4AF37; color: #FFF;
+      padding: 12px 24px; border-radius: 30px; font-size: 12px;
+      font-weight: 600; z-index: 999; display: none;
+    }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .tabs-wrapper { gap: 3px; }
+      .tab-btn { padding: 8px 10px; font-size: 10px; }
+    }
+    @media (max-width: 400px) {
+      .stats-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="admin-icon"><i class="fas fa-shield-alt"></i></div>
+    <h2>لوحة التحكم</h2>
+    <p class="sub">EOT PARTNERS - المشرف</p>
+    <input type="password" id="adminPassword" placeholder="كلمة المرور" onkeypress="if(event.key==='Enter')adminLogin()">
+    <button class="btn-login" onclick="adminLogin()"><i class="fas fa-lock-open"></i> دخول</button>
+    <div class="error" id="loginError"></div>
+  </div>
+</div>
+
+<div class="admin-panel" id="adminPanel">
+  <div class="top-bar">
+    <div class="brand">
+      <i class="fas fa-shield-alt"></i>
+      <span>EOT <em>PARTNERS</em></span>
+    </div>
+    <div class="info-row">
+      <span class="time" id="liveTime"></span>
+      <button class="btn-logout" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</button>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <div class="stats-row" id="statsRow"></div>
+
+    <div class="tabs-wrapper">
+      <button class="tab-btn active" id="tabBalance" onclick="switchTab('balance')">💰 إيداع وسحب</button>
+      <button class="tab-btn" id="tabClients" onclick="switchTab('clients')">👥 العملاء</button>
+      <button class="tab-btn" id="tabKYC" onclick="switchTab('kyc')">🛡️ التوثيق</button>
+      <button class="tab-btn" id="tabMessages" onclick="switchTab('messages')">📧 الرسائل</button>
+      <button class="tab-btn" id="tabInbox" onclick="switchTab('inbox')">📨 الوارد</button>
+      <button class="tab-btn" id="tabNews" onclick="switchTab('news')">📰 الأخبار</button>
+      <button class="tab-btn" id="tabSectors" onclick="switchTab('sectors')">📊 القطاعات</button>
+      <button class="tab-btn" id="tabOffers" onclick="switchTab('offers')">🎉 العروض</button>
+      <button class="tab-btn" id="tabSlider" onclick="switchTab('slider')">🖼️ السلايدر</button>
+    </div>
+
+    <div class="content-card" id="tabContent"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="imageModal">
+  <div class="modal-box" id="imageModalContent"></div>
+</div>
+<div class="modal-overlay" id="msgModal">
+  <div class="modal-box" id="msgModalContent"></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+  const ADMIN_PASS = '694657';
+  let currentTab = 'balance';
+
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('adminPanel').style.display = 'none';
+  updateLiveTime();
+  setInterval(updateLiveTime, 30000);
+
+  function updateLiveTime() {
+    const now = new Date();
+    document.getElementById('liveTime').textContent = now.toLocaleDateString('ar-SA') + ' - ' + now.toLocaleTimeString('ar-SA');
+  }
+
+  function fmt(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = isError ? '#7F1D1D' : '#1A1E28';
+    t.style.borderColor = isError ? '#EF4444' : '#D4AF37';
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 3000);
+  }
+
+  function adminLogin() {
+    const pass = document.getElementById('adminPassword').value;
+    if (pass === ADMIN_PASS) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'block';
+      loadStats();
+      switchTab('balance');
+    } else {
+      document.getElementById('loginError').textContent = 'كلمة المرور غير صحيحة';
+    }
+  }
+
+  function adminLogout() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('loginError').textContent = '';
+    currentTab = 'balance';
+  }
+
+  async function getAllUsers() {
+    try {
+      const snapshot = await firebase.firestore().collection('users').get();
+      const users = [];
+      snapshot.forEach(doc => {
+        users.push({ id: doc.id, ...doc.data() });
+      });
+      return users;
+    } catch(e) {
+      console.log('Firebase not available');
+      return [];
+    }
+  }
+
+  async function loadStats() {
+    const allUsers = await getAllUsers();
+    const verifications = [];
+    const investments = [];
+    
+    try {
+      const invSnapshot = await firebase.firestore().collection('investments').get();
+      invSnapshot.forEach(doc => {
+        investments.push(doc.data());
+      });
+    } catch(e) {}
+
+    allUsers.forEach(u => {
+      if (u.verification) {
+        verifications.push(u.verification);
+      }
+    });
+
+    const totalInvested = investments.reduce((s, inv) => s + (inv.amount || 0), 0);
+    const pendingKYC = verifications.filter(v => v.status === 'pending').length;
+    const partners = investments.filter(inv => inv.type === 'partner');
+
+    document.getElementById('statsRow').innerHTML = `
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-val">${allUsers.length}</div>
+        <div class="stat-lbl">عميل مسجل</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-val">$${fmt(totalInvested)}</div>
+        <div class="stat-lbl">إجمالي الاستثمارات</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🛡️</div>
+        <div class="stat-val">${pendingKYC}</div>
+        <div class="stat-lbl">توثيق معلق</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🤝</div>
+        <div class="stat-val">${partners.length}</div>
+        <div class="stat-lbl">شراكات نشطة</div>
+      </div>
+    `;
+  }
+
+  async function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+
+    switch(tab) {
+      case 'balance': renderBalance(); break;
+      case 'clients': await renderClients(); break;
+      case 'kyc': renderKYC(); break;
+      case 'messages': await renderMessages(); break;
+      case 'inbox': renderInbox(); break;
+      case 'news': renderNews(); break;
+      case 'sectors': renderSectors(); break;
+      case 'offers': renderOffers(); break;
+      case 'slider': renderSlider(); break;
+    }
+  }
+
+  // ========== إيداع وسحب ==========
+  function renderBalance() {
+    document.getElementById('tabContent').innerHTML = `
+      <div class="card-title"><i class="fas fa-exchange-alt"></i> إدارة العمليات المالية</div>
+      <div class="search-card">
+        <div class="search-row">
+          <input type="email" id="searchEmail" placeholder="البريد الإلكتروني للعميل" onkeypress="if(event.key==='Enter')searchClient()">
+          <button onclick="searchClient()"><i class="fas fa-search"></i> بحث</button>
+        </div>
+        <div class="client-result" id="clientResult"></div>
+      </div>
+    `;
+  }
+
+  async function searchClient() {
+    const email = document.getElementById('searchEmail').value.trim().toLowerCase();
+    if (!email) { showToast('أدخل البريد الإلكتروني', true); return; }
+    
+    let found = null;
+    try {
+      const snapshot = await firebase.firestore().collection('users')
+        .where('email', '==', email).get();
+      if (!snapshot.empty) {
+        const doc = snapshot.docs[0];
+        found = { id: doc.id, ...doc.data() };
+      }
+    } catch(e) {}
+
+    const resultDiv = document.getElementById('clientResult');
+    if (!found) {
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = '<p style="color:#F87171;text-align:center;">لم يتم العثور على العميل</p>';
+      return;
+    }
+
+    const bal = found.balance || { totalUSDT: 0, totalInvested: 0, totalProfit: 0 };
+    const total = (bal.totalUSDT || 0) + (bal.totalInvested || 0) + (bal.totalProfit || 0);
+    
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `
+      <div class="c-name">${found.fullName || 'عميل'}</div>
+      <div class="c-email">${found.email}</div>
+      <div class="c-balance">الرصيد: $${fmt(total.toFixed(2))} | متاح: $${fmt((bal.totalUSDT||0).toFixed(2))}</div>
+      <div class="search-row" style="margin-top:10px;">
+        <select id="actionType"><option value="add">+ إيداع</option><option value="subtract">- سحب</option></select>
+        <input type="number" id="actionAmount" placeholder="المبلغ ($)" min="1" step="any">
+        <button onclick="doAction('${found.id}','${found.fullName||found.email}')">تنفيذ</button>
+      </div>
+    `;
+  }
+
+  async function doAction(userId, name) {
+    const type = document.getElementById('actionType').value;
+    const amount = parseFloat(document.getElementById('actionAmount').value);
+    if (!amount || amount <= 0) { showToast('أدخل مبلغاً صحيحاً', true); return; }
+
+    try {
+      const userDoc = await firebase.firestore().collection('users').doc(userId).get();
+      if (!userDoc.exists) { showToast('العميل غير موجود', true); return; }
+      
+      const userData = userDoc.data();
+      const bal = userData.balance || { totalUSDT: 0, totalInvested: 0, totalProfit: 0 };
+
+      if (type === 'add') {
+        bal.totalUSDT = (bal.totalUSDT || 0) + amount;
+      } else {
+        if (amount > (bal.totalUSDT || 0)) { showToast('الرصيد غير كافٍ', true); return; }
+        bal.totalUSDT = (bal.totalUSDT || 0) - amount;
+      }
+
+      await firebase.firestore().collection('users').doc(userId).update({ balance: bal });
+
+      // إضافة إشعار للعميل
+      await firebase.firestore().collection('notifications').add({
+        userId: userId,
+        title: type === 'add' ? 'إيداع' : 'سحب',
+        message: type === 'add' ? 'تم إيداع $' + amount + ' في حسابك' : 'تم سحب $' + amount + ' من حسابك',
+        date: new Date().toLocaleDateString('ar-SA'),
+        read: false,
+        createdAt: new Date().toISOString()
+      });
+
+      document.getElementById('actionAmount').value = '';
+      searchClient();
+      loadStats();
+      showToast('تمت العملية بنجاح');
+    } catch(e) {
+      showToast('حدث خطأ', true);
+    }
+  }
+
+  // ========== العملاء ==========
+  async function renderClients() {
+    const allUsers = await getAllUsers();
+    document.getElementById('tabContent').innerHTML = `
+      <div class="card-title"><i class="fas fa-users"></i> جميع العملاء (${allUsers.length})</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>الاسم</th><th>البريد</th><th>الرصيد</th><th>مستثمر</th><th>أرباح</th><th>التاريخ</th></tr></thead>
+        <tbody>
+          ${allUsers.map(u => {
+            const bal = u.balance || {};
+            return `<tr>
+              <td>${u.fullName || '-'}</td>
+              <td>${u.email || '-'}</td>
+              <td>$${fmt((((bal.totalUSDT||0)+(bal.totalInvested||0)+(bal.totalProfit||0))).toFixed(2))}</td>
+              <td>$${fmt((bal.totalInvested||0).toFixed(2))}</td>
+              <td style="color:#4ADE80;">$${fmt((bal.totalProfit||0).toFixed(2))}</td>
+              <td>${u.joinDate ? new Date(u.joinDate).toLocaleDateString('ar-SA') : '-'}</td>
+            </tr>`;
+          }).join('')}
+          ${allUsers.length === 0 ? '<tr><td colspan="6" style="padding:30px;">لا يوجد عملاء</td></tr>' : ''}
+        </tbody>
+      </table></div>
+    `;
+  }
+  
+// ========== التوثيق ==========
+function renderKYC() {
+  document.getElementById('tabContent').innerHTML = `
+    <div class="card-title"><i class="fas fa-shield-alt"></i> طلبات التوثيق</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>العميل</th><th>المستند</th><th>التاريخ</th><th>الحالة</th><th>إجراء</th></tr></thead>
+      <tbody id="kycBody">
+        <tr><td colspan="5" style="padding:30px;">جاري تحميل البيانات...</td></tr>
+      </tbody>
+    </table></div>
+  `;
+  loadKYCData();
+}
+
+async function loadKYCData() {
+  try {
+    const snapshot = await firebase.firestore().collection('users').get();
+    const kycList = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.verification && data.verification.status !== 'none') {
+        kycList.push({ id: doc.id, ...data.verification, email: data.email, name: data.fullName });
+      }
+    });
+
+    const tbody = document.getElementById('kycBody');
+    if (kycList.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="padding:30px;">لا توجد طلبات توثيق</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = kycList.map((k, i) => `
+      <tr>
+        <td>${k.name || k.email || 'عميل'}</td>
+        <td>${k.documentName || 'وثيقة'}</td>
+        <td>${k.uploadDate || '-'}</td>
+        <td><span class="badge badge-${k.status==='pending'?'pending':k.status==='approved'?'approved':'rejected'}">${k.status==='pending'?'قيد المراجعة':k.status==='approved'?'مقبول':'مرفوض'}</span></td>
+        <td>
+          ${k.documentData ? `<button class="btn-sm btn-view" onclick="viewKYCDoc('${k.id}')"><i class="fas fa-eye"></i> عرض</button>` : ''}
+          ${k.status==='pending' ? `
+            <button class="btn-sm btn-approve" onclick="updateKYC('${k.id}','approved')"><i class="fas fa-check"></i> قبول</button>
+            <button class="btn-sm btn-reject" onclick="updateKYC('${k.id}','rejected')"><i class="fas fa-times"></i> رفض</button>
+          ` : ''}
+        </td>
+      </tr>
+    `).join('');
+  } catch(e) {}
+}
+
+async function viewKYCDoc(userId) {
+  try {
+    const doc = await firebase.firestore().collection('users').doc(userId).get();
+    if (doc.exists) {
+      const data = doc.data();
+      const v = data.verification || {};
+      document.getElementById('imageModalContent').innerHTML = `
+        <h3>${data.fullName || 'وثيقة'}</h3>
+        ${v.documentData ? `<img src="${v.documentData}" style="max-width:100%;border-radius:10px;">` : '<p>لا توجد صورة</p>'}
+        <p style="color:#6B7280;font-size:11px;">${v.documentName || ''}</p>
+        <button class="btn-outline" onclick="document.getElementById('imageModal').style.display='none'">إغلاق</button>
+      `;
+      document.getElementById('imageModal').style.display = 'flex';
+    }
+  } catch(e) {}
+}
+
+async function updateKYC(userId, status) {
+  try {
+    const reason = status === 'rejected' ? prompt('سبب الرفض (اختياري):') : '';
+    const updateData = {
+      'verification.status': status,
+      'verification.reviewDate': new Date().toLocaleDateString('ar-SA')
+    };
+    if (reason) updateData['verification.reason'] = reason;
+
+    await firebase.firestore().collection('users').doc(userId).update(updateData);
+
+    await firebase.firestore().collection('notifications').add({
+      userId: userId,
+      title: 'حالة التوثيق',
+      message: status === 'approved' ? 'تم قبول طلب التوثيق - حسابك موثق الآن' : 'تم رفض طلب التوثيق',
+      date: new Date().toLocaleDateString('ar-SA'),
+      read: false,
+      createdAt: new Date().toISOString()
+    });
+
+    loadKYCData();
+    loadStats();
+    showToast(status === 'approved' ? 'تم قبول التوثيق' : 'تم رفض التوثيق');
+  } catch(e) {
+    showToast('حدث خطأ', true);
+  }
+}
+
+// ========== الرسائل ==========
+async function renderMessages() {
+  const allUsers = await getAllUsers();
+  document.getElementById('tabContent').innerHTML = `
+    <div class="card-title"><i class="fas fa-paper-plane"></i> إرسال رسالة إلى عميل</div>
+    <div class="search-card">
+      <div class="search-row">
+        <select id="msgEmail" style="flex:1;">
+          <option value="">اختر العميل</option>
+          ${allUsers.map(u => `<option value="${u.email}">${u.fullName || u.email} (${u.email})</option>`).join('')}
+        </select>
+        <button onclick="openSendMsg()"><i class="fas fa-arrow-left"></i> متابعة</button>
+      </div>
+      <div id="msgResult" style="margin-top:12px;"></div>
+    </div>
+  `;
+}
+
+function openSendMsg() {
+  const email = document.getElementById('msgEmail').value;
+  if (!email) { showToast('اختر العميل', true); return; }
+  document.getElementById('msgResult').innerHTML = `
+    <div style="background:#1A1E28;padding:14px;border-radius:10px;margin-bottom:10px;">
+      <strong>${email}</strong>
+    </div>
+    <textarea id="msgText" placeholder="اكتب رسالتك هنا..." style="width:100%;padding:12px;background:#1A1E28;border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#FFF;font-size:13px;font-family:inherit;min-height:100px;resize:vertical;margin-bottom:10px;"></textarea>
+    <button class="btn-sm btn-send" onclick="sendMsg('${email}')" style="width:100%;padding:12px;font-size:13px;"><i class="fas fa-paper-plane"></i> إرسال الرسالة</button>
+  `;
+}
+
+async function sendMsg(email) {
+  const msg = document.getElementById('msgText').value.trim();
+  if (!msg) { showToast('اكتب رسالة', true); return; }
+
+  let userId = null;
+  try {
+    const snapshot = await firebase.firestore().collection('users')
+      .where('email', '==', email).get();
+    if (!snapshot.empty) {
+      userId = snapshot.docs[0].id;
+    }
+  } catch(e) {}
+
+  if (userId) {
+    await firebase.firestore().collection('notifications').add({
+      userId: userId,
+      title: 'رسالة من الإدارة',
+      message: msg,
+      date: new Date().toLocaleDateString('ar-SA'),
+      read: false,
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  document.getElementById('msgText').value = '';
+  showToast('تم إرسال الرسالة بنجاح');
+}
+
+// ========== الوارد ==========
+async function renderInbox() {
+  let supportMessages = [];
+  try {
+    const snapshot = await firebase.firestore().collection('support_messages')
+      .orderBy('createdAt', 'desc').get();
+    snapshot.forEach(doc => {
+      supportMessages.push(doc.data());
+    });
+  } catch(e) {
+    supportMessages = JSON.parse(localStorage.getItem('eot_support_messages') || '[]');
+  }
+
+  document.getElementById('tabContent').innerHTML = `
+    <div class="card-title"><i class="fas fa-inbox"></i> الرسائل الواردة (${supportMessages.length})</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>من</th><th>البريد</th><th>الموضوع</th><th>التاريخ</th><th>الرسالة</th></tr></thead>
+      <tbody>
+        ${supportMessages.map(s => `<tr><td>${s.from||'-'}</td><td>${s.email||'-'}</td><td>${s.subject||'-'}</td><td>${s.date||'-'}</td><td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.message||'-'}</td></tr>`).join('')}
+        ${supportMessages.length===0 ? '<tr><td colspan="5" style="padding:30px;">لا توجد رسائل</td></tr>' : ''}
+      </tbody>
+    </table></div>
+  `;
+}
+
+  // ========== الأخبار ==========
+  function renderNews() {
+    const news = JSON.parse(localStorage.getItem('eot_news')) || [];
+    document.getElementById('tabContent').innerHTML = `
+      <div class="card-title"><i class="fas fa-newspaper"></i> إدارة شريط الأخبار</div>
+      <div class="search-card">
+        <div class="search-row">
+          <input type="text" id="newsText" placeholder="نص الخبر" onkeypress="if(event.key==='Enter')addNews()">
+          <button onclick="addNews()"><i class="fas fa-plus"></i> إضافة</button>
+        </div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>الخبر</th><th>حذف</th></tr></thead>
+        <tbody>
+          ${news.map((n, i) => `<tr><td>${i+1}</td><td>${n}</td><td><button class="btn-sm btn-reject" onclick="deleteNews(${i})"><i class="fas fa-trash"></i> حذف</button></td></tr>`).join('')}
+          ${news.length===0 ? '<tr><td colspan="3" style="padding:30px;">لا توجد أخبار</td></tr>' : ''}
+        </tbody>
+      </table></div>
+    `;
+  }
+
+  function addNews() {
+    const text = document.getElementById('newsText').value.trim();
+    if (!text) { showToast('اكتب نص الخبر', true); return; }
+    const news = JSON.parse(localStorage.getItem('eot_news')) || [];
+    news.push(text);
+    localStorage.setItem('eot_news', JSON.stringify(news));
+    document.getElementById('newsText').value = '';
+    renderNews();
+    showToast('تم إضافة الخبر');
+  }
+
+  function deleteNews(index) {
+    const news = JSON.parse(localStorage.getItem('eot_news')) || [];
+    news.splice(index, 1);
+    localStorage.setItem('eot_news', JSON.stringify(news));
+    renderNews();
+  }
+
+  // ========== القطاعات ==========
+  function getDefaultSectors() {
+    return [
+      { name:'النفط والغاز', min:50, low:8, mid:15, high:75, type:'اسبوعي', duration:'7 أيام', active:true },
+      { name:'الطاقة الشمسية', min:50, low:7, mid:14, high:68, type:'اسبوعي', duration:'7 أيام', active:true },
+      { name:'الموارد المائية', min:50, low:9, mid:16, high:80, type:'اسبوعي', duration:'7 أيام', active:true },
+      { name:'الغاز الطبيعي', min:60, low:10, mid:18, high:85, type:'اسبوعي', duration:'7 أيام', active:true },
+      { name:'النقل البحري', min:100, low:12, mid:22, high:110, type:'شهري', duration:'30 يوماً', active:true },
+      { name:'الطيران', min:100, low:10, mid:20, high:100, type:'شهري', duration:'30 يوماً', active:true },
+      { name:'البناء والتشييد', min:200, low:14, mid:28, high:140, type:'شهري', duration:'30 يوماً', active:true },
+      { name:'الرعاية الصحية', min:200, low:13, mid:26, high:130, type:'شهري', duration:'30 يوماً', active:true },
+      { name:'الاتصالات', min:200, low:15, mid:30, high:150, type:'شهري', duration:'30 يوماً', active:true },
+      { name:'التجارة الإلكترونية', min:300, low:18, mid:35, high:175, type:'شهري', duration:'30 يوماً', active:true },
+      { name:'التكنولوجيا', min:300, low:20, mid:38, high:190, type:'شهري', duration:'30 يوماً', active:true },
+      { name:'صناعة السيارات', min:300, low:16, mid:32, high:160, type:'شهري', duration:'30 يوماً', active:true },
+      { name:'التعدين والمعادن', min:600, low:28, mid:55, high:280, type:'سنوي', duration:'365 يوماً', active:true },
+      { name:'الخدمات المالية', min:600, low:25, mid:50, high:250, type:'سنوي', duration:'365 يوماً', active:true },
+      { name:'المحافظ الاستثمارية', min:600, low:26, mid:52, high:260, type:'سنوي', duration:'365 يوماً', active:true },
+      { name:'الألماس والمجوهرات', min:1500, low:32, mid:65, high:320, type:'سنوي', duration:'365 يوماً', active:true },
+      { name:'العقارات التجارية', min:1500, low:30, mid:60, high:300, type:'سنوي', duration:'365 يوماً', active:true },
+      { name:'الذكاء الاصطناعي', min:1500, low:35, mid:70, high:350, type:'سنوي', duration:'365 يوماً', active:true }
+    ];
+  }
+
+  function renderSectors() {
+    const sectors = JSON.parse(localStorage.getItem('eot_sectors_config')) || getDefaultSectors();
+    document.getElementById('tabContent').innerHTML = `
+      <div class="card-title"><i class="fas fa-chart-bar"></i> إدارة القطاعات (${sectors.length})</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>القطاع</th><th>الحد الأدنى</th><th>عائد منخفض</th><th>عائد متوسط</th><th>عائد مرتفع</th><th>النوع</th><th>الحالة</th><th>إجراء</th></tr></thead>
+        <tbody>
+          ${sectors.map((s, i) => `
+            <tr>
+              <td>${s.name}</td><td>$${s.min}</td><td>${s.low}%</td><td>${s.mid}%</td><td>${s.high}%</td><td>${s.type}</td>
+              <td><span class="badge ${s.active?'badge-active':'badge-inactive'}">${s.active?'مفعل':'معطل'}</span></td>
+              <td>
+                <button class="btn-sm btn-approve" onclick="toggleSector(${i})">${s.active?'تعطيل':'تفعيل'}</button>
+                <button class="btn-sm btn-edit" onclick="editSector(${i})">تعديل</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table></div>
+    `;
+  }
+
+  function toggleSector(index) {
+    const sectors = JSON.parse(localStorage.getItem('eot_sectors_config')) || getDefaultSectors();
+    sectors[index].active = !sectors[index].active;
+    localStorage.setItem('eot_sectors_config', JSON.stringify(sectors));
+    renderSectors();
+  }
+
+  function editSector(index) {
+    const sectors = JSON.parse(localStorage.getItem('eot_sectors_config')) || getDefaultSectors();
+    const s = sectors[index];
+    const newMin = prompt('الحد الأدنى ($):', s.min);
+    const newLow = prompt('عائد منخفض (%):', s.low);
+    const newMid = prompt('عائد متوسط (%):', s.mid);
+    const newHigh = prompt('عائد مرتفع (%):', s.high);
+    if (newMin !== null) s.min = parseInt(newMin) || s.min;
+    if (newLow !== null) s.low = parseFloat(newLow) || s.low;
+    if (newMid !== null) s.mid = parseFloat(newMid) || s.mid;
+    if (newHigh !== null) s.high = parseFloat(newHigh) || s.high;
+    localStorage.setItem('eot_sectors_config', JSON.stringify(sectors));
+    renderSectors();
+  }
+
+  // ========== العروض ==========
+  function renderOffers() {
+    const offers = JSON.parse(localStorage.getItem('eot_offers')) || [];
+    const defaultPlans = [
+      { amount:100, duration:'شهر واحد' },
+      { amount:180, duration:'شهر واحد' },
+      { amount:200, duration:'3 أشهر' },
+      { amount:450, duration:'3 أشهر' },
+      { amount:1300, duration:'6 أشهر' },
+      { amount:2100, duration:'سنة' },
+      { amount:5000, duration:'سنتين' }
+    ];
+
+    document.getElementById('tabContent').innerHTML = `
+      <div class="card-title"><i class="fas fa-tags"></i> إدارة العروض والخصومات</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>الخطة</th><th>السعر الأصلي</th><th>سعر العرض</th><th>الخصم</th><th>الحالة</th><th>إجراء</th></tr></thead>
+        <tbody>
+          ${defaultPlans.map((p, i) => {
+            const offer = offers.find(o => o.index === i);
+            const price = offer ? offer.price : p.amount;
+            const discount = offer ? Math.round((1 - price/p.amount)*100) : 0;
+            return `
+            <tr>
+              <td>$${p.amount} - ${p.duration}</td>
+              <td>$${p.amount}</td>
+              <td style="color:${discount>0?'#4ADE80':'#A0AAB8'}">$${price}</td>
+              <td>${discount>0 ? '<span style="color:#4ADE80;">'+discount+'%</span>' : '-'}</td>
+              <td><span class="badge ${offer?'badge-active':'badge-inactive'}">${offer?'مفعل':'لا يوجد'}</span></td>
+              <td>
+                <button class="btn-sm btn-edit" onclick="setOffer(${i},${p.amount})">تعديل</button>
+                ${offer ? `<button class="btn-sm btn-reject" onclick="removeOffer(${i})">إزالة</button>` : ''}
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table></div>
+    `;
+  }
+
+  function setOffer(index, originalPrice) {
+    const newPrice = prompt('أدخل سعر العرض ($):', originalPrice);
+    if (!newPrice || parseFloat(newPrice) <= 0 || parseFloat(newPrice) >= originalPrice) {
+      showToast('يجب أن يكون السعر أقل من السعر الأصلي', true);
+      return;
+    }
+    const offers = JSON.parse(localStorage.getItem('eot_offers')) || [];
+    const existing = offers.findIndex(o => o.index === index);
+    if (existing >= 0) { offers[existing].price = parseFloat(newPrice); }
+    else { offers.push({ index: index, price: parseFloat(newPrice) }); }
+    localStorage.setItem('eot_offers', JSON.stringify(offers));
+    renderOffers();
+  }
+
+  function removeOffer(index) {
+    const offers = JSON.parse(localStorage.getItem('eot_offers')) || [];
+    const filtered = offers.filter(o => o.index !== index);
+    localStorage.setItem('eot_offers', JSON.stringify(filtered));
+    renderOffers();
+  }
+
+  // ========== السلايدر ==========
+  function renderSlider() {
+    const slider = JSON.parse(localStorage.getItem('eot_slider')) || [];
+    document.getElementById('tabContent').innerHTML = `
+      <div class="card-title"><i class="fas fa-images"></i> إدارة السلايدر (${slider.length} صور)</div>
+      <div class="search-card">
+        <div class="search-row" style="flex-direction:column;gap:8px;">
+          <input type="text" id="slideTitle" placeholder="عنوان الصورة">
+          <input type="text" id="slideSubtitle" placeholder="وصف الصورة">
+          <input type="text" id="slideImage" placeholder="رابط الصورة (URL)">
+          <button onclick="addSlide()"><i class="fas fa-plus"></i> إضافة صورة</button>
+        </div>
+      </div>
+      ${slider.length > 0 ? `
+        <div class="table-wrap"><table>
+          <thead><tr><th>الصورة</th><th>العنوان</th><th>الوصف</th><th>حذف</th></tr></thead>
+          <tbody>
+            ${slider.map((s, i) => `
+              <tr>
+                <td><img src="${s.image}" style="width:80px;height:40px;object-fit:cover;border-radius:6px;" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2240%22><rect fill=%22%231a1f2b%22 width=%2280%22 height=%2240%22/><text fill=%22%23666%22 x=%2240%22 y=%2224%22 text-anchor=%22middle%22 font-size=%228%22>No Img</text></svg>'"></td>
+                <td>${s.title}</td>
+                <td>${s.subtitle||'-'}</td>
+                <td><button class="btn-sm btn-reject" onclick="deleteSlide(${i})"><i class="fas fa-trash"></i> حذف</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table></div>
+      ` : '<p style="text-align:center;color:#6B7280;padding:20px;">لا توجد صور</p>'}
+    `;
+  }
+
+  function addSlide() {
+    const title = document.getElementById('slideTitle').value.trim();
+    const subtitle = document.getElementById('slideSubtitle').value.trim();
+    const image = document.getElementById('slideImage').value.trim();
+    if (!title || !image) { showToast('العنوان ورابط الصورة مطلوبان', true); return; }
+    const slider = JSON.parse(localStorage.getItem('eot_slider')) || [];
+    slider.push({ title, subtitle, image });
+    localStorage.setItem('eot_slider', JSON.stringify(slider));
+    document.getElementById('slideTitle').value = '';
+    document.getElementById('slideSubtitle').value = '';
+    document.getElementById('slideImage').value = '';
+    renderSlider();
+    showToast('تم إضافة الصورة');
+  }
+
+  function deleteSlide(index) {
+    const slider = JSON.parse(localStorage.getItem('eot_slider')) || [];
+    slider.splice(index, 1);
+    localStorage.setItem('eot_slider', JSON.stringify(slider));
+    renderSlider();
+  }
+
+  window.onclick = function(e) {
+    if (e.target.classList.contains('modal-overlay')) {
+      e.target.style.display = 'none';
+    }
+  };
+</script>
+
+</body>
+</html>
